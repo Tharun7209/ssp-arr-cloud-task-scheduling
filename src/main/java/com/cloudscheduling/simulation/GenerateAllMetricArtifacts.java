@@ -88,8 +88,11 @@ public class GenerateAllMetricArtifacts {
             generateHtmlGraph(metric, policies, results, resultsDir);
         }
 
+        System.out.println("Exporting structured simulation JSON for dashboard...");
+        exportJson(policies, results, resultsDir);
+
         System.out.println("==========================================================================");
-        System.out.println(" All 6 Metric Tables and Graphs Generated Successfully in results/ !");
+        System.out.println(" All Metric Tables, Graphs, and Dashboard JSON Generated Successfully!");
         System.out.println("==========================================================================");
     }
 
@@ -477,6 +480,97 @@ public class GenerateAllMetricArtifacts {
 
         try (FileWriter fw = new FileWriter(file)) {
             fw.write(html.toString());
+        }
+    }
+
+    private static void exportJson(Policy[] policies, ComprehensiveResult[][][] results, File resultsDir) throws IOException {
+        StringBuilder json = new StringBuilder();
+        json.append("{\n");
+        json.append("  \"project\": \"SSP-ARR Cloud Task Scheduling\",\n");
+        json.append("  \"version\": \"2.0\",\n");
+        json.append("  \"generatedAt\": \"").append(java.time.Instant.now().toString()).append("\",\n");
+        json.append("  \"infrastructure\": {\n");
+        json.append("    \"hosts\": 30,\n");
+        json.append("    \"pes\": 120,\n");
+        json.append("    \"hostMips\": 4000.0,\n");
+        json.append("    \"vms\": 80,\n");
+        json.append("    \"vmMipsMin\": 1000,\n");
+        json.append("    \"vmMipsMax\": 4000,\n");
+        json.append("    \"pIdleW\": 150.0,\n");
+        json.append("    \"pMaxW\": 250.0,\n");
+        json.append("    \"csOverheadS\": 0.005,\n");
+        json.append("    \"cvThreshold\": 0.50,\n");
+        json.append("    \"npeGateThreshold\": 0.20,\n");
+        json.append("    \"agingFactor\": 0.01\n");
+        json.append("  },\n");
+
+        // VM Catalog (80 VMs)
+        json.append("  \"vms\": [\n");
+        double[] vmPatterns = { 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800, 4000 };
+        for (int i = 0; i < 80; i++) {
+            double mips = vmPatterns[i % vmPatterns.length];
+            json.append(String.format(Locale.US, "    {\"id\": %d, \"mips\": %.0f, \"ram\": 8192, \"bw\": 20000, \"storage\": 10000}%s\n",
+                i, mips, (i == 79 ? "" : ",")));
+        }
+        json.append("  ],\n");
+
+        // Workloads
+        json.append("  \"workloads\": [");
+        for (int w = 0; w < WORKLOADS.length; w++) {
+            json.append(WORKLOADS[w]).append(w == WORKLOADS.length - 1 ? "" : ", ");
+        }
+        json.append("],\n");
+
+        // Policies & Metrics
+        json.append("  \"policies\": {\n");
+        for (int p = 0; p < policies.length; p++) {
+            Policy pol = policies[p];
+            json.append("    \"").append(pol.name()).append("\": {\n");
+            json.append("      \"name\": \"").append(pol.getDisplayName()).append("\",\n");
+            json.append("      \"workloadData\": [\n");
+
+            for (int w = 0; w < WORKLOADS.length; w++) {
+                int size = WORKLOADS[w];
+                ComprehensiveResult rr = results[p][w][0];
+                ComprehensiveResult ssp = results[p][w][1];
+
+                double awtImp = calcImprovement(rr.awtMs, ssp.awtMs, Metric.AWT);
+                double atatImp = calcImprovement(rr.atatS, ssp.atatS, Metric.ATAT);
+                double msImp = calcImprovement(rr.makespan, ssp.makespan, Metric.MAKESPAN);
+                double tpImp = calcImprovement(rr.throughput, ssp.throughput, Metric.THROUGHPUT);
+                double energyImp = calcImprovement(rr.energyKWh, ssp.energyKWh, Metric.ENERGY);
+                double jfiImp = calcImprovement(rr.jainsFairnessIndex, ssp.jainsFairnessIndex, Metric.JFI);
+                double lifImp = calcImprovement(rr.loadImbalanceFactor, ssp.loadImbalanceFactor, Metric.LIF);
+                double preemptImp = calcImprovement(rr.totalPreemptions, ssp.totalPreemptions, Metric.PREEMPT);
+
+                json.append("        {\n");
+                json.append("          \"tasks\": ").append(size).append(",\n");
+                json.append(String.format(Locale.US, "          \"rr\": {\"awtMs\": %.2f, \"atatS\": %.2f, \"actS\": %.2f, \"makespan\": %.2f, \"throughput\": %.4f, \"energyKWh\": %.4f, \"jfi\": %.4f, \"lif\": %.4f, \"preemptions\": %d},\n",
+                    rr.awtMs, rr.atatS, rr.actS, rr.makespan, rr.throughput, rr.energyKWh, rr.jainsFairnessIndex, rr.loadImbalanceFactor, rr.totalPreemptions));
+                json.append(String.format(Locale.US, "          \"ssp\": {\"awtMs\": %.2f, \"atatS\": %.2f, \"actS\": %.2f, \"makespan\": %.2f, \"throughput\": %.4f, \"energyKWh\": %.4f, \"jfi\": %.4f, \"lif\": %.4f, \"preemptions\": %d},\n",
+                    ssp.awtMs, ssp.atatS, ssp.actS, ssp.makespan, ssp.throughput, ssp.energyKWh, ssp.jainsFairnessIndex, ssp.loadImbalanceFactor, ssp.totalPreemptions));
+                json.append(String.format(Locale.US, "          \"imp\": {\"awt\": %.2f, \"atat\": %.2f, \"makespan\": %.2f, \"throughput\": %.2f, \"energy\": %.2f, \"jfi\": %.2f, \"lif\": %.2f, \"preemptions\": %.2f}\n",
+                    awtImp, atatImp, msImp, tpImp, energyImp, jfiImp, lifImp, preemptImp));
+                json.append("        }").append(w == WORKLOADS.length - 1 ? "" : ",").append("\n");
+            }
+            json.append("      ]\n");
+            json.append("    }").append(p == policies.length - 1 ? "" : ",").append("\n");
+        }
+        json.append("  }\n");
+        json.append("}\n");
+
+        // Write to results/simulation_results.json
+        File jsonFile = new File(resultsDir, "simulation_results.json");
+        try (FileWriter fw = new FileWriter(jsonFile)) {
+            fw.write(json.toString());
+        }
+
+        // Also write to dashboard/data/simulation_results.json
+        File dashDir = new File("dashboard/data");
+        if (!dashDir.exists()) dashDir.mkdirs();
+        File dashFile = new File(dashDir, "simulation_results.json");
+        try (FileWriter fw = new FileWriter(dashFile)) {
+            fw.write(json.toString());
         }
     }
 }

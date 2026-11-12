@@ -1,0 +1,489 @@
+{
+  "project": "SSP-ARR Cloud Task Scheduling",
+  "version": "2.0",
+  "generatedAt": "2026-11-12T05:10:07.475662400Z",
+  "infrastructure": {
+    "hosts": 30,
+    "pes": 120,
+    "hostMips": 4000.0,
+    "vms": 80,
+    "vmMipsMin": 1000,
+    "vmMipsMax": 4000,
+    "pIdleW": 150.0,
+    "pMaxW": 250.0,
+    "csOverheadS": 0.005,
+    "cvThreshold": 0.50,
+    "npeGateThreshold": 0.20,
+    "agingFactor": 0.01
+  },
+  "vms": [
+    {"id": 0, "mips": 1000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 1, "mips": 1200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 2, "mips": 1400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 3, "mips": 1600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 4, "mips": 1800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 5, "mips": 2000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 6, "mips": 2200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 7, "mips": 2400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 8, "mips": 2600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 9, "mips": 2800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 10, "mips": 3000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 11, "mips": 3200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 12, "mips": 3400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 13, "mips": 3600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 14, "mips": 3800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 15, "mips": 4000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 16, "mips": 1000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 17, "mips": 1200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 18, "mips": 1400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 19, "mips": 1600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 20, "mips": 1800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 21, "mips": 2000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 22, "mips": 2200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 23, "mips": 2400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 24, "mips": 2600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 25, "mips": 2800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 26, "mips": 3000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 27, "mips": 3200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 28, "mips": 3400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 29, "mips": 3600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 30, "mips": 3800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 31, "mips": 4000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 32, "mips": 1000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 33, "mips": 1200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 34, "mips": 1400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 35, "mips": 1600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 36, "mips": 1800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 37, "mips": 2000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 38, "mips": 2200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 39, "mips": 2400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 40, "mips": 2600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 41, "mips": 2800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 42, "mips": 3000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 43, "mips": 3200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 44, "mips": 3400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 45, "mips": 3600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 46, "mips": 3800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 47, "mips": 4000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 48, "mips": 1000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 49, "mips": 1200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 50, "mips": 1400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 51, "mips": 1600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 52, "mips": 1800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 53, "mips": 2000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 54, "mips": 2200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 55, "mips": 2400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 56, "mips": 2600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 57, "mips": 2800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 58, "mips": 3000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 59, "mips": 3200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 60, "mips": 3400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 61, "mips": 3600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 62, "mips": 3800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 63, "mips": 4000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 64, "mips": 1000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 65, "mips": 1200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 66, "mips": 1400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 67, "mips": 1600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 68, "mips": 1800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 69, "mips": 2000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 70, "mips": 2200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 71, "mips": 2400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 72, "mips": 2600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 73, "mips": 2800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 74, "mips": 3000, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 75, "mips": 3200, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 76, "mips": 3400, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 77, "mips": 3600, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 78, "mips": 3800, "ram": 8192, "bw": 20000, "storage": 10000},
+    {"id": 79, "mips": 4000, "ram": 8192, "bw": 20000, "storage": 10000}
+  ],
+  "workloads": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000],
+  "policies": {
+    "DYNAMIC_MAX_MIN": {
+      "name": "Dy. MM",
+      "workloadData": [
+        {
+          "tasks": 100,
+          "rr": {"awtMs": 5765.79, "atatS": 53.78, "actS": 53.78, "makespan": 226.12, "throughput": 0.4422, "energyKWh": 0.3162, "jfi": 0.9465, "lif": 3.1120, "preemptions": 4750},
+          "ssp": {"awtMs": 2772.24, "atatS": 50.79, "actS": 50.79, "makespan": 225.02, "throughput": 0.4444, "energyKWh": 0.3146, "jfi": 0.9864, "lif": 3.1121, "preemptions": 19},
+          "imp": {"awt": 51.92, "atat": 5.57, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 4.22, "lif": -0.00, "preemptions": 99.60}
+        },
+        {
+          "tasks": 200,
+          "rr": {"awtMs": 49874.63, "atatS": 101.10, "actS": 101.10, "makespan": 238.02, "throughput": 0.8403, "energyKWh": 0.3690, "jfi": 0.8284, "lif": 1.0598, "preemptions": 10137},
+          "ssp": {"awtMs": 24668.51, "atatS": 75.90, "actS": 75.90, "makespan": 236.86, "throughput": 0.8444, "energyKWh": 0.3672, "jfi": 0.8992, "lif": 1.0598, "preemptions": 69},
+          "imp": {"awt": 50.54, "atat": 24.93, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 8.55, "lif": 0.00, "preemptions": 99.32}
+        },
+        {
+          "tasks": 300,
+          "rr": {"awtMs": 102988.23, "atatS": 157.79, "actS": 157.79, "makespan": 238.02, "throughput": 1.2604, "energyKWh": 0.4123, "jfi": 0.7310, "lif": 0.2175, "preemptions": 16261},
+          "ssp": {"awtMs": 51186.84, "atatS": 105.99, "actS": 105.99, "makespan": 236.86, "throughput": 1.2666, "energyKWh": 0.4103, "jfi": 0.8320, "lif": 0.2175, "preemptions": 119},
+          "imp": {"awt": 50.30, "atat": 32.83, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 13.81, "lif": 0.01, "preemptions": 99.27}
+        },
+        {
+          "tasks": 400,
+          "rr": {"awtMs": 133231.80, "atatS": 184.99, "actS": 184.99, "makespan": 265.85, "throughput": 1.5046, "energyKWh": 0.4768, "jfi": 0.7853, "lif": 0.0658, "preemptions": 20488},
+          "ssp": {"awtMs": 66171.91, "atatS": 117.93, "actS": 117.93, "makespan": 264.55, "throughput": 1.5120, "energyKWh": 0.4745, "jfi": 0.8136, "lif": 0.0658, "preemptions": 136},
+          "imp": {"awt": 50.33, "atat": 36.25, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 3.61, "lif": -0.05, "preemptions": 99.34}
+        },
+        {
+          "tasks": 500,
+          "rr": {"awtMs": 156679.22, "atatS": 208.58, "actS": 208.58, "makespan": 331.77, "throughput": 1.5071, "energyKWh": 0.5958, "jfi": 0.7937, "lif": 0.0486, "preemptions": 25658},
+          "ssp": {"awtMs": 77916.78, "atatS": 129.82, "actS": 129.82, "makespan": 330.15, "throughput": 1.5145, "energyKWh": 0.5929, "jfi": 0.7963, "lif": 0.0486, "preemptions": 203},
+          "imp": {"awt": 50.27, "atat": 37.76, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 0.32, "lif": -0.01, "preemptions": 99.21}
+        },
+        {
+          "tasks": 600,
+          "rr": {"awtMs": 191008.61, "atatS": 245.88, "actS": 245.88, "makespan": 419.56, "throughput": 1.4301, "energyKWh": 0.7542, "jfi": 0.7492, "lif": 0.0474, "preemptions": 32583},
+          "ssp": {"awtMs": 94975.81, "atatS": 149.85, "actS": 149.85, "makespan": 417.52, "throughput": 1.4371, "energyKWh": 0.7505, "jfi": 0.7640, "lif": 0.0474, "preemptions": 267},
+          "imp": {"awt": 50.28, "atat": 39.06, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 1.97, "lif": 0.05, "preemptions": 99.18}
+        },
+        {
+          "tasks": 700,
+          "rr": {"awtMs": 228322.12, "atatS": 278.27, "actS": 278.27, "makespan": 446.08, "throughput": 1.5692, "energyKWh": 0.8016, "jfi": 0.7550, "lif": 0.0269, "preemptions": 34555},
+          "ssp": {"awtMs": 113516.31, "atatS": 163.47, "actS": 163.47, "makespan": 443.91, "throughput": 1.5769, "energyKWh": 0.7977, "jfi": 0.7156, "lif": 0.0269, "preemptions": 255},
+          "imp": {"awt": 50.28, "atat": 41.26, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -5.22, "lif": -0.06, "preemptions": 99.26}
+        },
+        {
+          "tasks": 800,
+          "rr": {"awtMs": 254545.15, "atatS": 303.93, "actS": 303.93, "makespan": 500.39, "throughput": 1.5987, "energyKWh": 0.9012, "jfi": 0.7277, "lif": 0.0302, "preemptions": 39059},
+          "ssp": {"awtMs": 126589.10, "atatS": 175.98, "actS": 175.98, "makespan": 497.96, "throughput": 1.6066, "energyKWh": 0.8968, "jfi": 0.6894, "lif": 0.0302, "preemptions": 276},
+          "imp": {"awt": 50.27, "atat": 42.10, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -5.27, "lif": 0.01, "preemptions": 99.29}
+        },
+        {
+          "tasks": 900,
+          "rr": {"awtMs": 299284.60, "atatS": 352.61, "actS": 352.61, "makespan": 606.06, "throughput": 1.4850, "energyKWh": 1.0925, "jfi": 0.6733, "lif": 0.0122, "preemptions": 47489},
+          "ssp": {"awtMs": 148939.29, "atatS": 202.26, "actS": 202.26, "makespan": 603.10, "throughput": 1.4923, "energyKWh": 1.0872, "jfi": 0.6624, "lif": 0.0122, "preemptions": 356},
+          "imp": {"awt": 50.23, "atat": 42.64, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -1.62, "lif": -0.08, "preemptions": 99.25}
+        },
+        {
+          "tasks": 1000,
+          "rr": {"awtMs": 336762.65, "atatS": 388.61, "actS": 388.61, "makespan": 657.18, "throughput": 1.5217, "energyKWh": 1.1833, "jfi": 0.6563, "lif": 0.0215, "preemptions": 51313},
+          "ssp": {"awtMs": 167431.91, "atatS": 219.28, "actS": 219.28, "makespan": 653.97, "throughput": 1.5291, "energyKWh": 1.1775, "jfi": 0.6284, "lif": 0.0215, "preemptions": 375},
+          "imp": {"awt": 50.28, "atat": 43.57, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -4.25, "lif": 0.08, "preemptions": 99.27}
+        },
+        {
+          "tasks": 1500,
+          "rr": {"awtMs": 521407.74, "atatS": 573.84, "actS": 573.84, "makespan": 991.84, "throughput": 1.5123, "energyKWh": 1.7887, "jfi": 0.6142, "lif": 0.0076, "preemptions": 77856},
+          "ssp": {"awtMs": 259378.01, "atatS": 311.81, "actS": 311.81, "makespan": 986.99, "throughput": 1.5198, "energyKWh": 1.7799, "jfi": 0.5384, "lif": 0.0076, "preemptions": 583},
+          "imp": {"awt": 50.25, "atat": 45.66, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -12.34, "lif": 0.25, "preemptions": 99.25}
+        },
+        {
+          "tasks": 2000,
+          "rr": {"awtMs": 702960.79, "atatS": 754.28, "actS": 754.28, "makespan": 1292.83, "throughput": 1.5470, "energyKWh": 2.3323, "jfi": 0.6078, "lif": 0.0047, "preemptions": 101544},
+          "ssp": {"awtMs": 349806.18, "atatS": 401.13, "actS": 401.13, "makespan": 1286.49, "throughput": 1.5546, "energyKWh": 2.3209, "jfi": 0.4731, "lif": 0.0047, "preemptions": 743},
+          "imp": {"awt": 50.24, "atat": 46.82, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -22.17, "lif": 0.09, "preemptions": 99.27}
+        }
+      ]
+    },
+    "DRALBA": {
+      "name": "DRALBA",
+      "workloadData": [
+        {
+          "tasks": 100,
+          "rr": {"awtMs": 22693.75, "atatS": 62.53, "actS": 62.53, "makespan": 258.02, "throughput": 0.3876, "energyKWh": 0.3503, "jfi": 0.8728, "lif": 5.1562, "preemptions": 3929},
+          "ssp": {"awtMs": 11328.00, "atatS": 51.17, "actS": 51.17, "makespan": 256.77, "throughput": 0.3895, "energyKWh": 0.3486, "jfi": 0.9488, "lif": 5.1561, "preemptions": 21},
+          "imp": {"awt": 50.08, "atat": 18.18, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 8.71, "lif": 0.00, "preemptions": 99.47}
+        },
+        {
+          "tasks": 200,
+          "rr": {"awtMs": 61263.18, "atatS": 104.52, "actS": 104.52, "makespan": 416.94, "throughput": 0.4797, "energyKWh": 0.5815, "jfi": 0.8041, "lif": 3.8370, "preemptions": 8542},
+          "ssp": {"awtMs": 30534.65, "atatS": 73.79, "actS": 73.79, "makespan": 414.90, "throughput": 0.4820, "energyKWh": 0.5787, "jfi": 0.8650, "lif": 3.8370, "preemptions": 41},
+          "imp": {"awt": 50.16, "atat": 29.40, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 7.58, "lif": 0.00, "preemptions": 99.52}
+        },
+        {
+          "tasks": 300,
+          "rr": {"awtMs": 100659.51, "atatS": 146.38, "actS": 146.38, "makespan": 494.19, "throughput": 0.6071, "energyKWh": 0.7135, "jfi": 0.7615, "lif": 2.7805, "preemptions": 13555},
+          "ssp": {"awtMs": 50255.23, "atatS": 95.98, "actS": 95.98, "makespan": 491.78, "throughput": 0.6100, "energyKWh": 0.7100, "jfi": 0.8160, "lif": 2.7805, "preemptions": 65},
+          "imp": {"awt": 50.07, "atat": 34.43, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 7.16, "lif": -0.00, "preemptions": 99.52}
+        },
+        {
+          "tasks": 400,
+          "rr": {"awtMs": 151684.88, "atatS": 194.97, "actS": 194.97, "makespan": 562.65, "throughput": 0.7109, "energyKWh": 0.8241, "jfi": 0.7720, "lif": 2.4600, "preemptions": 17095},
+          "ssp": {"awtMs": 75665.82, "atatS": 118.95, "actS": 118.95, "makespan": 559.90, "throughput": 0.7144, "energyKWh": 0.8201, "jfi": 0.7539, "lif": 2.4600, "preemptions": 65},
+          "imp": {"awt": 50.12, "atat": 38.99, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -2.34, "lif": -0.00, "preemptions": 99.62}
+        },
+        {
+          "tasks": 500,
+          "rr": {"awtMs": 197079.11, "atatS": 241.03, "actS": 241.03, "makespan": 635.65, "throughput": 0.7866, "energyKWh": 0.9479, "jfi": 0.7892, "lif": 2.0696, "preemptions": 21711},
+          "ssp": {"awtMs": 98246.23, "atatS": 142.20, "actS": 142.20, "makespan": 632.54, "throughput": 0.7905, "energyKWh": 0.9433, "jfi": 0.7088, "lif": 2.0696, "preemptions": 89},
+          "imp": {"awt": 50.15, "atat": 41.00, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -10.19, "lif": 0.00, "preemptions": 99.59}
+        },
+        {
+          "tasks": 600,
+          "rr": {"awtMs": 246101.10, "atatS": 292.44, "actS": 292.44, "makespan": 783.51, "throughput": 0.7658, "energyKWh": 1.1734, "jfi": 0.8002, "lif": 1.9990, "preemptions": 27473},
+          "ssp": {"awtMs": 122625.08, "atatS": 168.96, "actS": 168.96, "makespan": 779.67, "throughput": 0.7696, "energyKWh": 1.1677, "jfi": 0.6761, "lif": 1.9989, "preemptions": 125},
+          "imp": {"awt": 50.17, "atat": 42.22, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -15.50, "lif": 0.00, "preemptions": 99.55}
+        },
+        {
+          "tasks": 700,
+          "rr": {"awtMs": 290042.06, "atatS": 333.05, "actS": 333.05, "makespan": 785.64, "throughput": 0.8910, "energyKWh": 1.1922, "jfi": 0.7951, "lif": 1.8051, "preemptions": 29727},
+          "ssp": {"awtMs": 144457.82, "atatS": 187.47, "actS": 187.47, "makespan": 781.80, "throughput": 0.8954, "energyKWh": 1.1863, "jfi": 0.6295, "lif": 1.8050, "preemptions": 105},
+          "imp": {"awt": 50.19, "atat": 43.71, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -20.83, "lif": 0.00, "preemptions": 99.65}
+        },
+        {
+          "tasks": 800,
+          "rr": {"awtMs": 334175.49, "atatS": 376.75, "actS": 376.75, "makespan": 876.35, "throughput": 0.9129, "energyKWh": 1.3331, "jfi": 0.7951, "lif": 1.7382, "preemptions": 33620},
+          "ssp": {"awtMs": 166471.01, "atatS": 209.05, "actS": 209.05, "makespan": 872.05, "throughput": 0.9174, "energyKWh": 1.3266, "jfi": 0.5997, "lif": 1.7382, "preemptions": 127},
+          "imp": {"awt": 50.18, "atat": 44.51, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -24.57, "lif": 0.00, "preemptions": 99.62}
+        },
+        {
+          "tasks": 900,
+          "rr": {"awtMs": 394850.24, "atatS": 440.64, "actS": 440.64, "makespan": 1037.01, "throughput": 0.8679, "energyKWh": 1.5839, "jfi": 0.8102, "lif": 1.7073, "preemptions": 40729},
+          "ssp": {"awtMs": 196937.09, "atatS": 242.72, "actS": 242.72, "makespan": 1031.94, "throughput": 0.8721, "energyKWh": 1.5761, "jfi": 0.5825, "lif": 1.7073, "preemptions": 172},
+          "imp": {"awt": 50.12, "atat": 44.92, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -28.11, "lif": 0.00, "preemptions": 99.58}
+        },
+        {
+          "tasks": 1000,
+          "rr": {"awtMs": 438695.87, "atatS": 483.13, "actS": 483.13, "makespan": 1145.06, "throughput": 0.8733, "energyKWh": 1.7414, "jfi": 0.7869, "lif": 1.7330, "preemptions": 43876},
+          "ssp": {"awtMs": 218642.20, "atatS": 263.07, "actS": 263.07, "makespan": 1139.45, "throughput": 0.8776, "energyKWh": 1.7329, "jfi": 0.5511, "lif": 1.7329, "preemptions": 168},
+          "imp": {"awt": 50.16, "atat": 45.55, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -29.97, "lif": 0.00, "preemptions": 99.62}
+        },
+        {
+          "tasks": 1500,
+          "rr": {"awtMs": 688228.13, "atatS": 733.87, "actS": 733.87, "makespan": 1634.23, "throughput": 0.9179, "energyKWh": 2.5206, "jfi": 0.7925, "lif": 1.5497, "preemptions": 67645},
+          "ssp": {"awtMs": 342753.38, "atatS": 388.40, "actS": 388.40, "makespan": 1626.23, "throughput": 0.9224, "energyKWh": 2.5082, "jfi": 0.4699, "lif": 1.5497, "preemptions": 270},
+          "imp": {"awt": 50.20, "atat": 47.08, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -40.71, "lif": 0.00, "preemptions": 99.60}
+        },
+        {
+          "tasks": 2000,
+          "rr": {"awtMs": 917731.00, "atatS": 962.54, "actS": 962.54, "makespan": 2061.35, "throughput": 0.9702, "energyKWh": 3.2021, "jfi": 0.7981, "lif": 1.4701, "preemptions": 88489},
+          "ssp": {"awtMs": 457303.93, "atatS": 502.11, "actS": 502.11, "makespan": 2051.25, "throughput": 0.9750, "energyKWh": 3.1864, "jfi": 0.4106, "lif": 1.4701, "preemptions": 340},
+          "imp": {"awt": 50.17, "atat": 47.83, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -48.55, "lif": 0.00, "preemptions": 99.62}
+        }
+      ]
+    },
+    "PSSLB": {
+      "name": "PSSLB",
+      "workloadData": [
+        {
+          "tasks": 100,
+          "rr": {"awtMs": 116334.46, "atatS": 186.59, "actS": 186.59, "makespan": 263.79, "throughput": 0.3791, "energyKWh": 0.3788, "jfi": 0.7560, "lif": 2.9890, "preemptions": 6966},
+          "ssp": {"awtMs": 57897.51, "atatS": 128.15, "actS": 128.15, "makespan": 262.51, "throughput": 0.3809, "energyKWh": 0.3769, "jfi": 0.8446, "lif": 2.9891, "preemptions": 67},
+          "imp": {"awt": 50.23, "atat": 31.32, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 11.71, "lif": -0.00, "preemptions": 99.04}
+        },
+        {
+          "tasks": 200,
+          "rr": {"awtMs": 275424.33, "atatS": 346.93, "actS": 346.93, "makespan": 493.05, "throughput": 0.4056, "energyKWh": 0.7161, "jfi": 0.4838, "lif": 2.7446, "preemptions": 14175},
+          "ssp": {"awtMs": 137041.83, "atatS": 208.55, "actS": 208.55, "makespan": 490.65, "throughput": 0.4076, "energyKWh": 0.7126, "jfi": 0.7027, "lif": 2.7446, "preemptions": 138},
+          "imp": {"awt": 50.24, "atat": 39.89, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 45.26, "lif": 0.00, "preemptions": 99.03}
+        },
+        {
+          "tasks": 300,
+          "rr": {"awtMs": 448395.85, "atatS": 520.91, "actS": 520.91, "makespan": 704.10, "throughput": 0.4261, "energyKWh": 1.0319, "jfi": 0.3482, "lif": 2.5766, "preemptions": 21560},
+          "ssp": {"awtMs": 223454.78, "atatS": 295.97, "actS": 295.97, "makespan": 700.67, "throughput": 0.4282, "energyKWh": 1.0269, "jfi": 0.6027, "lif": 2.5766, "preemptions": 221},
+          "imp": {"awt": 50.17, "atat": 43.18, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 73.07, "lif": -0.00, "preemptions": 98.97}
+        },
+        {
+          "tasks": 400,
+          "rr": {"awtMs": 665658.31, "atatS": 740.00, "actS": 740.00, "makespan": 979.84, "throughput": 0.4082, "energyKWh": 1.4323, "jfi": 0.2735, "lif": 2.6229, "preemptions": 29492},
+          "ssp": {"awtMs": 331458.40, "atatS": 405.80, "actS": 405.80, "makespan": 975.04, "throughput": 0.4102, "energyKWh": 1.4253, "jfi": 0.5296, "lif": 2.6228, "preemptions": 309},
+          "imp": {"awt": 50.21, "atat": 45.16, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 93.61, "lif": 0.00, "preemptions": 98.95}
+        },
+        {
+          "tasks": 500,
+          "rr": {"awtMs": 808551.49, "atatS": 882.09, "actS": 882.09, "makespan": 1189.75, "throughput": 0.4203, "energyKWh": 1.7438, "jfi": 0.2432, "lif": 2.5758, "preemptions": 36455},
+          "ssp": {"awtMs": 402746.39, "atatS": 476.29, "actS": 476.29, "makespan": 1183.95, "throughput": 0.4223, "energyKWh": 1.7353, "jfi": 0.4843, "lif": 2.5758, "preemptions": 379},
+          "imp": {"awt": 50.19, "atat": 46.00, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 99.16, "lif": -0.00, "preemptions": 98.96}
+        },
+        {
+          "tasks": 600,
+          "rr": {"awtMs": 962942.57, "atatS": 1037.74, "actS": 1037.74, "makespan": 1374.00, "throughput": 0.4367, "energyKWh": 2.0307, "jfi": 0.2121, "lif": 2.4371, "preemptions": 44499},
+          "ssp": {"awtMs": 479513.76, "atatS": 554.31, "actS": 554.31, "makespan": 1367.29, "throughput": 0.4388, "energyKWh": 2.0208, "jfi": 0.4446, "lif": 2.4371, "preemptions": 463},
+          "imp": {"awt": 50.20, "atat": 46.58, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 109.68, "lif": 0.00, "preemptions": 98.96}
+        },
+        {
+          "tasks": 700,
+          "rr": {"awtMs": 1224204.42, "atatS": 1296.45, "actS": 1296.45, "makespan": 1678.29, "throughput": 0.4171, "energyKWh": 2.4508, "jfi": 0.1731, "lif": 2.6417, "preemptions": 50131},
+          "ssp": {"awtMs": 609751.05, "atatS": 682.00, "actS": 682.00, "makespan": 1670.08, "throughput": 0.4191, "energyKWh": 2.4388, "jfi": 0.3949, "lif": 2.6417, "preemptions": 508},
+          "imp": {"awt": 50.19, "atat": 47.39, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 128.05, "lif": 0.00, "preemptions": 98.99}
+        },
+        {
+          "tasks": 800,
+          "rr": {"awtMs": 1362291.96, "atatS": 1433.70, "actS": 1433.70, "makespan": 1869.78, "throughput": 0.4279, "energyKWh": 2.7359, "jfi": 0.1625, "lif": 2.6054, "preemptions": 56633},
+          "ssp": {"awtMs": 678673.97, "atatS": 750.09, "actS": 750.09, "makespan": 1860.65, "throughput": 0.4300, "energyKWh": 2.7226, "jfi": 0.3698, "lif": 2.6054, "preemptions": 564},
+          "imp": {"awt": 50.18, "atat": 47.68, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 127.55, "lif": -0.00, "preemptions": 99.00}
+        },
+        {
+          "tasks": 900,
+          "rr": {"awtMs": 1544405.64, "atatS": 1619.13, "actS": 1619.13, "makespan": 2130.85, "throughput": 0.4224, "energyKWh": 3.1329, "jfi": 0.1786, "lif": 2.3214, "preemptions": 66704},
+          "ssp": {"awtMs": 769352.24, "atatS": 844.08, "actS": 844.08, "makespan": 2120.41, "throughput": 0.4244, "energyKWh": 3.1176, "jfi": 0.3635, "lif": 2.3213, "preemptions": 708},
+          "imp": {"awt": 50.18, "atat": 47.87, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 103.46, "lif": 0.00, "preemptions": 98.94}
+        },
+        {
+          "tasks": 1000,
+          "rr": {"awtMs": 1794498.38, "atatS": 1867.90, "actS": 1867.90, "makespan": 2395.03, "throughput": 0.4175, "energyKWh": 3.5060, "jfi": 0.1476, "lif": 2.4443, "preemptions": 72785},
+          "ssp": {"awtMs": 893699.13, "atatS": 967.10, "actS": 967.10, "makespan": 2383.33, "throughput": 0.4196, "energyKWh": 3.4889, "jfi": 0.3289, "lif": 2.4443, "preemptions": 738},
+          "imp": {"awt": 50.20, "atat": 48.23, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 122.85, "lif": -0.00, "preemptions": 98.99}
+        },
+        {
+          "tasks": 1500,
+          "rr": {"awtMs": 2638693.77, "atatS": 2712.77, "actS": 2712.77, "makespan": 3497.24, "throughput": 0.4289, "energyKWh": 5.1470, "jfi": 0.1770, "lif": 2.2624, "preemptions": 110175},
+          "ssp": {"awtMs": 1314401.14, "atatS": 1388.48, "actS": 1388.48, "makespan": 3480.17, "throughput": 0.4310, "energyKWh": 5.1219, "jfi": 0.2862, "lif": 2.2624, "preemptions": 1156},
+          "imp": {"awt": 50.19, "atat": 48.82, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 61.70, "lif": -0.00, "preemptions": 98.95}
+        },
+        {
+          "tasks": 2000,
+          "rr": {"awtMs": 3483784.54, "atatS": 3556.92, "actS": 3556.92, "makespan": 4632.27, "throughput": 0.4318, "energyKWh": 6.8111, "jfi": 0.1694, "lif": 2.2776, "preemptions": 144997},
+          "ssp": {"awtMs": 1735490.71, "atatS": 1808.62, "actS": 1808.62, "makespan": 4609.67, "throughput": 0.4339, "energyKWh": 6.7779, "jfi": 0.2504, "lif": 2.2776, "preemptions": 1479},
+          "imp": {"awt": 50.18, "atat": 49.15, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 47.83, "lif": -0.00, "preemptions": 98.98}
+        }
+      ]
+    },
+    "PSSELB": {
+      "name": "PSSELB",
+      "workloadData": [
+        {
+          "tasks": 100,
+          "rr": {"awtMs": 22927.51, "atatS": 80.26, "actS": 80.26, "makespan": 229.88, "throughput": 0.4350, "energyKWh": 0.3274, "jfi": 0.9014, "lif": 3.1921, "preemptions": 5677},
+          "ssp": {"awtMs": 11324.51, "atatS": 68.65, "actS": 68.65, "makespan": 228.77, "throughput": 0.4371, "energyKWh": 0.3258, "jfi": 0.9611, "lif": 3.1922, "preemptions": 47},
+          "imp": {"awt": 50.61, "atat": 14.46, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 6.62, "lif": -0.00, "preemptions": 99.17}
+        },
+        {
+          "tasks": 200,
+          "rr": {"awtMs": 65179.72, "atatS": 122.42, "actS": 122.42, "makespan": 288.80, "throughput": 0.6925, "energyKWh": 0.4409, "jfi": 0.8569, "lif": 1.6820, "preemptions": 11345},
+          "ssp": {"awtMs": 32309.17, "atatS": 89.55, "actS": 89.55, "makespan": 287.38, "throughput": 0.6959, "energyKWh": 0.4387, "jfi": 0.8925, "lif": 1.6820, "preemptions": 88},
+          "imp": {"awt": 50.43, "atat": 26.85, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 4.16, "lif": 0.00, "preemptions": 99.22}
+        },
+        {
+          "tasks": 300,
+          "rr": {"awtMs": 118992.17, "atatS": 177.29, "actS": 177.29, "makespan": 387.21, "throughput": 0.7748, "energyKWh": 0.6061, "jfi": 0.7433, "lif": 1.2627, "preemptions": 17314},
+          "ssp": {"awtMs": 59259.04, "atatS": 117.56, "actS": 117.56, "makespan": 385.31, "throughput": 0.7786, "energyKWh": 0.6031, "jfi": 0.8232, "lif": 1.2626, "preemptions": 142},
+          "imp": {"awt": 50.20, "atat": 33.69, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 10.75, "lif": 0.00, "preemptions": 99.18}
+        },
+        {
+          "tasks": 400,
+          "rr": {"awtMs": 160237.34, "atatS": 215.35, "actS": 215.35, "makespan": 418.74, "throughput": 0.9553, "energyKWh": 0.6773, "jfi": 0.7286, "lif": 0.9178, "preemptions": 21819},
+          "ssp": {"awtMs": 79724.01, "atatS": 134.84, "actS": 134.84, "makespan": 416.69, "throughput": 0.9600, "energyKWh": 0.6740, "jfi": 0.7737, "lif": 0.9178, "preemptions": 169},
+          "imp": {"awt": 50.25, "atat": 37.39, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 6.19, "lif": 0.00, "preemptions": 99.23}
+        },
+        {
+          "tasks": 500,
+          "rr": {"awtMs": 218120.88, "atatS": 273.55, "actS": 273.55, "makespan": 521.57, "throughput": 0.9586, "energyKWh": 0.8454, "jfi": 0.6899, "lif": 0.8592, "preemptions": 27430},
+          "ssp": {"awtMs": 108575.39, "atatS": 164.00, "actS": 164.00, "makespan": 519.03, "throughput": 0.9633, "energyKWh": 0.8412, "jfi": 0.7200, "lif": 0.8592, "preemptions": 212},
+          "imp": {"awt": 50.22, "atat": 40.05, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 4.36, "lif": -0.00, "preemptions": 99.23}
+        },
+        {
+          "tasks": 600,
+          "rr": {"awtMs": 271872.60, "atatS": 329.21, "actS": 329.21, "makespan": 588.90, "throughput": 1.0188, "energyKWh": 0.9762, "jfi": 0.7073, "lif": 0.6861, "preemptions": 34052},
+          "ssp": {"awtMs": 135386.35, "atatS": 192.72, "actS": 192.72, "makespan": 586.03, "throughput": 1.0238, "energyKWh": 0.9714, "jfi": 0.6944, "lif": 0.6861, "preemptions": 271},
+          "imp": {"awt": 50.20, "atat": 41.46, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -1.82, "lif": 0.00, "preemptions": 99.20}
+        },
+        {
+          "tasks": 700,
+          "rr": {"awtMs": 304865.67, "atatS": 357.07, "actS": 357.07, "makespan": 654.22, "throughput": 1.0700, "energyKWh": 1.0728, "jfi": 0.7028, "lif": 0.6606, "preemptions": 36153},
+          "ssp": {"awtMs": 151750.33, "atatS": 203.95, "actS": 203.95, "makespan": 651.04, "throughput": 1.0752, "energyKWh": 1.0676, "jfi": 0.6503, "lif": 0.6607, "preemptions": 266},
+          "imp": {"awt": 50.22, "atat": 42.88, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -7.47, "lif": -0.00, "preemptions": 99.26}
+        },
+        {
+          "tasks": 800,
+          "rr": {"awtMs": 352714.97, "atatS": 404.86, "actS": 404.86, "makespan": 742.65, "throughput": 1.0772, "energyKWh": 1.2195, "jfi": 0.6799, "lif": 0.6597, "preemptions": 41274},
+          "ssp": {"awtMs": 175517.03, "atatS": 227.67, "actS": 227.67, "makespan": 739.05, "throughput": 1.0825, "energyKWh": 1.2135, "jfi": 0.6239, "lif": 0.6597, "preemptions": 307},
+          "imp": {"awt": 50.24, "atat": 43.77, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -8.23, "lif": -0.01, "preemptions": 99.26}
+        },
+        {
+          "tasks": 900,
+          "rr": {"awtMs": 429463.46, "atatS": 485.21, "actS": 485.21, "makespan": 845.66, "throughput": 1.0643, "energyKWh": 1.4072, "jfi": 0.6945, "lif": 0.5725, "preemptions": 49654},
+          "ssp": {"awtMs": 213954.76, "atatS": 269.70, "actS": 269.70, "makespan": 841.55, "throughput": 1.0695, "energyKWh": 1.4003, "jfi": 0.6007, "lif": 0.5725, "preemptions": 382},
+          "imp": {"awt": 50.18, "atat": 44.42, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -13.50, "lif": -0.00, "preemptions": 99.23}
+        },
+        {
+          "tasks": 1000,
+          "rr": {"awtMs": 465520.56, "atatS": 519.56, "actS": 519.56, "makespan": 902.79, "throughput": 1.1077, "energyKWh": 1.5056, "jfi": 0.6963, "lif": 0.5828, "preemptions": 53477},
+          "ssp": {"awtMs": 231755.09, "atatS": 285.79, "actS": 285.79, "makespan": 898.38, "throughput": 1.1131, "energyKWh": 1.4982, "jfi": 0.5807, "lif": 0.5827, "preemptions": 385},
+          "imp": {"awt": 50.22, "atat": 44.99, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -16.60, "lif": 0.00, "preemptions": 99.28}
+        },
+        {
+          "tasks": 1500,
+          "rr": {"awtMs": 736677.51, "atatS": 791.45, "actS": 791.45, "makespan": 1311.45, "throughput": 1.1438, "energyKWh": 2.2126, "jfi": 0.6798, "lif": 0.4316, "preemptions": 81298},
+          "ssp": {"awtMs": 366740.43, "atatS": 421.51, "actS": 421.51, "makespan": 1305.07, "throughput": 1.1494, "energyKWh": 2.2019, "jfi": 0.4969, "lif": 0.4316, "preemptions": 621},
+          "imp": {"awt": 50.22, "atat": 46.74, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -26.91, "lif": -0.01, "preemptions": 99.24}
+        },
+        {
+          "tasks": 2000,
+          "rr": {"awtMs": 976446.38, "atatS": 1030.06, "actS": 1030.06, "makespan": 1715.43, "throughput": 1.1659, "energyKWh": 2.8926, "jfi": 0.6696, "lif": 0.4108, "preemptions": 106075},
+          "ssp": {"awtMs": 486229.82, "atatS": 539.84, "actS": 539.84, "makespan": 1707.10, "throughput": 1.1716, "energyKWh": 2.8785, "jfi": 0.4373, "lif": 0.4108, "preemptions": 791},
+          "imp": {"awt": 50.20, "atat": 47.59, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -34.70, "lif": -0.01, "preemptions": 99.25}
+        }
+      ]
+    },
+    "DERALBA": {
+      "name": "DeRALBA",
+      "workloadData": [
+        {
+          "tasks": 100,
+          "rr": {"awtMs": 8438.51, "atatS": 62.92, "actS": 62.92, "makespan": 511.47, "throughput": 0.1955, "energyKWh": 0.6774, "jfi": 0.9271, "lif": 7.4739, "preemptions": 5392},
+          "ssp": {"awtMs": 4121.11, "atatS": 58.60, "actS": 58.60, "makespan": 508.97, "throughput": 0.1965, "energyKWh": 0.6740, "jfi": 0.9721, "lif": 7.4739, "preemptions": 44},
+          "imp": {"awt": 51.16, "atat": 6.86, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 4.85, "lif": 0.00, "preemptions": 99.18}
+        },
+        {
+          "tasks": 200,
+          "rr": {"awtMs": 46701.95, "atatS": 100.24, "actS": 100.24, "makespan": 565.31, "throughput": 0.3538, "energyKWh": 0.7814, "jfi": 0.8098, "lif": 3.8217, "preemptions": 10594},
+          "ssp": {"awtMs": 23202.81, "atatS": 76.74, "actS": 76.74, "makespan": 562.55, "throughput": 0.3555, "energyKWh": 0.7775, "jfi": 0.8804, "lif": 3.8217, "preemptions": 80},
+          "imp": {"awt": 50.32, "atat": 23.44, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 8.72, "lif": 0.00, "preemptions": 99.24}
+        },
+        {
+          "tasks": 300,
+          "rr": {"awtMs": 90363.50, "atatS": 144.09, "actS": 144.09, "makespan": 574.73, "throughput": 0.5220, "energyKWh": 0.8309, "jfi": 0.7476, "lif": 2.3172, "preemptions": 15955},
+          "ssp": {"awtMs": 44994.66, "atatS": 98.73, "actS": 98.73, "makespan": 571.92, "throughput": 0.5245, "energyKWh": 0.8268, "jfi": 0.8260, "lif": 2.3172, "preemptions": 114},
+          "imp": {"awt": 50.21, "atat": 31.49, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 10.49, "lif": 0.00, "preemptions": 99.29}
+        },
+        {
+          "tasks": 400,
+          "rr": {"awtMs": 135808.28, "atatS": 185.85, "actS": 185.85, "makespan": 474.08, "throughput": 0.8437, "energyKWh": 0.7323, "jfi": 0.7533, "lif": 1.2281, "preemptions": 19788},
+          "ssp": {"awtMs": 67657.10, "atatS": 117.70, "actS": 117.70, "makespan": 471.76, "throughput": 0.8479, "energyKWh": 0.7287, "jfi": 0.7766, "lif": 1.2280, "preemptions": 118},
+          "imp": {"awt": 50.18, "atat": 36.67, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 3.10, "lif": 0.00, "preemptions": 99.40}
+        },
+        {
+          "tasks": 500,
+          "rr": {"awtMs": 179113.83, "atatS": 229.84, "actS": 229.84, "makespan": 593.13, "throughput": 0.8430, "energyKWh": 0.9184, "jfi": 0.7051, "lif": 1.0915, "preemptions": 25077},
+          "ssp": {"awtMs": 89269.11, "atatS": 139.99, "actS": 139.99, "makespan": 590.23, "throughput": 0.8471, "energyKWh": 0.9139, "jfi": 0.7356, "lif": 1.0915, "preemptions": 151},
+          "imp": {"awt": 50.16, "atat": 39.09, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 4.32, "lif": -0.00, "preemptions": 99.40}
+        },
+        {
+          "tasks": 600,
+          "rr": {"awtMs": 230371.07, "atatS": 283.55, "actS": 283.55, "makespan": 638.99, "throughput": 0.9390, "energyKWh": 1.0214, "jfi": 0.6905, "lif": 0.8157, "preemptions": 31579},
+          "ssp": {"awtMs": 114756.30, "atatS": 167.94, "actS": 167.94, "makespan": 635.86, "throughput": 0.9436, "energyKWh": 1.0164, "jfi": 0.7053, "lif": 0.8157, "preemptions": 186},
+          "imp": {"awt": 50.19, "atat": 40.77, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 2.14, "lif": 0.00, "preemptions": 99.41}
+        },
+        {
+          "tasks": 700,
+          "rr": {"awtMs": 272900.59, "atatS": 322.17, "actS": 322.17, "makespan": 658.65, "throughput": 1.0628, "energyKWh": 1.0640, "jfi": 0.6580, "lif": 0.6795, "preemptions": 34096},
+          "ssp": {"awtMs": 135886.56, "atatS": 185.15, "actS": 185.15, "makespan": 655.42, "throughput": 1.0680, "energyKWh": 1.0588, "jfi": 0.6567, "lif": 0.6795, "preemptions": 172},
+          "imp": {"awt": 50.21, "atat": 42.53, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -0.19, "lif": 0.01, "preemptions": 99.50}
+        },
+        {
+          "tasks": 800,
+          "rr": {"awtMs": 313603.17, "atatS": 362.45, "actS": 362.45, "makespan": 746.81, "throughput": 1.0712, "energyKWh": 1.2062, "jfi": 0.6006, "lif": 0.6769, "preemptions": 38631},
+          "ssp": {"awtMs": 156246.22, "atatS": 205.09, "actS": 205.09, "makespan": 743.14, "throughput": 1.0765, "energyKWh": 1.2003, "jfi": 0.6268, "lif": 0.6769, "preemptions": 202},
+          "imp": {"awt": 50.18, "atat": 43.41, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 4.36, "lif": 0.01, "preemptions": 99.48}
+        },
+        {
+          "tasks": 900,
+          "rr": {"awtMs": 349380.60, "atatS": 402.30, "actS": 402.30, "makespan": 908.45, "throughput": 0.9907, "energyKWh": 1.4680, "jfi": 0.6020, "lif": 0.6735, "preemptions": 47140},
+          "ssp": {"awtMs": 174110.48, "atatS": 227.03, "actS": 227.03, "makespan": 904.00, "throughput": 0.9956, "energyKWh": 1.4608, "jfi": 0.6224, "lif": 0.6735, "preemptions": 305},
+          "imp": {"awt": 50.17, "atat": 43.57, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": 3.39, "lif": 0.01, "preemptions": 99.35}
+        },
+        {
+          "tasks": 1000,
+          "rr": {"awtMs": 402340.21, "atatS": 453.04, "actS": 453.04, "makespan": 917.42, "throughput": 1.0900, "energyKWh": 1.5006, "jfi": 0.6725, "lif": 0.5869, "preemptions": 50140},
+          "ssp": {"awtMs": 200397.88, "atatS": 251.09, "actS": 251.09, "makespan": 912.92, "throughput": 1.0954, "energyKWh": 1.4932, "jfi": 0.5915, "lif": 0.5869, "preemptions": 268},
+          "imp": {"awt": 50.19, "atat": 44.58, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -12.05, "lif": 0.01, "preemptions": 99.47}
+        },
+        {
+          "tasks": 1500,
+          "rr": {"awtMs": 631669.29, "atatS": 683.85, "actS": 683.85, "makespan": 1331.07, "throughput": 1.1269, "energyKWh": 2.2100, "jfi": 0.6842, "lif": 0.4222, "preemptions": 77451},
+          "ssp": {"awtMs": 314528.29, "atatS": 366.71, "actS": 366.71, "makespan": 1324.55, "throughput": 1.1325, "energyKWh": 2.1992, "jfi": 0.5156, "lif": 0.4222, "preemptions": 441},
+          "imp": {"awt": 50.21, "atat": 46.38, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -24.63, "lif": 0.01, "preemptions": 99.43}
+        },
+        {
+          "tasks": 2000,
+          "rr": {"awtMs": 853777.67, "atatS": 904.74, "actS": 904.74, "makespan": 1476.24, "throughput": 1.3548, "energyKWh": 2.5566, "jfi": 0.6702, "lif": 0.2033, "preemptions": 100784},
+          "ssp": {"awtMs": 425254.18, "atatS": 476.22, "actS": 476.22, "makespan": 1469.03, "throughput": 1.3614, "energyKWh": 2.5441, "jfi": 0.4486, "lif": 0.2033, "preemptions": 549},
+          "imp": {"awt": 50.19, "atat": 47.36, "makespan": 0.49, "throughput": 0.49, "energy": 0.49, "jfi": -33.06, "lif": 0.02, "preemptions": 99.46}
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSP-ARR Cloud Task Scheduling Intelligence Dashboard</title>
+    <!-- Chart.js 4.4.1 UMD -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="brand">
+                    <div class="brand-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-title">SSP-ARR Cloud</span>
+                        <span class="brand-badge">Intelligence v2.0</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="overview">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="nav-item" data-page="workflow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><line x1="6" y1="9" x2="6" y2="21"></line></svg>
+                    <span>Scheduling Workflow</span>
+                </a>
+                <a href="#" class="nav-item" data-page="monitor">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span>SSP-ARR Monitor</span>
+                </a>
+                <a href="#" class="nav-item" data-page="vms">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                    <span>Virtual Machines</span>
+                </a>
+                <a href="#" class="nav-item" data-page="analytics">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span>Performance Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-page="comparison">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg>
+                    <span>Algorithm Comparison</span>
+                </a>
+                <a href="#" class="nav-item" data-page="experiments">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>Experiments</span>
+                </a>
+            </nav>
+
+            <div style="padding: 16px; border-top: 1px solid var(--border-subtle); font-size: 11px; color: var(--text-dim);">
+                <div style="font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Simulation Engine</div>
+                <div>Java 21 • CloudSim Plus 8.5.7</div>
+                <div style="margin-top: 2px;">Context Switch: &delta;<sub>cs</sub> = 5ms</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Top Bar -->
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="btn btn-secondary btn-icon-only" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <div style="font-weight: 600; font-size: 15px; color: var(--text-main);">
+                        Cloud Task Scheduling Observability
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <!-- Global Dispatcher Policy Selector -->
+                    <div class="control-group">
+                        <label for="policySelect" class="control-label">Global Policy:</label>
+                        <select id="policySelect" class="select-control">
+                            <option value="DYNAMIC_MAX_MIN" selected>Dy. MM (Max-Min)</option>
+                            <option value="DRALBA">DRALBA</option>
+                            <option value="PSSLB">PSSLB</option>
+                            <option value="PSSELB">PSSELB</option>
+                            <option value="DERALBA">DeRALBA</option>
+                        </select>
+                    </div>
+
+                    <!-- Workload Size Selector -->
+                    <div class="control-group">
+                        <label for="workloadSelect" class="control-label">Workload:</label>
+                        <select id="workloadSelect" class="select-control">
+                            <option value="100">100 Tasks</option>
+                            <option value="200">200 Tasks</option>
+                            <option value="300">300 Tasks</option>
+                            <option value="400">400 Tasks</option>
+                            <option value="500">500 Tasks</option>
+                            <option value="600">600 Tasks</option>
+                            <option value="700">700 Tasks</option>
+                            <option value="800">800 Tasks</option>
+                            <option value="900">900 Tasks</option>
+                            <option value="1000" selected>1000 Tasks</option>
+                            <option value="1500">1500 Tasks</option>
+                            <option value="2000">2000 Tasks</option>
+                        </select>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button class="btn btn-secondary btn-icon-only" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ============================================================== -->
+            <!-- 1. OVERVIEW PAGE                                               -->
+            <!-- ============================================================== -->
+            <section class="page-container active" id="page-overview">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Executive Simulation Overview</h1>
+                        <p class="page-desc">Empirical CloudSim Plus performance comparison between Classical RR and proposed SSP-ARR 2.0.</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <span class="metric-badge badge-success">Engine Verified: CloudSim Plus 8.5.7</span>
+                        <span class="metric-badge badge-primary">GoCJ Traces</span>
+                    </div>
+                </div>
+
+                <!-- 8 High-Impact Metric Cards -->
+                <div class="metrics-grid">
+                    <!-- Total Tasks -->
+                    <div class="metric-card accent-blue">
+                        <div class="metric-header">
+                            <span class="metric-label">Total Cloudlets</span>
+                            <span class="metric-badge badge-primary">GoCJ Benchmark</span>
+                        </div>
+                        <div class="metric-value" id="ovTasksTotal">1000 Cloudlets</div>
+                        <div class="metric-sub">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                            <span id="ovTasksCompleted">1000 (100% Completed)</span>
+                        </div>
+                    </div>
+
+                    <!-- Active Virtual Machines -->
+                    <div class="metric-card accent-violet">
+                        <div class="metric-header">
+                            <span class="metric-label">Heterogeneous VMs</span>
+                            <span class="metric-badge badge-primary">Cluster Pool</span>
+                        </div>
+                        <div class="metric-value" id="ovVmsActive">80 Active VMs</div>
+                        <div class="metric-sub">
+                            <span>1000 to 4000 MIPS (30 Hosts)</span>
+                        </div>
+                    </div>
+
+                    <!-- Average Waiting Time -->
+                    <div class="metric-card accent-emerald">
+                        <div class="metric-header">
+                            <span class="metric-label">Avg Waiting Time</span>
+                            <span class="metric-badge badge-success" id="ovAwtImp">-50.3%</span>
+                        </div>
+                        <div class="metric-value" id="ovAwtVal">167.43s</div>
+                        <div class="metric-sub">
+                            <span id="ovAwtBaseline">Baseline RR: 336.76s</span>
+                        </div>
+                    </div>
+
+                    <!-- Average Turnaround Time -->
+                    <div class="metric-card accent-emerald">
+                        <div class="metric-header">
+                            <span class="metric-label">Avg Turnaround Time</span>
+                            <span class="metric-badge badge-success" id="ovAtatImp">-43.6%</span>
+                        </div>
+                        <div class="metric-value" id="ovAtatVal">219.28s</div>
+                        <div class="metric-sub">
+                            <span id="ovAtatBaseline">Baseline RR: 388.61s</span>
+                        </div>
+                    </div>
+
+                    <!-- Cluster Makespan -->
+                    <div class="metric-card accent-blue">
+                        <div class="metric-header">
+                            <span class="metric-label">Cluster Makespan</span>
+                            <span class="metric-badge badge-success" id="ovMakespanImp">-0.49% (3.21s saved)</span>
+                        </div>
+                        <div class="metric-value" id="ovMakespanVal">653.97s</div>
+                        <div class="metric-sub">
+                            <span>&delta;<sub>cs</sub> = 5ms context switch penalty</span>
+                        </div>
+                    </div>
+
+                    <!-- Throughput -->
+                    <div class="metric-card accent-blue">
+                        <div class="metric-header">
+                            <span class="metric-label">System Throughput</span>
+                            <span class="metric-badge badge-success">+0.49%</span>
+                        </div>
+                        <div class="metric-value" id="ovThroughputVal">1.5291 t/s</div>
+                        <div class="metric-sub">
+                            <span>Completed tasks per wall-clock second</span>
+                        </div>
+                    </div>
+
+                    <!-- Context Switches / Preemptions -->
+                    <div class="metric-card accent-amber">
+                        <div class="metric-header">
+                            <span class="metric-label">Preemptions Occurred</span>
+                            <span class="metric-badge badge-success" id="ovPreemptImp">-99.3%</span>
+                        </div>
+                        <div class="metric-value" id="ovPreemptVal">375</div>
+                        <div class="metric-sub">
+                            <span id="ovPreemptBaseline">Baseline RR: 51,313</span>
+                        </div>
+                    </div>
+
+                    <!-- Context Switch Overhead Saved -->
+                    <div class="metric-card accent-violet">
+                        <div class="metric-header">
+                            <span class="metric-label">CS CPU Overhead Saved</span>
+                            <span class="metric-badge badge-success">254.7s CPU</span>
+                        </div>
+                        <div class="metric-value">99.27% Less</div>
+                        <div class="metric-sub">
+                            <span>Massive CPU cache thrashing reduction</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2 Overview Charts (Trend and VM Distribution) -->
+                <div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 24px; margin-bottom: 24px;">
+                    <div class="card" style="margin-bottom: 0;">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Average Waiting Time Scaling (100 to 2000 Tasks)</h3>
+                                <p class="card-subtitle">Classical Round Robin (q=1.0s) vs Proposed SSP-ARR 2.0</p>
+                            </div>
+                        </div>
+                        <div class="card-body" style="height: 320px;">
+                            <canvas id="overviewTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 0;">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">VM Capacity Load Profile</h3>
+                                <p class="card-subtitle">Heterogeneous task allocation across 16 VM speeds</p>
+                            </div>
+                        </div>
+                        <div class="card-body" style="height: 320px;">
+                            <canvas id="overviewVmDistChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================== -->
+            <!-- 2. SCHEDULING WORKFLOW PAGE                                    -->
+            <!-- ============================================================== -->
+            <section class="page-container" id="page-workflow">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Interactive Scheduling Workflow Pipeline</h1>
+                        <p class="page-desc">Explore the 2-tier architectural pipeline from GoCJ ingestion to multi-dimensional telemetry.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Node and Connector Interactive Diagram -->
+                        <div class="workflow-tree">
+                            <div class="wf-node active" data-stage="input">
+                                <div class="wf-step">1</div>
+                                <div class="wf-label">GoCJ Ingestion</div>
+                                <div class="wf-sub">100–2000 Tasks</div>
+                            </div>
+                            <div class="wf-connector"></div>
+
+                            <div class="wf-node" data-stage="global">
+                                <div class="wf-step">2</div>
+                                <div class="wf-label">Tier-1 Dispatcher</div>
+                                <div class="wf-sub">Broker Mapping</div>
+                            </div>
+                            <div class="wf-connector"></div>
+
+                            <div class="wf-node" data-stage="vm_queues">
+                                <div class="wf-step">3</div>
+                                <div class="wf-label">VM Queues</div>
+                                <div class="wf-sub">80 Hetero. Queues</div>
+                            </div>
+                            <div class="wf-connector"></div>
+
+                            <div class="wf-node" data-stage="ssp_local">
+                                <div class="wf-step">4</div>
+                                <div class="wf-label">SSP-ARR Local</div>
+                                <div class="wf-sub">Per-VM Governance</div>
+                            </div>
+                            <div class="wf-connector"></div>
+
+                            <div class="wf-node" data-stage="volatility">
+                                <div class="wf-step">5</div>
+                                <div class="wf-label">Volatility Sensor</div>
+                                <div class="wf-sub">CV &le; 0.50 Threshold</div>
+                            </div>
+                            <div class="wf-connector"></div>
+
+                            <div class="wf-node" data-stage="reactive_mode">
+                                <div class="wf-step">6A</div>
+                                <div class="wf-label">Reactive Mode</div>
+                                <div class="wf-sub">Median-Based Quantum</div>
+                            </div>
+                            <div class="wf-connector"></div>
+
+                            <div class="wf-node" data-stage="predictive_mode">
+                                <div class="wf-step">6B</div>
+                                <div class="wf-label">Predictive Mode</div>
+                                <div class="wf-sub">Adaptive EWMA</div>
+                            </div>
+                            <div class="wf-connector"></div>
+
+                            <div class="wf-node" data-stage="confidence_gate">
+                                <div class="wf-step">7</div>
+                                <div class="wf-label">Confidence Gate</div>
+                                <div class="wf-sub">NPE &le; 20% Safe Gate</div>
+                            </div>
+                            <div class="wf-connector"></div>
+
+                            <div class="wf-node" data-stage="execution">
+                                <div class="wf-step">8</div>
+                                <div class="wf-label">Execution & Aging</div>
+                                <div class="wf-sub">&delta;<sub>cs</sub> = 5ms Penalty</div>
+                            </div>
+                            <div class="wf-connector"></div>
+
+                            <div class="wf-node" data-stage="metrics">
+                                <div class="wf-step">9</div>
+                                <div class="wf-label">Multi-Metrics</div>
+                                <div class="wf-sub">AWT, ATAT, JFI, Energy</div>
+                            </div>
+                        </div>
+
+                        <!-- Stage Inspector Drawer -->
+                        <div class="stage-inspector visible" id="stageInspector">
+                            <div class="stage-inspector-header">
+                                <h3 class="card-title" id="inspTitle">4. Tier-2 Local SSP-ARR Scheduler</h3>
+                                <span class="metric-badge badge-primary" id="inspBadge">Proposed Algorithm</span>
+                            </div>
+                            <p id="inspDesc" style="color: var(--text-main); font-size: 13.5px; margin-bottom: 16px;">
+                                Each VM independently governs its own local queue. Instead of static round robin slicing, SSP-ARR dynamically decides whether to execute reactively or predictively.
+                            </p>
+                            <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 16px; font-family: var(--font-mono); font-size: 13px; color: var(--color-cyan);" id="inspFormula">
+                                Mode = (CV_j &le; 0.50) ? Reactive : Predictive
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; font-size: 12.5px;">
+                                <div><strong style="color: var(--text-dim); text-transform: uppercase;">Inputs:</strong> <div id="inspInputs" style="color: var(--text-muted); margin-top: 3px;">Head task from Q_j, sliding burst history H_j of last W=5 completed cloudlets.</div></div>
+                                <div><strong style="color: var(--text-dim); text-transform: uppercase;">Outputs:</strong> <div id="inspOutputs" style="color: var(--text-muted); margin-top: 3px;">Optimal time slice quantum Q_j, updated task remaining burst.</div></div>
+                                <div><strong style="color: var(--text-dim); text-transform: uppercase;">Parameters:</strong> <div id="inspParams" style="color: var(--text-muted); margin-top: 3px;">History Window W = 5 | Bounds: Q_min = 0.001s, Q_max = 60.0s</div></div>
+                                <div><strong style="color: var(--text-dim); text-transform: uppercase;">Status:</strong> <div id="inspStatus" style="color: var(--color-success); margin-top: 3px; font-weight: 600;">Autonomous Per-VM Execution</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================== -->
+            <!-- 3. SSP-ARR MONITOR PAGE                                        -->
+            <!-- ============================================================== -->
+            <section class="page-container" id="page-monitor">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">SSP-ARR Algorithm Telemetry Monitor</h1>
+                        <p class="page-desc">Autonomous dual-mode decision switching, EWMA burst forecasting, and safety gating telemetry.</p>
+                    </div>
+                </div>
+
+                <!-- Dual Mode Real-time Cards -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                    <!-- Reactive Mode Status Card -->
+                    <div class="card" style="margin-bottom: 0; border-top: 3px solid var(--color-primary);">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Safe Reactive Mode (CV &le; 0.50)</h3>
+                                <p class="card-subtitle">Median-Based Dynamic Slicing</p>
+                            </div>
+                            <span class="metric-badge badge-primary">Low Volatility</span>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                <div>
+                                    <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Queue Median Burst</div>
+                                    <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--color-primary); margin-top: 2px;">15.42s</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Selected Quantum Slice</div>
+                                    <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--color-primary); margin-top: 2px;">15.42s</div>
+                                </div>
+                            </div>
+                            <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">
+                                Prevents algorithmic divergence during homogeneous task phases. Sets time slice to median remaining burst of all queued tasks, guaranteeing bounded turnaround times.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Predictive Mode Status Card -->
+                    <div class="card" style="margin-bottom: 0; border-top: 3px solid var(--color-accent);">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Adaptive Predictive Mode (CV &gt; 0.50)</h3>
+                                <p class="card-subtitle">Error-Modulated EWMA Forecasting</p>
+                            </div>
+                            <span class="metric-badge badge-success">Confidence Gated (&le;20%)</span>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+                                <div>
+                                    <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">EWMA Forecast</div>
+                                    <div style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--color-accent); margin-top: 2px;">31.20s</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Actual Burst</div>
+                                    <div style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--text-main); margin-top: 2px;">33.40s</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Prediction Error</div>
+                                    <div style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--color-success); margin-top: 2px;">6.58%</div>
+                                </div>
+                            </div>
+                            <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">
+                                Proactively adapts to heterogeneous workload bursts using dynamic &alpha; learning rates. Automatically falls back to median slicing if rolling error exceeds 20%.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Volatility & Forecast Telemetry Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Real-Time Volatility Tracking & EWMA Forecast vs Observed Burst</h3>
+                            <p class="card-subtitle">Continuous rolling evaluation on VM-0 across 20 consecutive GoCJ cloudlets</p>
+                        </div>
+                    </div>
+                    <div class="card-body" style="height: 360px;">
+                        <canvas id="sspVolatilityChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================== -->
+            <!-- 4. VIRTUAL MACHINES PAGE                                       -->
+            <!-- ============================================================== -->
+            <section class="page-container" id="page-vms">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Heterogeneous Virtual Machine Pool</h1>
+                        <p class="page-desc">Monitoring 80 Heterogeneous VMs across 30 Cloud Hosts (1000 to 4000 MIPS).</p>
+                    </div>
+                </div>
+
+                <!-- VM Load Distribution Bar Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Cloudlet Load Distribution Across VM Groups</h3>
+                            <p class="card-subtitle">Task allocation calculated by Global Datacenter Broker</p>
+                        </div>
+                    </div>
+                    <div class="card-body" style="height: 240px;">
+                        <canvas id="vmLoadBarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 80-VM Table with Tier Filter and Pagination -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Virtual Machine Registry</h3>
+                            <p class="card-subtitle">Individual VM specifications and real-time execution statistics</p>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn btn-secondary vm-filter-btn active" data-tier="ALL">All Tiers (80)</button>
+                            <button class="btn btn-secondary vm-filter-btn" data-tier="HIGH">High (3000–4000 MIPS)</button>
+                            <button class="btn btn-secondary vm-filter-btn" data-tier="MID">Mid (2000–2800 MIPS)</button>
+                            <button class="btn btn-secondary vm-filter-btn" data-tier="STANDARD">Standard (1000–1800 MIPS)</button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>VM ID</th>
+                                        <th>Capacity Tier</th>
+                                        <th>MIPS Speed</th>
+                                        <th>RAM</th>
+                                        <th>Bandwidth</th>
+                                        <th>Assigned Tasks</th>
+                                        <th>Completed</th>
+                                        <th style="width: 180px;">CPU Load Bar</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vmTableBody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="padding: 14px 20px; border-top: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
+                            <span id="vmPaginationInfo" style="font-size: 12px; color: var(--text-dim);">Showing 1–10 of 80 VMs</span>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-secondary" id="vmPrevBtn">Previous</button>
+                                <button class="btn btn-secondary" id="vmNextBtn">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================== -->
+            <!-- 5. PERFORMANCE ANALYTICS PAGE                                  -->
+            <!-- ============================================================== -->
+            <section class="page-container" id="page-analytics">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Multi-Dimensional Performance Analytics</h1>
+                        <p class="page-desc">Comprehensive evaluation across Waiting Time, Turnaround Time, Makespan, Energy, Fairness, and Preemptions.</p>
+                    </div>
+                </div>
+
+                <!-- Metric Toggle Pills -->
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+                    <button class="btn btn-secondary analytics-metric-btn active" data-metric="awt">Waiting Time (AWT)</button>
+                    <button class="btn btn-secondary analytics-metric-btn" data-metric="atat">Turnaround Time (ATAT)</button>
+                    <button class="btn btn-secondary analytics-metric-btn" data-metric="makespan">Cluster Makespan</button>
+                    <button class="btn btn-secondary analytics-metric-btn" data-metric="throughput">Throughput (Tasks/s)</button>
+                    <button class="btn btn-secondary analytics-metric-btn" data-metric="energy">SPECpower Energy (kWh)</button>
+                    <button class="btn btn-secondary analytics-metric-btn" data-metric="preemptions">Preemptions Occurred</button>
+                    <button class="btn btn-secondary analytics-metric-btn" data-metric="jfi">Jain's Fairness Index (JFI)</button>
+                    <button class="btn btn-secondary analytics-metric-btn" data-metric="lif">Load Imbalance Factor (LIF)</button>
+                </div>
+
+                <!-- Analytics Chart -->
+                <div class="card">
+                    <div class="card-body" style="height: 380px;">
+                        <canvas id="analyticsMetricChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Data Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Full Empirical Simulation Results Table</h3>
+                        <span class="metric-badge badge-primary">GoCJ Real Traces</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Workload</th>
+                                        <th>RR AWT</th>
+                                        <th>SSP AWT</th>
+                                        <th>AWT Imp.</th>
+                                        <th>RR ATAT</th>
+                                        <th>SSP ATAT</th>
+                                        <th>ATAT Imp.</th>
+                                        <th>RR Makespan</th>
+                                        <th>SSP Makespan</th>
+                                        <th>Throughput</th>
+                                        <th>Energy (kWh)</th>
+                                        <th>Fairness (JFI)</th>
+                                        <th>Preemptions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="analyticsTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================== -->
+            <!-- 6. ALGORITHM COMPARISON PAGE                                   -->
+            <!-- ============================================================== -->
+            <section class="page-container" id="page-comparison">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">3-Way Algorithm Comparative Benchmark</h1>
+                        <p class="page-desc">Benchmarking Classical RR (q=1.0s) vs State-of-the-Art MAADRR vs Proposed SSP-ARR 2.0.</p>
+                    </div>
+                </div>
+
+                <!-- Comparison Metric Selector -->
+                <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                    <button class="btn btn-secondary comp-metric-btn active" data-metric="awt">Waiting Time (AWT)</button>
+                    <button class="btn btn-secondary comp-metric-btn" data-metric="atat">Turnaround Time (ATAT)</button>
+                    <button class="btn btn-secondary comp-metric-btn" data-metric="makespan">Cluster Makespan</button>
+                    <button class="btn btn-secondary comp-metric-btn" data-metric="preemptions">Preemptions Occurred</button>
+                </div>
+
+                <!-- Comparison Bar Chart -->
+                <div class="card">
+                    <div class="card-body" style="height: 380px;">
+                        <canvas id="comparisonBarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Algorithmic Properties Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Algorithmic Design Comparison</h3>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Evaluation Dimension</th>
+                                        <th>Classical Round Robin (RR)</th>
+                                        <th>MAADRR (Mean & Absolute Dev.)</th>
+                                        <th>SSP-ARR 2.0 (Proposed)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="font-weight: 600;">Time Quantum Strategy</td>
+                                        <td>Static fixed time quantum (e.g. q = 1.0s)</td>
+                                        <td>Dynamic: Mean + Absolute Deviation of bursts</td>
+                                        <td style="color: var(--color-primary); font-weight: 700;">Dual-Mode: Median Reactive or Adaptive EWMA Predictive</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 600;">Workload Stability Awareness</td>
+                                        <td>None (Agnostic to dispersion)</td>
+                                        <td>Partial (Mean dispersion only)</td>
+                                        <td style="color: var(--color-primary); font-weight: 700;">Full Volatility Sensor (CV &le; 0.50 Threshold)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 600;">Prediction & Learning</td>
+                                        <td>None</td>
+                                        <td>None</td>
+                                        <td style="color: var(--color-primary); font-weight: 700;">Adaptive EWMA with dynamic learning rate &alpha; &in; [0.20, 0.80]</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 600;">Failure & Drift Protection</td>
+                                        <td>N/A</td>
+                                        <td>N/A</td>
+                                        <td style="color: var(--color-primary); font-weight: 700;">Confidence Gating: Fallback to Median if NPE &gt; 20%</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 600;">Starvation Protection</td>
+                                        <td>Inherent in RR rotation</td>
+                                        <td>None</td>
+                                        <td style="color: var(--color-primary); font-weight: 700;">Aging Factor: Priority boost per waiting cycle</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: 600;">Preemptions at 2000 Tasks</td>
+                                        <td style="color: var(--color-danger); font-weight: 700;">101,544</td>
+                                        <td style="color: var(--color-warning); font-weight: 700;">~45,000</td>
+                                        <td style="color: var(--color-success); font-weight: 700;">743 (99.27% Reduction)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================== -->
+            <!-- 7. EXPERIMENTS PAGE                                            -->
+            <!-- ============================================================== -->
+            <section class="page-container" id="page-experiments">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Experiment Management & Reproducibility</h1>
+                        <p class="page-desc">Export verified benchmark results or reproduce simulations via Java CloudSim Plus CLI.</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" id="exportCsvBtn">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span>Export CSV Data</span>
+                        </button>
+                        <button class="btn btn-primary" id="copyCmdBtn">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span>Copy Maven Run Command</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reproduction Box -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">CloudSim Plus Simulation Execution Pipeline</h3>
+                        <span class="metric-badge badge-success">Java 21 Ready</span>
+                    </div>
+                    <div class="card-body">
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                            Run the full 5-policy global comparison harness directly in your terminal using Maven:
+                        </p>
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px; font-family: var(--font-mono); font-size: 13px; color: var(--color-cyan); user-select: all;">
+                            mvn compile exec:java -Dexec.mainClass="com.cloudscheduling.simulation.MultiGlobalComparisonSimulation"
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Experiment Matrix -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">GoCJ Workload Benchmark Runs (100 to 2000 Tasks)</h3>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Run ID</th>
+                                        <th>Workload</th>
+                                        <th>Global Dispatcher</th>
+                                        <th>Simulation Status</th>
+                                        <th>SSP AWT</th>
+                                        <th>SSP ATAT</th>
+                                        <th>SSP Makespan</th>
+                                        <th>Preemptions</th>
+                                        <th>Improvement</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="experimentsTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/workflow.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
