@@ -1,11 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
+  "cleanUrls": false,
   "rewrites": [
-    { "source": "/", "destination": "/dashboard/index.html" },
     { "source": "/css/(.*)", "destination": "/dashboard/css/$1" },
     { "source": "/js/(.*)", "destination": "/dashboard/js/$1" },
     { "source": "/data/(.*)", "destination": "/dashboard/data/$1" },
-    { "source": "/(.*)", "destination": "/dashboard/$1" }
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/dashboard/", "destination": "/index.html" }
   ]
 }
