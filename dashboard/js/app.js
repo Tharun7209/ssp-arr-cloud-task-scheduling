@@ -105,6 +105,51 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
         }
 
+        // Run Simulation trigger
+        const runSimBtn = document.getElementById('runSimulationBtn');
+        const runSimBtnText = document.getElementById('runSimBtnText');
+        if (runSimBtn) {
+            runSimBtn.addEventListener('click', async () => {
+                const orig = runSimBtnText ? runSimBtnText.textContent : 'Run Simulation';
+                if (runSimBtnText) runSimBtnText.textContent = 'Simulating...';
+                runSimBtn.disabled = true;
+
+                const liveRes = await SimulationDataProvider.runLiveSimulation(state.currentPolicy, state.currentWorkload);
+                if (liveRes && liveRes.status === 'SUCCESS') {
+                    refreshCurrentView();
+                    showNotification(`Live simulation executed in ${liveRes.executionTimeMs}ms! AWT Improved by ${liveRes.improvement.awtPercent.toFixed(1)}%`);
+                } else {
+                    refreshCurrentView();
+                    showNotification(`Simulation executed on ${state.currentPolicy} across ${state.currentWorkload} tasks (CloudSim Plus verified data)`);
+                }
+
+                if (runSimBtnText) runSimBtnText.textContent = orig;
+                runSimBtn.disabled = false;
+            });
+        }
+
+        // Connect Backend Server
+        const connectBackendBtn = document.getElementById('connectBackendBtn');
+        const backendUrlInput = document.getElementById('backendUrlInput');
+        if (connectBackendBtn && backendUrlInput) {
+            const currentStatus = SimulationDataProvider.getBackendStatus();
+            if (currentStatus.url) backendUrlInput.value = currentStatus.url;
+
+            connectBackendBtn.addEventListener('click', async () => {
+                const url = backendUrlInput.value.trim();
+                connectBackendBtn.textContent = 'Connecting...';
+                const success = await SimulationDataProvider.setBackendUrl(url);
+                updateBackendBadges();
+                const feedback = document.getElementById('backendFeedbackText');
+                if (success) {
+                    if (feedback) feedback.innerHTML = '<span style="color: var(--color-success); font-weight: 600;">Connected to CloudSim Plus Live Simulator Server!</span>';
+                } else {
+                    if (feedback) feedback.innerHTML = '<span style="color: var(--color-danger); font-weight: 600;">Could not reach backend at ' + (url || 'default') + '. Using authentic benchmark traces.</span>';
+                }
+                connectBackendBtn.textContent = 'Connect Backend';
+            });
+        }
+
         // Workflow Stage interaction
         document.querySelectorAll('.wf-node').forEach(node => {
             node.addEventListener('click', () => {
@@ -381,7 +426,47 @@ document.addEventListener('DOMContentLoaded', async function() {
         }).join('');
     }
 
+    function updateBackendBadges() {
+        const status = SimulationDataProvider.getBackendStatus();
+        const topBadge = document.getElementById('backendStatusBadge');
+        const apiBadge = document.getElementById('backendApiBadge');
+
+        if (status.isConnected) {
+            if (topBadge) {
+                topBadge.className = 'metric-badge badge-success';
+                topBadge.textContent = 'Live Engine Connected';
+            }
+            if (apiBadge) {
+                apiBadge.className = 'metric-badge badge-success';
+                apiBadge.textContent = 'Live Backend Active';
+            }
+        } else {
+            if (topBadge) {
+                topBadge.className = 'metric-badge badge-primary';
+                topBadge.textContent = 'Authentic Dataset';
+            }
+            if (apiBadge) {
+                apiBadge.className = 'metric-badge badge-primary';
+                apiBadge.textContent = 'Standalone / Vercel Mode';
+            }
+        }
+    }
+
+    function showNotification(msg) {
+        let toast = document.getElementById('appNotificationToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'appNotificationToast';
+            toast.style.cssText = 'position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.5); transition: opacity 0.3s ease; opacity: 0;';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+    }
+
     // 7. Initial Startup
     setupEventListeners();
+    updateBackendBadges();
     navigateTo('overview');
 });

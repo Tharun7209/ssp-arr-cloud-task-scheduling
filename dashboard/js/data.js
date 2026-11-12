@@ -10,6 +10,8 @@ const SimulationDataProvider = (function() {
     // Default embedded dataset loaded directly from Java simulation runs
     let dataset = null;
     let isLoaded = false;
+    let backendUrl = localStorage.getItem('ssp_backend_url') || '';
+    let isBackendConnected = false;
 
     // Default VM configuration (80 Heterogeneous VMs matching CloudSim Plus setup)
     const vmPattern = [1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800, 4000];
@@ -24,8 +26,12 @@ const SimulationDataProvider = (function() {
 
     // Method to fetch JSON or fallback to embedded simulation data
     async function init() {
+        // First check backend connection
+        await checkBackendHealth();
+
         try {
-            const response = await fetch('data/simulation_results.json');
+            const dataUrl = backendUrl ? `${backendUrl}/api/results` : 'data/simulation_results.json';
+            const response = await fetch(dataUrl);
             if (response.ok) {
                 dataset = await response.json();
                 isLoaded = true;
@@ -40,6 +46,55 @@ const SimulationDataProvider = (function() {
         dataset = getEmbeddedDataset();
         isLoaded = true;
         return dataset;
+    }
+
+    async function checkBackendHealth() {
+        const testUrls = backendUrl ? [backendUrl] : ['http://localhost:8080', ''];
+        for (const base of testUrls) {
+            try {
+                const target = base ? `${base}/api/health` : '/api/health';
+                const res = await fetch(target, { signal: AbortSignal.timeout(1500) });
+                if (res.ok) {
+                    const info = await res.json();
+                    if (info.status === 'UP') {
+                        backendUrl = base;
+                        isBackendConnected = true;
+                        console.log('Connected to live CloudSim Plus Simulation Backend:', info);
+                        return true;
+                    }
+                }
+            } catch (ignored) {}
+        }
+        isBackendConnected = false;
+        return false;
+    }
+
+    async function runLiveSimulation(policy, tasks) {
+        if (!isBackendConnected) {
+            const healthy = await checkBackendHealth();
+            if (!healthy) return null;
+        }
+
+        try {
+            const url = `${backendUrl || ''}/api/simulate?policy=${encodeURIComponent(policy)}&tasks=${tasks}`;
+            const res = await fetch(url);
+            if (res.ok) {
+                return await res.json();
+            }
+        } catch (e) {
+            console.error('Failed to run live simulation:', e);
+        }
+        return null;
+    }
+
+    function setBackendUrl(url) {
+        backendUrl = url ? url.replace(/\/+$/, '') : '';
+        localStorage.setItem('ssp_backend_url', backendUrl);
+        return checkBackendHealth();
+    }
+
+    function getBackendStatus() {
+        return { isConnected: isBackendConnected, url: backendUrl };
     }
 
     function getData() {
@@ -170,6 +225,10 @@ const SimulationDataProvider = (function() {
         getWorkloads,
         getPolicies,
         getMetricsFor,
-        exportCsv
+        exportCsv,
+        checkBackendHealth,
+        runLiveSimulation,
+        setBackendUrl,
+        getBackendStatus
     };
 })();

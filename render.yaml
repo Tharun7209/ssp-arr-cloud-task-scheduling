@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ssp-arr-simulator
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: PORT
+        value: 8080
+    healthCheckPath: /api/health
+    autoDeploy: true
