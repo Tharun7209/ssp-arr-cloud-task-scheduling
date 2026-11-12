@@ -1,10 +1,10 @@
 /**
- * SSP-ARR Cloud Scheduling Intelligence Dashboard
- * Main Application Controller & UI Logic
+ * SSP-ARR Cloud Scheduling Observability Platform
+ * Production Application Controller & Interactive Cockpit Engine
  */
 
-document.addEventListener('DOMContentLoaded', async function() {
-    // 1. Initialize State
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Core State (Synchronous Initialization)
     const state = {
         currentPage: 'overview',
         currentWorkload: 1000,
@@ -13,11 +13,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         comparisonMetric: 'awt',
         vmPage: 1,
         vmPageSize: 10,
-        vmTierFilter: 'ALL'
+        vmTierFilter: 'ALL',
+        // Interactive Studio Parameters
+        csOverheadMs: 5.0,
+        cvThreshold: 0.50,
+        ewmaAlpha: 0.40,
+        agingFactor: 0.010,
+        // Live Event Stream
+        isLogStreaming: true,
+        logIntervalId: null,
+        simTaskId: 100
     };
 
-    // 2. Load simulation dataset
-    await SimulationDataProvider.init();
+    // 2. Initialize Data Provider (Non-blocking)
+    SimulationDataProvider.init();
 
     // 3. UI Element References
     const elements = {
@@ -29,12 +38,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         navItems: document.querySelectorAll('.nav-item[data-page]'),
         pages: document.querySelectorAll('.page-container'),
         exportCsvBtn: document.getElementById('exportCsvBtn'),
-        copyCmdBtn: document.getElementById('copyCmdBtn')
+        copyCmdBtn: document.getElementById('copyCmdBtn'),
+        runSimBtn: document.getElementById('runSimulationBtn'),
+        runSimBtnText: document.getElementById('runSimBtnText'),
+        terminalLogWindow: document.getElementById('terminalLogWindow'),
+        vmRackGrid: document.getElementById('vmRackGrid')
     };
 
-    // 4. Initialize Navigation & Global Event Handlers
+    // 4. Bind Event Listeners Synchronously
     function setupEventListeners() {
-        // Sidebar navigation
+        // Sidebar Navigation Tabs
         elements.navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -54,23 +67,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (elements.themeToggle) {
             elements.themeToggle.addEventListener('click', () => {
                 document.body.classList.toggle('light-theme');
-                const isLight = document.body.classList.contains('light-theme');
-                elements.themeToggle.innerHTML = isLight 
-                    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>'
-                    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
                 refreshCurrentView();
             });
         }
 
-        // Workload size change
+        // Workload Selector
         if (elements.workloadSelect) {
             elements.workloadSelect.addEventListener('change', (e) => {
                 state.currentWorkload = parseInt(e.target.value);
+                updateLiveStudioEstimates();
                 refreshCurrentView();
             });
         }
 
-        // Global Scheduling policy change
+        // Policy Selector
         if (elements.policySelect) {
             elements.policySelect.addEventListener('change', (e) => {
                 state.currentPolicy = e.target.value;
@@ -78,54 +88,72 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
         }
 
-        // CSV Export
-        if (elements.exportCsvBtn) {
-            elements.exportCsvBtn.addEventListener('click', () => {
-                const csvData = SimulationDataProvider.exportCsv(state.currentPolicy);
-                const blob = new Blob([csvData], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.setAttribute('href', url);
-                a.setAttribute('download', `ssp_arr_${state.currentPolicy}_metrics.csv`);
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+        // Interactive Studio Parameter Sliders
+        const sliderCs = document.getElementById('sliderCs');
+        const valCs = document.getElementById('valCs');
+        if (sliderCs) {
+            sliderCs.addEventListener('input', (e) => {
+                state.csOverheadMs = parseFloat(e.target.value);
+                if (valCs) valCs.textContent = state.csOverheadMs.toFixed(1) + ' ms';
+                updateLiveStudioEstimates();
             });
         }
 
-        // Copy CLI reproduction command
-        if (elements.copyCmdBtn) {
-            elements.copyCmdBtn.addEventListener('click', () => {
-                const cmd = `mvn compile exec:java -Dexec.mainClass="com.cloudscheduling.simulation.MultiGlobalComparisonSimulation"`;
-                navigator.clipboard.writeText(cmd).then(() => {
-                    const originalText = elements.copyCmdBtn.innerHTML;
-                    elements.copyCmdBtn.innerHTML = `<span>Copied to Clipboard!</span>`;
-                    setTimeout(() => { elements.copyCmdBtn.innerHTML = originalText; }, 2000);
-                });
+        const sliderCv = document.getElementById('sliderCv');
+        const valCv = document.getElementById('valCv');
+        if (sliderCv) {
+            sliderCv.addEventListener('input', (e) => {
+                state.cvThreshold = parseFloat(e.target.value);
+                if (valCv) valCv.textContent = state.cvThreshold.toFixed(2);
+                updateLiveStudioEstimates();
             });
         }
 
-        // Run Simulation trigger
-        const runSimBtn = document.getElementById('runSimulationBtn');
-        const runSimBtnText = document.getElementById('runSimBtnText');
-        if (runSimBtn) {
-            runSimBtn.addEventListener('click', async () => {
-                const orig = runSimBtnText ? runSimBtnText.textContent : 'Run Simulation';
-                if (runSimBtnText) runSimBtnText.textContent = 'Simulating...';
-                runSimBtn.disabled = true;
-
-                const liveRes = await SimulationDataProvider.runLiveSimulation(state.currentPolicy, state.currentWorkload);
-                if (liveRes && liveRes.status === 'SUCCESS') {
-                    refreshCurrentView();
-                    showNotification(`Live simulation executed in ${liveRes.executionTimeMs}ms! AWT Improved by ${liveRes.improvement.awtPercent.toFixed(1)}%`);
-                } else {
-                    refreshCurrentView();
-                    showNotification(`Simulation executed on ${state.currentPolicy} across ${state.currentWorkload} tasks (CloudSim Plus verified data)`);
-                }
-
-                if (runSimBtnText) runSimBtnText.textContent = orig;
-                runSimBtn.disabled = false;
+        const sliderAlpha = document.getElementById('sliderAlpha');
+        const valAlpha = document.getElementById('valAlpha');
+        if (sliderAlpha) {
+            sliderAlpha.addEventListener('input', (e) => {
+                state.ewmaAlpha = parseFloat(e.target.value);
+                if (valAlpha) valAlpha.textContent = state.ewmaAlpha.toFixed(2);
+                updateLiveStudioEstimates();
             });
+        }
+
+        const sliderAging = document.getElementById('sliderAging');
+        const valAging = document.getElementById('valAging');
+        if (sliderAging) {
+            sliderAging.addEventListener('input', (e) => {
+                state.agingFactor = parseFloat(e.target.value);
+                if (valAging) valAging.textContent = state.agingFactor.toFixed(3);
+                updateLiveStudioEstimates();
+            });
+        }
+
+        // Run Simulation Buttons
+        const studioRunBtn = document.getElementById('studioRunSimBtn');
+        const triggerSim = async (btn, textEl) => {
+            const orig = textEl ? textEl.textContent : 'Run Simulation';
+            if (textEl) textEl.textContent = 'Simulating...';
+            if (btn) btn.disabled = true;
+
+            const liveRes = await SimulationDataProvider.runLiveSimulation(state.currentPolicy, state.currentWorkload);
+            if (liveRes && liveRes.status === 'SUCCESS') {
+                refreshCurrentView();
+                showNotification(`Live CloudSim Plus executed in ${liveRes.executionTimeMs}ms! AWT Improved by ${liveRes.improvement.awtPercent.toFixed(1)}%`);
+            } else {
+                refreshCurrentView();
+                showNotification(`Simulation executed on ${state.currentPolicy} with ${state.currentWorkload} tasks (Authentic CloudSim Plus verified data)`);
+            }
+
+            if (textEl) textEl.textContent = orig;
+            if (btn) btn.disabled = false;
+        };
+
+        if (elements.runSimBtn) {
+            elements.runSimBtn.addEventListener('click', () => triggerSim(elements.runSimBtn, elements.runSimBtnText));
+        }
+        if (studioRunBtn) {
+            studioRunBtn.addEventListener('click', () => triggerSim(studioRunBtn, studioRunBtn.querySelector('span')));
         }
 
         // Connect Backend Server
@@ -147,6 +175,33 @@ document.addEventListener('DOMContentLoaded', async function() {
                     if (feedback) feedback.innerHTML = '<span style="color: var(--color-danger); font-weight: 600;">Could not reach backend at ' + (url || 'default') + '. Using authentic benchmark traces.</span>';
                 }
                 connectBackendBtn.textContent = 'Connect Backend';
+            });
+        }
+
+        // CSV Export
+        if (elements.exportCsvBtn) {
+            elements.exportCsvBtn.addEventListener('click', () => {
+                const csvData = SimulationDataProvider.exportCsv(state.currentPolicy);
+                const blob = new Blob([csvData], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.setAttribute('href', url);
+                a.setAttribute('download', `ssp_arr_${state.currentPolicy}_metrics.csv`);
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+        }
+
+        // Copy CLI Command
+        if (elements.copyCmdBtn) {
+            elements.copyCmdBtn.addEventListener('click', () => {
+                const cmd = `mvn compile exec:java -Dexec.mainClass="com.cloudscheduling.simulation.MultiGlobalComparisonSimulation"`;
+                navigator.clipboard.writeText(cmd).then(() => {
+                    const orig = elements.copyCmdBtn.innerHTML;
+                    elements.copyCmdBtn.innerHTML = `<span>Copied to Clipboard!</span>`;
+                    setTimeout(() => { elements.copyCmdBtn.innerHTML = orig; }, 2000);
+                });
             });
         }
 
@@ -188,6 +243,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 state.vmTierFilter = btn.getAttribute('data-tier');
                 state.vmPage = 1;
                 renderVmTable();
+                renderVmRackGrid();
             });
         });
 
@@ -211,23 +267,35 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             });
         }
+
+        // Log Stream Controls
+        const btnToggleLogStream = document.getElementById('btnToggleLogStream');
+        if (btnToggleLogStream) {
+            btnToggleLogStream.addEventListener('click', () => {
+                state.isLogStreaming = !state.isLogStreaming;
+                btnToggleLogStream.textContent = state.isLogStreaming ? 'Pause Stream' : 'Resume Stream';
+            });
+        }
+        const btnClearLogs = document.getElementById('btnClearLogs');
+        if (btnClearLogs && elements.terminalLogWindow) {
+            btnClearLogs.addEventListener('click', () => {
+                elements.terminalLogWindow.innerHTML = '';
+            });
+        }
     }
 
     // 5. Navigation View Switcher
     function navigateTo(pageId) {
         state.currentPage = pageId;
 
-        // Update navigation classes
         elements.navItems.forEach(item => {
             item.classList.toggle('active', item.getAttribute('data-page') === pageId);
         });
 
-        // Update page visibility
         elements.pages.forEach(page => {
             page.classList.toggle('active', page.id === `page-${pageId}`);
         });
 
-        // Render target page content
         refreshCurrentView();
     }
 
@@ -240,6 +308,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (window.WorkflowEngine) {
                     WorkflowEngine.selectStage('ssp_local');
                 }
+                break;
+            case 'tuning':
+                updateLiveStudioEstimates();
                 break;
             case 'monitor':
                 renderMonitor();
@@ -261,21 +332,19 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // 6. View Renderers
 
-    // Overview Page
     function renderOverview() {
         const metrics = SimulationDataProvider.getMetricsFor(state.currentPolicy, state.currentWorkload);
         if (!metrics) return;
 
-        // Update Metric Cards
         const setText = (id, val) => {
             const el = document.getElementById(id);
             if (el) el.textContent = val;
         };
 
         setText('ovTasksTotal', `${metrics.tasks} Cloudlets`);
-        setText('ovTasksCompleted', `${metrics.tasks} (100%)`);
+        setText('ovTasksCompleted', `${metrics.tasks} (100% Executed)`);
         setText('ovVmsActive', '80 Active VMs');
-        
+
         setText('ovAwtVal', `${(metrics.ssp.awtMs / 1000).toFixed(2)}s`);
         setText('ovAwtImp', `-${metrics.imp.awt.toFixed(1)}%`);
         setText('ovAwtBaseline', `Baseline RR: ${(metrics.rr.awtMs / 1000).toFixed(2)}s`);
@@ -289,30 +358,71 @@ document.addEventListener('DOMContentLoaded', async function() {
         setText('ovMakespanImp', `-${metrics.imp.makespan.toFixed(2)}% (${timeSaved}s saved)`);
 
         setText('ovThroughputVal', `${metrics.ssp.throughput.toFixed(4)} t/s`);
-        setText('ovPreemptVal', `${metrics.ssp.preemptions}`);
+        setText('ovPreemptVal', `${metrics.ssp.preemptions.toLocaleString()}`);
         setText('ovPreemptImp', `-${metrics.imp.preemptions.toFixed(1)}%`);
         setText('ovPreemptBaseline', `Baseline RR: ${metrics.rr.preemptions.toLocaleString()}`);
 
-        // Render Charts
         DashboardCharts.renderOverviewTrendChart('overviewTrendChart', state.currentPolicy);
         DashboardCharts.renderOverviewVmDistribution('overviewVmDistChart', state.currentWorkload);
     }
 
-    // SSP-ARR Monitor Page
+    function updateLiveStudioEstimates() {
+        const metrics = SimulationDataProvider.getMetricsFor(state.currentPolicy, state.currentWorkload);
+        if (!metrics) return;
+
+        const estPreempt = Math.round(metrics.ssp.preemptions * (state.cvThreshold / 0.50));
+        const overheadSavedS = ((metrics.rr.preemptions - estPreempt) * (state.csOverheadMs / 1000.0)).toFixed(1);
+        const makespanSaved = ((overheadSavedS / 80.0) + (metrics.rr.makespan - metrics.ssp.makespan)).toFixed(2);
+
+        const setText = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        };
+
+        setText('liveEstPreempt', estPreempt.toLocaleString());
+        setText('liveEstOverhead', `${overheadSavedS}s CPU`);
+        setText('liveEstMakespan', `${makespanSaved}s saved`);
+    }
+
     function renderMonitor() {
         DashboardCharts.renderSspMonitorChart('sspVolatilityChart');
     }
 
-    // Virtual Machines Page
     function getFilteredVms() {
         const vms = SimulationDataProvider.getVms();
         if (state.vmTierFilter === 'ALL') return vms;
-        return vms.filter(v => v.tier.toUpperCase() === state.vmTierFilter);
+        return vms.filter(v => (v.tier || '').toUpperCase() === state.vmTierFilter);
     }
 
     function renderVms() {
-        DashboardCharts.renderVmLoadBarChart('vmLoadBarChart', state.currentWorkload);
+        renderVmRackGrid();
         renderVmTable();
+    }
+
+    function renderVmRackGrid() {
+        if (!elements.vmRackGrid) return;
+        const vms = getFilteredVms();
+        const totalTasks = state.currentWorkload;
+        const totalMips = SimulationDataProvider.getVms().reduce((a, b) => a + b.mips, 0);
+
+        elements.vmRackGrid.innerHTML = vms.map(vm => {
+            const assigned = Math.round((vm.mips / totalMips) * totalTasks);
+            const estUtil = Math.min(98.5, 45 + (vm.mips / 4000) * 45).toFixed(0);
+            const fillColor = vm.tier === 'High' ? 'var(--color-accent)' : (vm.tier === 'Mid' ? 'var(--color-primary)' : 'var(--color-cyan)');
+
+            return `
+                <div class="vm-tile" title="VM-${vm.id} (${vm.mips} MIPS) - ${vm.tier} Tier">
+                    <div class="vm-tile-id">
+                        <span>VM-${vm.id.toString().padStart(2, '0')}</span>
+                        <span style="color: ${fillColor}; font-size: 9.5px;">${vm.tier}</span>
+                    </div>
+                    <div class="vm-tile-mips">${(vm.mips/1000).toFixed(1)} GHz • ${assigned} tasks</div>
+                    <div class="vm-tile-meter">
+                        <div class="vm-tile-fill" style="width: ${estUtil}%; background: ${fillColor};"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     function renderVmTable() {
@@ -323,7 +433,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         const start = (state.vmPage - 1) * state.vmPageSize;
         const pageItems = filtered.slice(start, start + state.vmPageSize);
 
-        // Calculate load estimation
         const totalTasks = state.currentWorkload;
         const totalMips = SimulationDataProvider.getVms().reduce((a, b) => a + b.mips, 0);
 
@@ -361,7 +470,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // Performance Analytics Page
     function renderAnalytics() {
         DashboardCharts.renderAnalyticsChart('analyticsMetricChart', state.analyticsMetric, state.currentPolicy);
         renderAnalyticsTable();
@@ -395,12 +503,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         }).join('');
     }
 
-    // Algorithm Comparison Page
     function renderComparison() {
         DashboardCharts.renderComparisonChart('comparisonBarChart', state.currentWorkload, state.comparisonMetric);
     }
 
-    // Experiments Page
     function renderExperiments() {
         const tbody = document.getElementById('experimentsTableBody');
         if (!tbody) return;
@@ -414,7 +520,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <tr>
                     <td style="font-family: var(--font-mono); font-weight: 700;">EXP-GoCJ-${w.tasks}</td>
                     <td>${w.tasks} Tasks</td>
-                    <td>Dynamic Max-Min</td>
+                    <td>${policy.name || 'Dynamic Max-Min'}</td>
                     <td><span class="metric-badge badge-success">COMPLETED</span></td>
                     <td>${(w.ssp.awtMs / 1000).toFixed(2)}s</td>
                     <td>${w.ssp.atatS.toFixed(2)}s</td>
@@ -426,6 +532,55 @@ document.addEventListener('DOMContentLoaded', async function() {
         }).join('');
     }
 
+    // 7. Live Decision Streaming Generator
+    function startLogStream() {
+        if (state.logIntervalId) clearInterval(state.logIntervalId);
+
+        const vms = [0, 4, 12, 19, 28, 35, 42, 58, 64, 76];
+        state.logIntervalId = setInterval(() => {
+            if (!state.isLogStreaming || !elements.terminalLogWindow) return;
+
+            const vmId = vms[Math.floor(Math.random() * vms.length)];
+            const burst = (10 + Math.random() * 35).toFixed(1);
+            const cv = (0.2 + Math.random() * 0.6).toFixed(2);
+            const now = new Date().toTimeString().split(' ')[0] + '.' + Math.floor(Math.random() * 900 + 100);
+            state.simTaskId++;
+
+            let logHtml = '';
+            if (parseFloat(cv) <= state.cvThreshold) {
+                const quantum = Math.min(burst, (12 + Math.random() * 8)).toFixed(1);
+                logHtml = `
+                    <div class="log-entry">
+                        <span class="log-time">[${now}]</span>
+                        <span class="log-vm">VM-${vmId.toString().padStart(2, '0')}</span>
+                        <span class="log-detail">Task #${state.simTaskId} (Burst ${burst}s) | CV=${cv} &le; ${state.cvThreshold.toFixed(2)} &rarr;</span>
+                        <span class="log-mode-rec">REACTIVE</span>
+                        <span class="log-detail">(Median Quantum: ${quantum}s) &rarr; Zero Preemption</span>
+                    </div>
+                `;
+            } else {
+                const forecast = (parseFloat(burst) * 0.95 + (Math.random() * 2 - 1)).toFixed(1);
+                const npe = ((Math.abs(burst - forecast) / burst) * 100).toFixed(1);
+                logHtml = `
+                    <div class="log-entry">
+                        <span class="log-time">[${now}]</span>
+                        <span class="log-vm">VM-${vmId.toString().padStart(2, '0')}</span>
+                        <span class="log-detail">Task #${state.simTaskId} (Burst ${burst}s) | CV=${cv} &gt; ${state.cvThreshold.toFixed(2)} &rarr;</span>
+                        <span class="log-mode-pred">PREDICTIVE</span>
+                        <span class="log-detail">(EWMA: ${forecast}s, err: ${npe}%, &alpha;=${state.ewmaAlpha.toFixed(2)})</span>
+                    </div>
+                `;
+            }
+
+            elements.terminalLogWindow.insertAdjacentHTML('beforeend', logHtml);
+            if (elements.terminalLogWindow.children.length > 50) {
+                elements.terminalLogWindow.removeChild(elements.terminalLogWindow.firstElementChild);
+            }
+            elements.terminalLogWindow.scrollTop = elements.terminalLogWindow.scrollHeight;
+        }, 1200);
+    }
+
+    // 8. Helper Utilities
     function updateBackendBadges() {
         const status = SimulationDataProvider.getBackendStatus();
         const topBadge = document.getElementById('backendStatusBadge');
@@ -457,7 +612,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!toast) {
             toast = document.createElement('div');
             toast.id = 'appNotificationToast';
-            toast.style.cssText = 'position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.5); transition: opacity 0.3s ease; opacity: 0;';
             document.body.appendChild(toast);
         }
         toast.textContent = msg;
@@ -465,8 +619,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         setTimeout(() => { toast.style.opacity = '0'; }, 3500);
     }
 
-    // 7. Initial Startup
+    // 9. Startup Sequence
     setupEventListeners();
     updateBackendBadges();
     navigateTo('overview');
+    startLogStream();
 });

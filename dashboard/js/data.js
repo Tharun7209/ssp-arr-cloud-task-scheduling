@@ -26,25 +26,27 @@ const SimulationDataProvider = (function() {
 
     // Method to fetch JSON or fallback to embedded simulation data
     async function init() {
-        // First check backend connection
-        await checkBackendHealth();
-
-        try {
-            const dataUrl = backendUrl ? `${backendUrl}/api/results` : 'data/simulation_results.json';
-            const response = await fetch(dataUrl);
-            if (response.ok) {
-                dataset = await response.json();
-                isLoaded = true;
-                console.log('Simulation data loaded dynamically from JSON.');
-                return dataset;
-            }
-        } catch (e) {
-            console.warn('Fetch blocked or offline (file:// protocol). Using embedded simulation results.', e);
+        // Immediately initialize embedded data so all UI views are 100% interactive with zero latency
+        if (!dataset) {
+            dataset = getEmbeddedDataset();
+            isLoaded = true;
         }
 
-        // If fetch is restricted by browser file:// policy, load the static authentic data
-        dataset = getEmbeddedDataset();
-        isLoaded = true;
+        // Asynchronously check backend and update dataset if available
+        checkBackendHealth().then(async (healthy) => {
+            if (healthy) {
+                try {
+                    const res = await fetch(`${backendUrl || ''}/api/results`);
+                    if (res.ok) {
+                        dataset = await res.json();
+                        if (window.dispatchEvent) {
+                            window.dispatchEvent(new CustomEvent('simulation-data-updated'));
+                        }
+                    }
+                } catch (ignored) {}
+            }
+        });
+
         return dataset;
     }
 
@@ -106,7 +108,19 @@ const SimulationDataProvider = (function() {
 
     function getVms() {
         const d = getData();
-        return (d && d.vms) ? d.vms : defaultVms;
+        const rawVms = (d && d.vms) ? d.vms : defaultVms;
+        return rawVms.map(v => {
+            const mips = v.mips || 1000;
+            const tier = v.tier || (mips >= 3000 ? 'High' : (mips >= 2000 ? 'Mid' : 'Standard'));
+            return {
+                id: v.id,
+                mips: mips,
+                ram: v.ram || 8192,
+                bw: v.bw || 20000,
+                storage: v.storage || 10000,
+                tier: tier
+            };
+        });
     }
 
     function getWorkloads() {
