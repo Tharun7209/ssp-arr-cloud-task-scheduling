@@ -70,6 +70,7 @@ public class MAADRRSimulation {
     // ============================================================
     // MAADRR PARAMETERS
     // ============================================================
+    public static final double CS_OVERHEAD = 0.005; // 5ms context-switch overhead per preemption
     private static final double Q_MIN = 0.001;   // seconds
     private static final double Q_MAX = 60.0;    // seconds
     // Ranking weights (GoCJ has no priority field - B = 0)
@@ -166,10 +167,15 @@ public class MAADRRSimulation {
     // LOCAL MAADRR SIMULATION
     // ============================================================
     private static RunResult simulateLocalScheduling(List<VMQueue> vmQueues) {
+        long startNano = System.nanoTime();
         RunResult result = new RunResult();
         double globalMakespan = 0.0;
+        double sumEfficiency = 0.0;
+        double sumEfficiencySq = 0.0;
+        double[] vmFinishTimes = new double[vmQueues.size()];
 
-        for (VMQueue vmQueue : vmQueues) {
+        for (int vIdx = 0; vIdx < vmQueues.size(); vIdx++) {
+            VMQueue vmQueue = vmQueues.get(vIdx);
             double currentTime = 0.0;
 
             while (!vmQueue.tasks.isEmpty()) {
@@ -195,16 +201,42 @@ public class MAADRRSimulation {
                     result.totalTurnaroundTime  += turnaround;
                     result.completedTasks++;
                     globalMakespan = Math.max(globalMakespan, task.finishTime);
+
+                    double efficiency = task.originalBurst / Math.max(task.finishTime, 1e-9);
+                    sumEfficiency += efficiency;
+                    sumEfficiencySq += efficiency * efficiency;
                 } else {
+                    currentTime += CS_OVERHEAD;
+                    result.totalPreemptions++;
                     insertSorted(vmQueue.tasks, task);
                 }
             }
+            vmFinishTimes[vIdx] = currentTime;
         }
+
+        long endNano = System.nanoTime();
+        result.schedulingOverheadMs = (endNano - startNano) / 1_000_000.0;
 
         if (result.completedTasks > 0) {
             result.averageWaitingTimeMs  = (result.totalWaitingTime  / result.completedTasks) * 1000.0;
             result.averageTurnaroundTime = result.totalTurnaroundTime / result.completedTasks;
+            result.jainsFairnessIndex = (sumEfficiencySq > 0)
+                ? (sumEfficiency * sumEfficiency) / (result.completedTasks * sumEfficiencySq)
+                : 1.0;
         }
+
+        // Load Imbalance Factor (LIF) across all VMs
+        double maxFT = 0.0;
+        double minFT = Double.MAX_VALUE;
+        double sumFT = 0.0;
+        for (double ft : vmFinishTimes) {
+            if (ft > maxFT) maxFT = ft;
+            if (ft < minFT) minFT = ft;
+            sumFT += ft;
+        }
+        double avgFT = vmQueues.size() > 0 ? (sumFT / vmQueues.size()) : 0.0;
+        result.loadImbalanceFactor = (avgFT > 0) ? (maxFT - minFT) / avgFT : 0.0;
+
         result.makespan   = globalMakespan;
         result.throughput = globalMakespan > 0 ? (double) result.completedTasks / globalMakespan : 0.0;
         return result;
@@ -379,6 +411,10 @@ public class MAADRRSimulation {
         double makespan;
         double throughput;
         long   completedTasks;
+        double jainsFairnessIndex;
+        double loadImbalanceFactor;
+        long   totalPreemptions;
+        double schedulingOverheadMs;
 
         void add(RunResult o) {
             totalWaitingTime      += o.totalWaitingTime;
@@ -388,6 +424,10 @@ public class MAADRRSimulation {
             makespan              += o.makespan;
             throughput            += o.throughput;
             completedTasks        += o.completedTasks;
+            jainsFairnessIndex    += o.jainsFairnessIndex;
+            loadImbalanceFactor   += o.loadImbalanceFactor;
+            totalPreemptions      += o.totalPreemptions;
+            schedulingOverheadMs  += o.schedulingOverheadMs;
         }
 
         void divide(int d) {
@@ -399,6 +439,10 @@ public class MAADRRSimulation {
             makespan              /= d;
             throughput            /= d;
             completedTasks        /= d;
+            jainsFairnessIndex    /= d;
+            loadImbalanceFactor   /= d;
+            totalPreemptions      /= d;
+            schedulingOverheadMs  /= d;
         }
     }
 }

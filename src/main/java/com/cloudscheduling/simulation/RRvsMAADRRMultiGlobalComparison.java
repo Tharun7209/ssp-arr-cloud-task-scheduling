@@ -53,6 +53,7 @@ public class RRvsMAADRRMultiGlobalComparison {
     // MAADRR parameters
     private static final double Q_MIN = 0.001;
     private static final double Q_MAX = 60.0;
+    private static final double CS_OVERHEAD = 0.005; // 5ms context switch penalty per preemption
 
     private static final double RR_QUANTUM = 1.0; // 1 second fixed quantum for RR
     private static final int    RUNS       = 3;   // Statistical runs per size
@@ -251,6 +252,8 @@ public class RRvsMAADRRMultiGlobalComparison {
                     res.completed++;
                     globalMakespan = Math.max(globalMakespan, t.finishTime);
                 } else {
+                    currentTime += CS_OVERHEAD;
+                    totalCpuBusyTime += CS_OVERHEAD;
                     vq.tasks.addLast(t);
                 }
             }
@@ -290,6 +293,8 @@ public class RRvsMAADRRMultiGlobalComparison {
                     res.completed++;
                     globalMakespan = Math.max(globalMakespan, t.finishTime);
                 } else {
+                    currentTime += CS_OVERHEAD;
+                    totalCpuBusyTime += CS_OVERHEAD;
                     // Re-insert maintaining sorted order by ascending remaining burst (MAADRR Rank)
                     insertSorted(vq.tasks, t);
                 }

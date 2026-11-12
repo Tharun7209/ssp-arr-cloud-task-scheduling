@@ -33,17 +33,20 @@ public class ComparisonSimulation {
         System.out.println();
 
         // Accumulators for global averages
-        double sumAwtImp  = 0, sumAtatImp = 0, sumMsImp = 0, sumTpImp = 0;
+        double sumAwtImp = 0, sumAtatImp = 0, sumMsImp = 0, sumTpImp = 0, sumJfiImp = 0, sumLifImp = 0, sumPreemptImp = 0;
         int count = 0;
 
         // Column header
-        System.out.printf("%-8s | %-22s | %-22s | %-22s | %-22s%n",
+        System.out.printf("%-5s | %-16s | %-16s | %-17s | %-14s | %-13s | %-13s | %-13s%n",
             "Tasks",
-            "AWT (ms)  [MAADRR/SSP]",
-            "ATAT (s)  [MAADRR/SSP]",
-            "Makespan (s) [MAADRR/SSP]",
-            "Throughput  [MAADRR/SSP]");
-        System.out.println("-".repeat(110));
+            "AWT(ms)[MAA/SSP]",
+            "ATAT(s)[MAA/SSP]",
+            "Makespan[MAA/SSP]",
+            "TP [MAA/SSP]",
+            "JFI [MAA/SSP]",
+            "LIF [MAA/SSP]",
+            "Preempt[MAA/SSP]");
+        System.out.println("-".repeat(122));
 
         for (int size : PAPER_SIZES) {
             MAADRRSimulation.RunResult maadrr = new MAADRRSimulation.RunResult();
@@ -57,41 +60,53 @@ public class ComparisonSimulation {
             ssparr.divide(RUNS);
 
             // Percentage improvements (positive = SSP-ARR wins)
-            double awtImp  = pctImprove(maadrr.averageWaitingTimeMs,  ssparr.averageWaitingTimeMs,  false);
-            double atatImp = pctImprove(maadrr.averageTurnaroundTime, ssparr.averageTurnaroundTime, false);
-            double msImp   = pctImprove(maadrr.makespan,              ssparr.makespan,              false);
-            double tpImp   = pctImprove(maadrr.throughput,            ssparr.throughput,            true);
+            double awtImp     = pctImprove(maadrr.averageWaitingTimeMs,  ssparr.averageWaitingTimeMs,  false);
+            double atatImp    = pctImprove(maadrr.averageTurnaroundTime, ssparr.averageTurnaroundTime, false);
+            double msImp      = pctImprove(maadrr.makespan,              ssparr.makespan,              false);
+            double tpImp      = pctImprove(maadrr.throughput,            ssparr.throughput,            true);
+            double jfiImp     = pctImprove(maadrr.jainsFairnessIndex,    ssparr.jainsFairnessIndex,    true);
+            double lifImp     = pctImprove(maadrr.loadImbalanceFactor,   ssparr.loadImbalanceFactor,   false);
+            double preemptImp = pctImprove(maadrr.totalPreemptions,      ssparr.totalPreemptions,      false);
 
             System.out.printf(
-                "%-8d | %9.3f / %9.3f | %9.3f / %9.3f | %10.3f / %10.3f | %8.4f / %8.4f%n",
+                "%-5d | %7.1f / %7.1f | %7.2f / %7.2f | %7.2f / %7.2f | %5.3f / %5.3f | %5.3f/%5.3f | %5.3f/%5.3f | %5d / %5d%n",
                 size,
                 maadrr.averageWaitingTimeMs,  ssparr.averageWaitingTimeMs,
                 maadrr.averageTurnaroundTime, ssparr.averageTurnaroundTime,
                 maadrr.makespan,              ssparr.makespan,
-                maadrr.throughput,            ssparr.throughput
+                maadrr.throughput,            ssparr.throughput,
+                maadrr.jainsFairnessIndex,    ssparr.jainsFairnessIndex,
+                maadrr.loadImbalanceFactor,   ssparr.loadImbalanceFactor,
+                maadrr.totalPreemptions,      ssparr.totalPreemptions
             );
             System.out.printf(
-                "         | AWT imp: %+6.2f%%        | ATAT imp: %+6.2f%%       | MS imp: %+6.2f%%          | TP imp: %+6.2f%%%n",
-                awtImp, atatImp, msImp, tpImp
+                "      | AWT: %+5.1f%%        | ATAT: %+5.1f%%       | MS: %+5.1f%%         | TP: %+5.1f%%    | JFI: %+5.1f%% | LIF: %+5.1f%% | Preempt: %+5.1f%%%n",
+                awtImp, atatImp, msImp, tpImp, jfiImp, lifImp, preemptImp
             );
-            System.out.println("-".repeat(110));
+            System.out.println("-".repeat(122));
 
-            sumAwtImp  += awtImp;
-            sumAtatImp += atatImp;
-            sumMsImp   += msImp;
-            sumTpImp   += tpImp;
+            sumAwtImp     += awtImp;
+            sumAtatImp    += atatImp;
+            sumMsImp      += msImp;
+            sumTpImp      += tpImp;
+            sumJfiImp     += jfiImp;
+            sumLifImp     += lifImp;
+            sumPreemptImp += preemptImp;
             count++;
         }
 
         System.out.println();
-        System.out.println("============================================================");
+        System.out.println("=====================================================================================================");
         System.out.println(" OVERALL AVERAGE IMPROVEMENT of SSP-ARR over MAADRR");
-        System.out.println("============================================================");
-        System.out.printf("  AWT      improvement: %+6.2f%%%n", sumAwtImp  / count);
-        System.out.printf("  ATAT     improvement: %+6.2f%%%n", sumAtatImp / count);
-        System.out.printf("  Makespan improvement: %+6.2f%%%n", sumMsImp   / count);
-        System.out.printf("  Throughput improvement: %+6.2f%%%n", sumTpImp  / count);
-        System.out.println("============================================================");
+        System.out.println("=====================================================================================================");
+        System.out.printf("  AWT      improvement: %+6.2f%%%n", sumAwtImp     / count);
+        System.out.printf("  ATAT     improvement: %+6.2f%%%n", sumAtatImp    / count);
+        System.out.printf("  Makespan improvement: %+6.2f%%%n", sumMsImp      / count);
+        System.out.printf("  Throughput improvement: %+6.2f%%%n", sumTpImp      / count);
+        System.out.printf("  Jain's Fairness Index improvement: %+6.2f%%%n", sumJfiImp     / count);
+        System.out.printf("  Load Imbalance Factor improvement: %+6.2f%%%n", sumLifImp     / count);
+        System.out.printf("  Preemption Reduction : %+6.2f%%%n", sumPreemptImp / count);
+        System.out.println("=====================================================================================================");
         System.out.println(" COMPARISON COMPLETE");
         System.out.println("============================================================");
     }

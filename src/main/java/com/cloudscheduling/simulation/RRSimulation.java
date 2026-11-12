@@ -39,6 +39,7 @@ public class RRSimulation {
 
     // Standard fixed quantum for classical Round Robin
     public static final double DEFAULT_FIXED_QUANTUM = 1.0; // 1 second
+    public static final double CS_OVERHEAD           = 0.005; // 5ms context-switch overhead per preemption
 
     private static final int RUNS = 5;
     private static final int[] PAPER_SIZES = {
@@ -65,12 +66,15 @@ public class RRSimulation {
             total.divide(RUNS);
 
             System.out.printf(
-                "Tasks %4d: AWT=%11.3f ms | ATAT=%9.3f s | Makespan=%9.3f s | Throughput=%.4f tasks/s%n",
+                "Tasks %4d: AWT=%11.3f ms | ATAT=%9.3f s | MS=%8.2f s | TP=%.4f | JFI=%.4f | LIF=%.3f | Preempt=%d%n",
                 size,
                 total.averageWaitingTimeMs,
                 total.averageTurnaroundTime,
                 total.makespan,
-                total.throughput
+                total.throughput,
+                total.jainsFairnessIndex,
+                total.loadImbalanceFactor,
+                total.totalPreemptions
             );
         }
 
@@ -118,10 +122,15 @@ public class RRSimulation {
     }
 
     private static RunResult simulateLocalRR(List<VMQueue> vmQueues, double fixedQuantum) {
+        long startNano = System.nanoTime();
         RunResult result = new RunResult();
         double globalMakespan = 0.0;
+        double sumEfficiency = 0.0;
+        double sumEfficiencySq = 0.0;
+        double[] vmFinishTimes = new double[vmQueues.size()];
 
-        for (VMQueue vmQueue : vmQueues) {
+        for (int vIdx = 0; vIdx < vmQueues.size(); vIdx++) {
+            VMQueue vmQueue = vmQueues.get(vIdx);
             double currentTime = 0.0;
 
             while (!vmQueue.tasks.isEmpty()) {
@@ -140,17 +149,43 @@ public class RRSimulation {
                     result.totalTurnaroundTime += task.finishTime;
                     result.completedTasks++;
                     globalMakespan = Math.max(globalMakespan, task.finishTime);
+
+                    double efficiency = task.originalBurst / Math.max(task.finishTime, 1e-9);
+                    sumEfficiency += efficiency;
+                    sumEfficiencySq += efficiency * efficiency;
                 } else {
-                    // Standard RR: preempted task goes to tail of circular FIFO queue
+                    // Standard RR: preempted task incurs context-switch overhead and goes to tail of circular FIFO queue
+                    currentTime += CS_OVERHEAD;
+                    result.totalPreemptions++;
                     vmQueue.tasks.addLast(task);
                 }
             }
+            vmFinishTimes[vIdx] = currentTime;
         }
+
+        long endNano = System.nanoTime();
+        result.schedulingOverheadMs = (endNano - startNano) / 1_000_000.0;
 
         if (result.completedTasks > 0) {
             result.averageWaitingTimeMs  = (result.totalWaitingTime  / result.completedTasks) * 1000.0;
             result.averageTurnaroundTime = result.totalTurnaroundTime / result.completedTasks;
+            result.jainsFairnessIndex = (sumEfficiencySq > 0)
+                ? (sumEfficiency * sumEfficiency) / (result.completedTasks * sumEfficiencySq)
+                : 1.0;
         }
+
+        // Load Imbalance Factor (LIF) across all VMs
+        double maxFT = 0.0;
+        double minFT = Double.MAX_VALUE;
+        double sumFT = 0.0;
+        for (double ft : vmFinishTimes) {
+            if (ft > maxFT) maxFT = ft;
+            if (ft < minFT) minFT = ft;
+            sumFT += ft;
+        }
+        double avgFT = vmQueues.size() > 0 ? (sumFT / vmQueues.size()) : 0.0;
+        result.loadImbalanceFactor = (avgFT > 0) ? (maxFT - minFT) / avgFT : 0.0;
+
         result.makespan   = globalMakespan;
         result.throughput = globalMakespan > 0 ? (double) result.completedTasks / globalMakespan : 0.0;
         return result;
@@ -188,6 +223,10 @@ public class RRSimulation {
         public double makespan;
         public double throughput;
         public long   completedTasks;
+        public double jainsFairnessIndex;
+        public double loadImbalanceFactor;
+        public long   totalPreemptions;
+        public double schedulingOverheadMs;
 
         public void add(RunResult o) {
             totalWaitingTime      += o.totalWaitingTime;
@@ -197,6 +236,10 @@ public class RRSimulation {
             makespan              += o.makespan;
             throughput            += o.throughput;
             completedTasks        += o.completedTasks;
+            jainsFairnessIndex    += o.jainsFairnessIndex;
+            loadImbalanceFactor   += o.loadImbalanceFactor;
+            totalPreemptions      += o.totalPreemptions;
+            schedulingOverheadMs  += o.schedulingOverheadMs;
         }
 
         public void divide(int d) {
@@ -208,6 +251,10 @@ public class RRSimulation {
             makespan              /= d;
             throughput            /= d;
             completedTasks        /= d;
+            jainsFairnessIndex    /= d;
+            loadImbalanceFactor   /= d;
+            totalPreemptions      /= d;
+            schedulingOverheadMs  /= d;
         }
     }
 }

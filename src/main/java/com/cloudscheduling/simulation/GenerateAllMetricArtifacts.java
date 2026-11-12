@@ -26,7 +26,10 @@ public class GenerateAllMetricArtifacts {
         TCT("Total Completion Time", "TCT", "s", false, true, "Total Completion Time (TCT) in seconds (s)"),
         THROUGHPUT("Throughput", "Throughput", "tasks/s", true, false, "System Throughput in tasks per second (tasks/s)"),
         ENERGY("Host Energy Consumption", "Energy", "kWh", false, true, "Host Energy Consumption in kilowatt-hours (kWh)"),
-        MAKESPAN("Makespan", "Makespan", "s", false, true, "Total Scheduling Makespan in seconds (s)");
+        MAKESPAN("Makespan", "Makespan", "s", false, true, "Total Scheduling Makespan in seconds (s)"),
+        JFI("Jain's Fairness Index", "JFI", "", true, false, "Jain's Fairness Index across task execution efficiency"),
+        LIF("Load Imbalance Factor", "LIF", "", false, true, "Load Imbalance Factor across heterogeneous VMs"),
+        PREEMPT("Preemption Overhead", "Preempt", "count", false, true, "Total Task Preemptions");
 
         final String title;
         final String shortCode;
@@ -99,6 +102,9 @@ public class GenerateAllMetricArtifacts {
             case THROUGHPUT: return res.throughput;
             case ENERGY: return res.energyKWh;
             case MAKESPAN: return res.makespan;
+            case JFI: return res.jainsFairnessIndex;
+            case LIF: return res.loadImbalanceFactor;
+            case PREEMPT: return res.totalPreemptions;
             default: return 0.0;
         }
     }
@@ -119,6 +125,10 @@ public class GenerateAllMetricArtifacts {
             return String.format(Locale.US, "%.4f", val);
         } else if (metric == Metric.THROUGHPUT) {
             return String.format(Locale.US, "%.4f", val);
+        } else if (metric == Metric.JFI || metric == Metric.LIF) {
+            return String.format(Locale.US, "%.4f", val);
+        } else if (metric == Metric.PREEMPT) {
+            return String.format(Locale.US, "%,.0f", val);
         } else {
             return String.format(Locale.US, "%.2f", val);
         }

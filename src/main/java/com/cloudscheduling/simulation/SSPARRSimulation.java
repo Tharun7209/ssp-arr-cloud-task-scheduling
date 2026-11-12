@@ -73,6 +73,8 @@ public class SSPARRSimulation {
 
     private static final double Q_MIN = 0.001;
     private static final double Q_MAX = 60.0;
+    public  static final double CS_OVERHEAD = 0.005; // 5ms context switch penalty per preemption
+    private static final double AGING_FACTOR = 0.01;  // Aging bonus per queue cycle to prevent starvation
 
     // ============================================================
     // EXPERIMENT
@@ -109,12 +111,17 @@ public class SSPARRSimulation {
             total.divide(RUNS);
 
             System.out.printf(
-                "Tasks %4d: AWT=%9.3f ms | ATAT=%9.3f s | Makespan=%9.3f s | Throughput=%.4f tasks/s%n",
+                "Tasks %4d: AWT=%9.3f ms | ATAT=%9.3f s | MS=%8.2f s | TP=%.4f | JFI=%.4f | LIF=%.3f | Preempt=%d | RMSE=%.3f | MAPE=%.1f%%%n",
                 size,
                 total.averageWaitingTimeMs,
                 total.averageTurnaroundTime,
                 total.makespan,
-                total.throughput
+                total.throughput,
+                total.jainsFairnessIndex,
+                total.loadImbalanceFactor,
+                total.totalPreemptions,
+                total.predictionRMSE,
+                total.predictionMAPE
             );
         }
 
@@ -174,10 +181,15 @@ public class SSPARRSimulation {
     // LOCAL SSP-ARR SCHEDULING
     // ============================================================
     private static RunResult simulateLocalScheduling(List<VMQueue> vmQueues) {
+        long startNano = System.nanoTime();
         RunResult result = new RunResult();
         double globalMakespan = 0.0;
+        double sumEfficiency = 0.0;
+        double sumEfficiencySq = 0.0;
+        double[] vmFinishTimes = new double[vmQueues.size()];
 
-        for (VMQueue vmQueue : vmQueues) {
+        for (int vIdx = 0; vIdx < vmQueues.size(); vIdx++) {
+            VMQueue vmQueue = vmQueues.get(vIdx);
             double currentTime = 0.0;
 
             Deque<Double> completedBurstHistory = new ArrayDeque<>();
@@ -189,6 +201,11 @@ public class SSPARRSimulation {
             while (!vmQueue.tasks.isEmpty()) {
 
                 TaskState task = vmQueue.tasks.pollFirst();
+
+                // Aging update: increment waiting passes for all waiting tasks in this queue
+                for (TaskState waitingTask : vmQueue.tasks) {
+                    waitingTask.waitingPasses++;
+                }
 
                 // Reactive quantum = min(median_queue, remaining_burst) to let short tasks finish fast
                 double reactiveQuantum = calculateReactiveQuantum(vmQueue, task);
@@ -212,23 +229,12 @@ public class SSPARRSimulation {
 
                 double quantum;
                 if (predictiveMode) {
-                    /*
-                     * SSP-ARR key insight:
-                     * Use EWMA prediction as quantum but cap at the task's remaining burst.
-                     * This lets tasks that are shorter than the prediction finish in one
-                     * slice, eliminating unnecessary preemptions for short tasks.
-                     * For long tasks, it matches MAADRR's adaptive behavior.
-                     */
                     double taskBound = Math.min(predictiveEstimate, task.remainingBurst);
                     quantum = clamp(taskBound, Q_MIN, Q_MAX);
                     result.predictiveCount++;
                     result.totalPredictiveQuantum += quantum;
                     task.predictionUsed = true;
                 } else {
-                    /*
-                     * Reactive mode: use min(median, remaining_burst) so short tasks
-                     * also get a chance to complete in one slice even without prediction.
-                     */
                     double taskBound = Math.min(reactiveQuantum, task.remainingBurst);
                     quantum = clamp(taskBound, Q_MIN, Q_MAX);
                     result.reactiveCount++;
@@ -251,11 +257,17 @@ public class SSPARRSimulation {
                     result.completedTasks++;
                     globalMakespan = Math.max(globalMakespan, task.finishTime);
 
-                    // Update prediction error history
+                    double efficiency = task.originalBurst / Math.max(task.finishTime, 1e-9);
+                    sumEfficiency += efficiency;
+                    sumEfficiencySq += efficiency * efficiency;
+
+                    // Update prediction error history & metrics
                     if (task.predictionEvaluated && task.predictedBurst > 0.0) {
                         double absErr  = Math.abs(task.originalBurst - task.predictedBurst);
                         double normErr = absErr / Math.max(task.originalBurst, 1e-9);
                         result.totalPredictionError += absErr;
+                        result.totalSqPredictionError += absErr * absErr;
+                        result.totalPctPredictionError += normErr;
                         result.predictionMeasurements++;
                         predictionErrorHistory.addLast(normErr);
                         while (predictionErrorHistory.size() > PREDICTION_ERROR_WINDOW)
@@ -277,31 +289,57 @@ public class SSPARRSimulation {
                         completedBurstHistory.removeFirst();
 
                 } else {
-                    // Re-insert maintaining sorted order by ascending remaining burst
-                    // (SSP-ARR advantage: EWMA-tuned quanta reduce preemptions vs MAADRR's median)
+                    // Preempted task incurs context-switch penalty
+                    currentTime += CS_OVERHEAD;
+                    result.totalPreemptions++;
+                    // Re-insert maintaining sorted order by effective remaining burst (with aging)
                     insertSortedByBurst(vmQueue.tasks, task);
                 }
             }
+            vmFinishTimes[vIdx] = currentTime;
         }
+
+        long endNano = System.nanoTime();
+        result.schedulingOverheadMs = (endNano - startNano) / 1_000_000.0;
 
         if (result.completedTasks > 0) {
             result.averageWaitingTimeMs  = (result.totalWaitingTime  / result.completedTasks) * 1000.0;
             result.averageTurnaroundTime = result.totalTurnaroundTime / result.completedTasks;
+            result.jainsFairnessIndex = (sumEfficiencySq > 0)
+                ? (sumEfficiency * sumEfficiency) / (result.completedTasks * sumEfficiencySq)
+                : 1.0;
         }
+
+        // Load Imbalance Factor (LIF) across VMs
+        double maxFT = 0.0;
+        double minFT = Double.MAX_VALUE;
+        double sumFT = 0.0;
+        for (double ft : vmFinishTimes) {
+            if (ft > maxFT) maxFT = ft;
+            if (ft < minFT) minFT = ft;
+            sumFT += ft;
+        }
+        double avgFT = vmQueues.size() > 0 ? (sumFT / vmQueues.size()) : 0.0;
+        result.loadImbalanceFactor = (avgFT > 0) ? (maxFT - minFT) / avgFT : 0.0;
+
         result.makespan   = globalMakespan;
         result.throughput = globalMakespan > 0 ? (double) result.completedTasks / globalMakespan : 0.0;
-        if (result.predictionMeasurements > 0)
+        if (result.predictionMeasurements > 0) {
             result.predictionMAE = result.totalPredictionError / result.predictionMeasurements;
+            result.predictionRMSE = Math.sqrt(result.totalSqPredictionError / result.predictionMeasurements);
+            result.predictionMAPE = (result.totalPctPredictionError / result.predictionMeasurements) * 100.0;
+        }
         return result;
     }
 
-    /** Insert task maintaining ascending remaining-burst order. */
+    /** Insert task maintaining ascending effective remaining-burst order (SRPT with aging protection). */
     private static void insertSortedByBurst(Deque<TaskState> deque, TaskState task) {
         List<TaskState> list = new ArrayList<>(deque);
         deque.clear();
         boolean inserted = false;
+        double taskEff = task.effectiveBurst();
         for (TaskState t : list) {
-            if (!inserted && t.remainingBurst > task.remainingBurst) {
+            if (!inserted && t.effectiveBurst() > taskEff) {
                 deque.addLast(task);
                 inserted = true;
             }
@@ -403,12 +441,18 @@ public class SSPARRSimulation {
         double          predictedBurst;
         boolean         predictionEvaluated;
         boolean         predictionUsed;
+        int             waitingPasses;
 
         TaskState(long id, Cloudlet cl, double burst) {
             this.cloudletId         = id;
             this.cloudlet           = cl;
             this.originalBurst      = burst;
             this.remainingBurst     = burst;
+            this.waitingPasses      = 0;
+        }
+
+        double effectiveBurst() {
+            return Math.max(0.001, remainingBurst - (AGING_FACTOR * waitingPasses));
         }
     }
 
@@ -420,8 +464,16 @@ public class SSPARRSimulation {
         double makespan;
         double throughput;
         long   completedTasks;
+        double jainsFairnessIndex;
+        double loadImbalanceFactor;
+        long   totalPreemptions;
+        double schedulingOverheadMs;
         double predictionMAE;
+        double predictionRMSE;
+        double predictionMAPE;
         double totalPredictionError;
+        double totalSqPredictionError;
+        double totalPctPredictionError;
         long   predictionMeasurements;
         long   predictiveCount;
         long   reactiveCount;
@@ -437,8 +489,16 @@ public class SSPARRSimulation {
             makespan              += o.makespan;
             throughput            += o.throughput;
             completedTasks        += o.completedTasks;
+            jainsFairnessIndex    += o.jainsFairnessIndex;
+            loadImbalanceFactor   += o.loadImbalanceFactor;
+            totalPreemptions      += o.totalPreemptions;
+            schedulingOverheadMs  += o.schedulingOverheadMs;
             predictionMAE         += o.predictionMAE;
+            predictionRMSE        += o.predictionRMSE;
+            predictionMAPE        += o.predictionMAPE;
             totalPredictionError  += o.totalPredictionError;
+            totalSqPredictionError += o.totalSqPredictionError;
+            totalPctPredictionError += o.totalPctPredictionError;
             predictionMeasurements+= o.predictionMeasurements;
             predictiveCount       += o.predictiveCount;
             reactiveCount         += o.reactiveCount;
@@ -456,8 +516,16 @@ public class SSPARRSimulation {
             makespan              /= d;
             throughput            /= d;
             completedTasks        /= d;
+            jainsFairnessIndex    /= d;
+            loadImbalanceFactor   /= d;
+            totalPreemptions      /= d;
+            schedulingOverheadMs  /= d;
             predictionMAE         /= d;
+            predictionRMSE        /= d;
+            predictionMAPE        /= d;
             totalPredictionError  /= d;
+            totalSqPredictionError /= d;
+            totalPctPredictionError /= d;
             predictionMeasurements/= d;
             predictiveCount       /= d;
             reactiveCount         /= d;

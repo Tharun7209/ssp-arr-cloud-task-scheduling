@@ -50,6 +50,9 @@ public class MultiGlobalComparisonSimulation {
 
     private static final double RR_QUANTUM  = 1.0;   // 1 second fixed quantum for RR
     private static final double CS_OVERHEAD = 0.005; // 5ms context switch penalty per preemption
+    private static final double STABILITY_THRESHOLD = 0.50; // CV threshold for SSP-ARR
+    private static final double MAX_NORM_PREDICTION_ERROR = 0.20; // Confidence gate threshold
+    private static final double AGING_FACTOR = 0.01; // Aging bonus to prevent task starvation
     private static final int    RUNS        = 3;     // Runs per workload size for statistical stability
     private static final int[]  WORKLOADS   = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000 };
 
@@ -68,16 +71,17 @@ public class MultiGlobalComparisonSimulation {
             System.out.println("=================================================================================================================");
             System.out.printf(" GLOBAL SCHEDULER: %s%n", policy.getDisplayName());
             System.out.println("=================================================================================================================");
-            System.out.printf("%-5s | %-19s | %-19s | %-19s | %-18s | %-18s%n",
+            System.out.printf("%-5s | %-17s | %-17s | %-17s | %-15s | %-15s | %-15s%n",
                 "Tasks",
                 "AWT (ms) [RR/SSP]",
                 "ATAT (s) [RR/SSP]",
-                "ACT (s) [RR/SSP]",
-                "Throughput [RR/SSP]",
-                "Energy (kWh) [RR/SSP]");
-            System.out.println("-".repeat(113));
+                "MS (s) [RR/SSP]",
+                "Energy (kWh)",
+                "JFI [RR/SSP]",
+                "Preempt [RR/SSP]");
+            System.out.println("-".repeat(116));
 
-            double sumAwtImp = 0, sumAtatImp = 0, sumActImp = 0, sumTpImp = 0, sumEnergyImp = 0;
+            double sumAwtImp = 0, sumAtatImp = 0, sumMsImp = 0, sumTpImp = 0, sumEnergyImp = 0, sumJfiImp = 0, sumPreemptImp = 0;
 
             for (int size : WORKLOADS) {
                 ComprehensiveResult rrAgg = new ComprehensiveResult();
@@ -90,36 +94,41 @@ public class MultiGlobalComparisonSimulation {
                 rrAgg.divide(RUNS);
                 sspAgg.divide(RUNS);
 
-                double awtImp    = pctImprove(rrAgg.awtMs,    sspAgg.awtMs,    false);
-                double atatImp   = pctImprove(rrAgg.atatS,    sspAgg.atatS,    false);
-                double actImp    = pctImprove(rrAgg.actS,     sspAgg.actS,     false);
-                double tpImp     = pctImprove(rrAgg.throughput, sspAgg.throughput, true);
-                double energyImp = pctImprove(rrAgg.energyKWh, sspAgg.energyKWh, false);
+                double awtImp     = pctImprove(rrAgg.awtMs,              sspAgg.awtMs,              false);
+                double atatImp    = pctImprove(rrAgg.atatS,              sspAgg.atatS,              false);
+                double msImp      = pctImprove(rrAgg.makespan,           sspAgg.makespan,           false);
+                double tpImp      = pctImprove(rrAgg.throughput,         sspAgg.throughput,         true);
+                double energyImp  = pctImprove(rrAgg.energyKWh,          sspAgg.energyKWh,          false);
+                double jfiImp     = pctImprove(rrAgg.jainsFairnessIndex, sspAgg.jainsFairnessIndex, true);
+                double preemptImp = pctImprove(rrAgg.totalPreemptions,   sspAgg.totalPreemptions,   false);
 
-                sumAwtImp += awtImp;
-                sumAtatImp += atatImp;
-                sumActImp += actImp;
-                sumTpImp += tpImp;
-                sumEnergyImp += energyImp;
+                sumAwtImp     += awtImp;
+                sumAtatImp    += atatImp;
+                sumMsImp      += msImp;
+                sumTpImp      += tpImp;
+                sumEnergyImp  += energyImp;
+                sumJfiImp     += jfiImp;
+                sumPreemptImp += preemptImp;
 
-                System.out.printf("%-5d | %8.1f / %8.1f | %8.2f / %8.2f | %8.2f / %8.2f | %7.3f / %7.3f | %7.4f / %7.4f%n",
+                System.out.printf("%-5d | %7.1f / %7.1f | %7.2f / %7.2f | %7.2f / %7.2f | %6.4f / %6.4f | %5.3f / %5.3f | %6d / %5d%n",
                     size,
                     rrAgg.awtMs, sspAgg.awtMs,
                     rrAgg.atatS, sspAgg.atatS,
-                    rrAgg.actS, sspAgg.actS,
-                    rrAgg.throughput, sspAgg.throughput,
-                    rrAgg.energyKWh, sspAgg.energyKWh
+                    rrAgg.makespan, sspAgg.makespan,
+                    rrAgg.energyKWh, sspAgg.energyKWh,
+                    rrAgg.jainsFairnessIndex, sspAgg.jainsFairnessIndex,
+                    rrAgg.totalPreemptions, sspAgg.totalPreemptions
                 );
-                System.out.printf("      | AWT: %+5.1f%%        | ATAT: %+5.1f%%       | ACT: %+5.1f%%        | TP: %+5.1f%%       | Energy: %+5.1f%%%n",
-                    awtImp, atatImp, actImp, tpImp, energyImp
+                System.out.printf("      | AWT: %+5.1f%%        | ATAT: %+5.1f%%       | MS: %+5.1f%%         | Energy: %+5.1f%%     | JFI: %+5.2f%%   | Preempt: %+5.1f%%%n",
+                    awtImp, atatImp, msImp, energyImp, jfiImp, preemptImp
                 );
-                System.out.println("-".repeat(113));
+                System.out.println("-".repeat(116));
             }
 
             int n = WORKLOADS.length;
-            System.out.printf(" >>> %s Mean Improvement: AWT=%+5.1f%% | ATAT=%+5.1f%% | ACT=%+5.1f%% | TP=%+5.1f%% | Energy=%+5.1f%%%n%n",
+            System.out.printf(" >>> %s Mean Improvement: AWT=%+5.1f%% | ATAT=%+5.1f%% | MS=%+5.1f%% | Energy=%+5.1f%% | JFI=%+5.2f%% | Preempt=%+5.1f%%%n%n",
                 policy.getDisplayName(),
-                sumAwtImp / n, sumAtatImp / n, sumActImp / n, sumTpImp / n, sumEnergyImp / n);
+                sumAwtImp / n, sumAtatImp / n, sumMsImp / n, sumEnergyImp / n, sumJfiImp / n, sumPreemptImp / n);
         }
 
         System.out.println("=================================================================================================================");
@@ -178,8 +187,12 @@ public class MultiGlobalComparisonSimulation {
         ComprehensiveResult res = new ComprehensiveResult();
         double globalMakespan = 0.0;
         double totalCpuBusyTime = 0.0;
+        double sumEfficiency = 0.0;
+        double sumEfficiencySq = 0.0;
+        double[] vmFinishTimes = new double[vmQueues.size()];
 
-        for (VMQueue vq : vmQueues) {
+        for (int vIdx = 0; vIdx < vmQueues.size(); vIdx++) {
+            VMQueue vq = vmQueues.get(vIdx);
             double currentTime = 0.0;
             while (!vq.tasks.isEmpty()) {
                 TaskState t = vq.tasks.pollFirst();
@@ -196,44 +209,76 @@ public class MultiGlobalComparisonSimulation {
                     res.totalAct += t.finishTime;
                     res.completed++;
                     globalMakespan = Math.max(globalMakespan, t.finishTime);
+
+                    double eff = t.originalBurst / Math.max(t.finishTime, 1e-9);
+                    sumEfficiency += eff;
+                    sumEfficiencySq += eff * eff;
                 } else {
                     currentTime += CS_OVERHEAD;
                     totalCpuBusyTime += CS_OVERHEAD;
+                    res.totalPreemptions++;
                     vq.tasks.addLast(t);
                 }
             }
+            vmFinishTimes[vIdx] = currentTime;
         }
 
-        calculateFinalMetrics(res, globalMakespan, totalCpuBusyTime);
+        calculateFinalMetrics(res, globalMakespan, totalCpuBusyTime, sumEfficiency, sumEfficiencySq, vmFinishTimes);
         return res;
     }
 
     // =========================================================================
-    // LOCAL SSP-ARR SCHEDULER
+    // LOCAL SSP-ARR SCHEDULER (v3 with Adaptive Alpha, Gate, Aging)
     // =========================================================================
     private static ComprehensiveResult simulateSSPARR(List<VMQueue> vmQueues) {
         ComprehensiveResult res = new ComprehensiveResult();
         double globalMakespan = 0.0;
         double totalCpuBusyTime = 0.0;
+        double sumEfficiency = 0.0;
+        double sumEfficiencySq = 0.0;
+        double[] vmFinishTimes = new double[vmQueues.size()];
 
-        for (VMQueue vq : vmQueues) {
+        for (int vIdx = 0; vIdx < vmQueues.size(); vIdx++) {
+            VMQueue vq = vmQueues.get(vIdx);
             double currentTime = 0.0;
-            Deque<Double> history = new ArrayDeque<>();
+            Deque<Double> burstHistory = new ArrayDeque<>();
+            Deque<Double> errorHistory = new ArrayDeque<>();
             double ewma = 0.0;
             boolean ewmaInit = false;
 
             while (!vq.tasks.isEmpty()) {
                 TaskState t = vq.tasks.pollFirst();
 
+                // Aging update for remaining tasks in this queue
+                for (TaskState waitingTask : vq.tasks) {
+                    waitingTask.waitingPasses++;
+                }
+
                 // Reactive quantum = median of remaining bursts
                 double reactiveQ = calculateMedian(vq, t);
-                boolean stable = isStable(history);
+                boolean stable = isStable(burstHistory);
+
+                // Prediction only generated when volatile
+                double predictiveEstimate = 0.0;
+                boolean predictionGenerated = false;
+                if (!stable) {
+                    predictiveEstimate = makeEwmaPrediction(ewma, ewmaInit, burstHistory);
+                    predictionGenerated = true;
+                    t.predictedBurst = predictiveEstimate;
+                    t.predictionEvaluated = true;
+                }
+
+                // Confidence gate
+                boolean reliable = predictionGenerated && isPredictionReliable(errorHistory);
+                boolean predictiveMode = !stable && reliable;
 
                 double q;
-                if (!stable && ewmaInit && ewma > 0) {
-                    q = Math.max(0.001, Math.min(60.0, Math.min(ewma, t.remainingBurst)));
+                if (predictiveMode) {
+                    double taskBound = Math.min(predictiveEstimate, t.remainingBurst);
+                    q = Math.max(0.001, Math.min(60.0, taskBound));
                 } else {
-                    q = Math.max(0.001, Math.min(60.0, Math.min(reactiveQ, t.remainingBurst)));
+                    double taskBound = Math.min(reactiveQ, t.remainingBurst);
+                    q = Math.max(0.001, Math.min(60.0, taskBound));
                 }
 
                 double slice = Math.min(q, t.remainingBurst);
@@ -250,44 +295,75 @@ public class MultiGlobalComparisonSimulation {
                     res.completed++;
                     globalMakespan = Math.max(globalMakespan, t.finishTime);
 
+                    double eff = t.originalBurst / Math.max(t.finishTime, 1e-9);
+                    sumEfficiency += eff;
+                    sumEfficiencySq += eff * eff;
+
+                    // Update prediction error history
+                    if (t.predictionEvaluated && t.predictedBurst > 0.0) {
+                        double absErr = Math.abs(t.originalBurst - t.predictedBurst);
+                        double normErr = absErr / Math.max(t.originalBurst, 1e-9);
+                        errorHistory.addLast(normErr);
+                        while (errorHistory.size() > 5) errorHistory.removeFirst();
+                    }
+
+                    // Adaptive EWMA update
                     double actual = t.originalBurst;
                     if (!ewmaInit) {
                         ewma = actual;
                         ewmaInit = true;
                     } else {
-                        ewma = 0.3 * actual + 0.7 * ewma;
+                        double alpha = calculateAdaptiveAlpha(errorHistory);
+                        ewma = alpha * actual + (1.0 - alpha) * ewma;
                     }
-                    history.addLast(actual);
-                    while (history.size() > 5) history.removeFirst();
+
+                    burstHistory.addLast(actual);
+                    while (burstHistory.size() > 5) burstHistory.removeFirst();
                 } else {
                     currentTime += CS_OVERHEAD;
                     totalCpuBusyTime += CS_OVERHEAD;
+                    res.totalPreemptions++;
                     insertSorted(vq.tasks, t);
                 }
             }
+            vmFinishTimes[vIdx] = currentTime;
         }
 
-        calculateFinalMetrics(res, globalMakespan, totalCpuBusyTime);
+        calculateFinalMetrics(res, globalMakespan, totalCpuBusyTime, sumEfficiency, sumEfficiencySq, vmFinishTimes);
         return res;
     }
 
-    private static void calculateFinalMetrics(ComprehensiveResult res, double makespan, double totalCpuBusyTime) {
+    private static void calculateFinalMetrics(ComprehensiveResult res, double makespan, double totalCpuBusyTime,
+                                              double sumEfficiency, double sumEfficiencySq, double[] vmFinishTimes) {
         if (res.completed > 0) {
             res.awtMs = (res.totalAwt / res.completed) * 1000.0;
             res.atatS = res.totalAtat / res.completed;
             res.actS  = res.totalAct / res.completed;
             res.tctS  = res.totalAct;
+            res.jainsFairnessIndex = (sumEfficiencySq > 0)
+                ? (sumEfficiency * sumEfficiency) / (res.completed * sumEfficiencySq)
+                : 1.0;
         }
         res.makespan = makespan;
         res.throughput = makespan > 0 ? (double) res.completed / makespan : 0.0;
 
+        // Load Imbalance Factor (LIF) across all VMs
+        double maxFT = 0.0;
+        double minFT = Double.MAX_VALUE;
+        double sumFT = 0.0;
+        for (double ft : vmFinishTimes) {
+            if (ft > maxFT) maxFT = ft;
+            if (ft < minFT) minFT = ft;
+            sumFT += ft;
+        }
+        double avgFT = vmFinishTimes.length > 0 ? (sumFT / vmFinishTimes.length) : 0.0;
+        res.loadImbalanceFactor = (avgFT > 0) ? (maxFT - minFT) / avgFT : 0.0;
+
         // Energy consumption model based on CloudSimPlus / SPECpower:
-        // Host energy: E = (P_idle + (P_max - P_idle) * utilization) * makespan
-        // Active CPU fraction across the cluster
-        double totalCapacityTime = HOST_COUNT * makespan;
-        double avgUtilization = totalCapacityTime > 0 ? Math.min(1.0, totalCpuBusyTime / (HOST_COUNT * PES_PER_HOST * makespan)) : 0.0;
+        double avgUtilization = (HOST_COUNT * makespan > 0)
+            ? Math.min(1.0, totalCpuBusyTime / (HOST_COUNT * PES_PER_HOST * makespan))
+            : 0.0;
         double powerWatts = HOST_COUNT * (P_IDLE_W + (P_MAX_W - P_IDLE_W) * avgUtilization);
-        // Convert Joules to kWh: (Watts * seconds) / (3600 * 1000)
         res.energyKWh = (powerWatts * makespan) / (3_600_000.0);
     }
 
@@ -307,15 +383,45 @@ public class MultiGlobalComparisonSimulation {
         double var = 0.0;
         for (double v : hist) var += (v - mean) * (v - mean);
         var /= hist.size();
-        return (Math.sqrt(var) / mean) <= 0.30;
+        return (Math.sqrt(var) / mean) <= STABILITY_THRESHOLD;
+    }
+
+    private static double makeEwmaPrediction(double ewma, boolean initialized, Deque<Double> history) {
+        if (!initialized) {
+            if (history.isEmpty()) return 0.001;
+            List<Double> vals = new ArrayList<>(history);
+            vals.sort(Double::compareTo);
+            int mid = vals.size() / 2;
+            return (vals.size() % 2 == 0)
+                ? (vals.get(mid - 1) + vals.get(mid)) / 2.0
+                : vals.get(mid);
+        }
+        return Math.max(0.001, Math.min(60.0, ewma));
+    }
+
+    private static double calculateAdaptiveAlpha(Deque<Double> errorHistory) {
+        if (errorHistory.isEmpty()) return 0.20;
+        double mean = errorHistory.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        if (mean < 0.10) return 0.20;
+        if (mean < 0.20) return 0.40;
+        if (mean < 0.30) return 0.60;
+        return 0.80;
+    }
+
+    private static boolean isPredictionReliable(Deque<Double> errorHistory) {
+        if (errorHistory.size() < 5) return false;
+        double mean = errorHistory.stream().mapToDouble(Double::doubleValue).average()
+            .orElse(Double.POSITIVE_INFINITY);
+        return mean <= MAX_NORM_PREDICTION_ERROR;
     }
 
     private static void insertSorted(Deque<TaskState> deque, TaskState t) {
         List<TaskState> list = new ArrayList<>(deque);
         deque.clear();
         boolean placed = false;
+        double tEff = t.effectiveBurst();
         for (TaskState item : list) {
-            if (!placed && item.remainingBurst > t.remainingBurst) {
+            if (!placed && item.effectiveBurst() > tEff) {
                 deque.addLast(t);
                 placed = true;
             }
@@ -347,23 +453,37 @@ public class MultiGlobalComparisonSimulation {
         final double originalBurst;
         double remainingBurst;
         double finishTime;
+        double predictedBurst;
+        boolean predictionEvaluated;
+        int waitingPasses;
+
         TaskState(long id, Cloudlet cl, double burst) {
             this.cloudletId = id;
             this.cloudlet = cl;
             this.originalBurst = burst;
             this.remainingBurst = burst;
+            this.waitingPasses = 0;
+        }
+
+        double effectiveBurst() {
+            return Math.max(0.001, remainingBurst - (AGING_FACTOR * waitingPasses));
         }
     }
 
     public static class ComprehensiveResult {
         public double totalAwt, totalAtat, totalAct;
         public double awtMs, atatS, actS, tctS, makespan, throughput, energyKWh;
+        public double jainsFairnessIndex, loadImbalanceFactor;
+        public long totalPreemptions;
         public long completed;
 
         public void add(ComprehensiveResult o) {
             totalAwt += o.totalAwt; totalAtat += o.totalAtat; totalAct += o.totalAct;
             awtMs += o.awtMs; atatS += o.atatS; actS += o.actS; tctS += o.tctS;
             makespan += o.makespan; throughput += o.throughput; energyKWh += o.energyKWh;
+            jainsFairnessIndex += o.jainsFairnessIndex;
+            loadImbalanceFactor += o.loadImbalanceFactor;
+            totalPreemptions += o.totalPreemptions;
             completed += o.completed;
         }
 
@@ -372,6 +492,9 @@ public class MultiGlobalComparisonSimulation {
             totalAwt /= d; totalAtat /= d; totalAct /= d;
             awtMs /= d; atatS /= d; actS /= d; tctS /= d;
             makespan /= d; throughput /= d; energyKWh /= d;
+            jainsFairnessIndex /= d;
+            loadImbalanceFactor /= d;
+            totalPreemptions /= d;
             completed /= d;
         }
     }
