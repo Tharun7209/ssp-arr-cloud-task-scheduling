@@ -51,11 +51,16 @@ const SimulationDataProvider = (function() {
     }
 
     async function checkBackendHealth() {
-        const testUrls = backendUrl ? [backendUrl] : ['http://localhost:8080', ''];
+        const renderUrl = 'https://ssp-arr-cloud-task-scheduling.onrender.com';
+        const isLocal = typeof window !== 'undefined' && window.location.origin.includes('localhost');
+        const testUrls = backendUrl
+            ? [backendUrl]
+            : (isLocal ? ['http://localhost:8080', renderUrl, ''] : [renderUrl, 'http://localhost:8080', '']);
+
         for (const base of testUrls) {
             try {
                 const target = base ? `${base}/api/health` : '/api/health';
-                const res = await fetch(target, { signal: AbortSignal.timeout(1500) });
+                const res = await fetch(target, { signal: AbortSignal.timeout(3000) });
                 if (res.ok) {
                     const info = await res.json();
                     if (info.status === 'UP') {
