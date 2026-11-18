@@ -396,11 +396,91 @@ const DashboardCharts = (function() {
         });
     }
 
+    // 6. Multi-Global Schedulers Radar Chart (5 Dispatchers)
+    function renderGlobalSchedulersRadar(canvasId) {
+        if (!hasChartJs()) {
+            renderSvgFallback(canvasId, `<div style="color: #94a3b8; font-size: 12px; text-align: center;">Multi-Global Dispatchers: Dy. MM, DRALBA, PSSLB, PSSELB, DeRALBA evaluated with SSP-ARR.</div>`);
+            return;
+        }
+
+        destroyChart(canvasId);
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+        ctx.style.display = 'block';
+        const colors = getThemeColors();
+
+        // 5 Dispatchers normalized across: AWT Speed (inv), Turnaround (inv), Throughput, Energy Efficiency (inv), Preemption Defense, Fairness
+        charts[canvasId] = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['AWT Efficiency', 'ATAT Speed', 'Throughput', 'Energy Economy', 'Preemption Defense', 'Fairness (JFI)'],
+                datasets: [
+                    {
+                        label: 'Dy. MM + SSP-ARR',
+                        data: [95, 96, 98, 92, 99, 90],
+                        borderColor: colors.primary,
+                        backgroundColor: 'rgba(59, 130, 246, 0.25)',
+                        borderWidth: 2,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'PSSELB + SSP-ARR',
+                        data: [91, 92, 85, 88, 99, 88],
+                        borderColor: colors.accent,
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderWidth: 2,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'PSSLB + SSP-ARR',
+                        data: [89, 90, 83, 86, 99, 87],
+                        borderColor: colors.cyan,
+                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                        borderWidth: 2,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'DeRALBA + SSP-ARR',
+                        data: [85, 87, 80, 84, 99, 84],
+                        borderColor: colors.warning,
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 1.5,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'DRALBA + SSP-ARR',
+                        data: [82, 84, 72, 78, 99, 82],
+                        borderColor: colors.success,
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderWidth: 1.5,
+                        pointRadius: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { color: colors.textColor, font: { size: 10 } } }
+                },
+                scales: {
+                    r: {
+                        angleLines: { color: colors.gridColor },
+                        grid: { color: colors.gridColor },
+                        pointLabels: { color: colors.textColor, font: { size: 10, weight: 'bold' } },
+                        ticks: { display: false, min: 50, max: 100 }
+                    }
+                }
+            }
+        });
+    }
+
     return {
         renderOverviewTrendChart,
         renderOverviewVmDistribution,
         renderSspMonitorChart,
         renderAnalyticsChart,
-        renderComparisonChart
+        renderComparisonChart,
+        renderGlobalSchedulersRadar
     };
 })();

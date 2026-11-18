@@ -47,6 +47,87 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 4. Bind Event Listeners Synchronously
     function setupEventListeners() {
+        // Quick Header Action Buttons
+        const headerVivaBtn = document.getElementById('headerVivaBtn');
+        const headerSimBtn = document.getElementById('headerSimBtn');
+        const headerPaperBtn = document.getElementById('headerPaperBtn');
+
+        if (headerVivaBtn) {
+            headerVivaBtn.addEventListener('click', () => navigateTo('defense'));
+        }
+        if (headerSimBtn) {
+            headerSimBtn.addEventListener('click', () => navigateTo('tuning'));
+        }
+        if (headerPaperBtn) {
+            headerPaperBtn.addEventListener('click', () => navigateTo('paper'));
+        }
+
+        // Live Visual Simulator Playground Controls
+        const simPlayBtn = document.getElementById('simPlayBtn');
+        const simStepBtn = document.getElementById('simStepBtn');
+        const simResetBtn = document.getElementById('simResetBtn');
+        const simSpeedSelect = document.getElementById('simSpeedSelect');
+        const simWorkloadSelect = document.getElementById('simWorkloadSelect');
+
+        if (simPlayBtn && window.LiveSimulatorEngine) {
+            simPlayBtn.addEventListener('click', () => LiveSimulatorEngine.togglePlay());
+        }
+        if (simStepBtn && window.LiveSimulatorEngine) {
+            simStepBtn.addEventListener('click', () => LiveSimulatorEngine.step());
+        }
+        if (simResetBtn && window.LiveSimulatorEngine) {
+            simResetBtn.addEventListener('click', () => LiveSimulatorEngine.reset());
+        }
+        if (simSpeedSelect && window.LiveSimulatorEngine) {
+            simSpeedSelect.addEventListener('change', (e) => LiveSimulatorEngine.setSpeed(e.target.value));
+        }
+        if (simWorkloadSelect && window.LiveSimulatorEngine) {
+            simWorkloadSelect.addEventListener('change', (e) => LiveSimulatorEngine.setWorkload(e.target.value));
+        }
+
+        // Research Paper Tabs Switcher
+        document.querySelectorAll('.paper-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.paper-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.paper-tab-content').forEach(c => c.style.display = 'none');
+
+                btn.classList.add('active');
+                const targetTab = btn.getAttribute('data-tab');
+                const tabContent = document.getElementById(`tab-${targetTab}`);
+                if (tabContent) tabContent.style.display = 'block';
+            });
+        });
+
+        // Figure Modal Viewer
+        document.querySelectorAll('.figure-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const img = card.querySelector('img');
+                const title = card.querySelector('.figure-caption-title');
+                const desc = card.querySelector('.figure-caption-desc');
+
+                const modal = document.getElementById('figureModalOverlay');
+                const modalImg = document.getElementById('figureModalImg');
+                const modalTitle = document.getElementById('figureModalTitle');
+                const modalDesc = document.getElementById('figureModalDesc');
+
+                if (modal && img && modalImg) {
+                    modalImg.src = img.src;
+                    if (modalTitle && title) modalTitle.textContent = title.textContent;
+                    if (modalDesc && desc) modalDesc.textContent = desc.textContent;
+                    modal.classList.add('active');
+                }
+            });
+        });
+
+        const figureModalClose = document.getElementById('figureModalClose');
+        const figureModalOverlay = document.getElementById('figureModalOverlay');
+        if (figureModalClose && figureModalOverlay) {
+            figureModalClose.addEventListener('click', () => figureModalOverlay.classList.remove('active'));
+            figureModalOverlay.addEventListener('click', (e) => {
+                if (e.target === figureModalOverlay) figureModalOverlay.classList.remove('active');
+            });
+        }
+
         // Sidebar Navigation Tabs
         elements.navItems.forEach(item => {
             item.addEventListener('click', (e) => {
@@ -95,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sliderCs.addEventListener('input', (e) => {
                 state.csOverheadMs = parseFloat(e.target.value);
                 if (valCs) valCs.textContent = state.csOverheadMs.toFixed(1) + ' ms';
+                if (window.LiveSimulatorEngine) LiveSimulatorEngine.setCsOverhead(state.csOverheadMs);
                 updateLiveStudioEstimates();
             });
         }
@@ -105,6 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sliderCv.addEventListener('input', (e) => {
                 state.cvThreshold = parseFloat(e.target.value);
                 if (valCv) valCv.textContent = state.cvThreshold.toFixed(2);
+                if (window.LiveSimulatorEngine) LiveSimulatorEngine.setCvThreshold(state.cvThreshold);
                 updateLiveStudioEstimates();
             });
         }
@@ -115,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sliderAlpha.addEventListener('input', (e) => {
                 state.ewmaAlpha = parseFloat(e.target.value);
                 if (valAlpha) valAlpha.textContent = state.ewmaAlpha.toFixed(2);
+                if (window.LiveSimulatorEngine) LiveSimulatorEngine.setEwmaAlpha(state.ewmaAlpha);
                 updateLiveStudioEstimates();
             });
         }
@@ -301,6 +385,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function refreshCurrentView() {
         switch (state.currentPage) {
+            case 'defense':
+                if (window.VivaDeckController) {
+                    // Stay on current slide or slide 1
+                }
+                break;
             case 'overview':
                 renderOverview();
                 break;
@@ -311,6 +400,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'tuning':
                 updateLiveStudioEstimates();
+                if (window.LiveSimulatorEngine) {
+                    LiveSimulatorEngine.init();
+                }
                 break;
             case 'monitor':
                 renderMonitor();
@@ -323,9 +415,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'comparison':
                 renderComparison();
+                if (window.DashboardCharts && DashboardCharts.renderGlobalSchedulersRadar) {
+                    DashboardCharts.renderGlobalSchedulersRadar('globalSchedulersRadarChart');
+                }
                 break;
             case 'experiments':
                 renderExperiments();
+                break;
+            case 'paper':
+                // Paper view
                 break;
         }
     }
@@ -622,6 +720,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // 9. Startup Sequence
     setupEventListeners();
     updateBackendBadges();
+    if (window.VivaDeckController) {
+        VivaDeckController.init();
+    }
+    if (window.LiveSimulatorEngine) {
+        LiveSimulatorEngine.init();
+    }
     navigateTo('overview');
     startLogStream();
 });

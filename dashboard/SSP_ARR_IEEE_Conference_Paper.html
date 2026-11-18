@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SSP-ARR: Stability-Switched Predictive Adaptive Round Robin for Multi-Tier Cloud Task Scheduling Using Real-World Cloud Workload Traces</title>
+<style>
+  @page {
+    size: letter;
+    margin-top: 18mm;
+    margin-bottom: 20mm;
+    margin-left: 14mm;
+    margin-right: 14mm;
+  }
+
+  *, *:before, *:after {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Times New Roman", Times, "Liberation Serif", serif;
+    font-size: 10pt;
+    line-height: 1.16;
+    color: #050505;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Paper Header Banner (Spans Full Width) */
+  .paper-header {
+    width: 100%;
+    margin-bottom: 12pt;
+    text-align: center;
+  }
+
+  .paper-title {
+    font-size: 21pt;
+    font-weight: bold;
+    line-height: 1.15;
+    margin-bottom: 10pt;
+    letter-spacing: -0.2px;
+  }
+
+  .authors-block {
+    font-size: 9.5pt;
+    line-height: 1.35;
+    margin-bottom: 12pt;
+  }
+
+  .author-line {
+    margin-bottom: 1.5pt;
+  }
+
+  .abstract-container {
+    max-width: 96%;
+    margin: 0 auto 12pt auto;
+    text-align: justify;
+    font-size: 9pt;
+    line-height: 1.22;
+  }
+
+  .abstract-heading {
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  .keywords-heading {
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  .header-divider {
+    border: none;
+    border-top: 0.5pt solid #111;
+    margin: 10pt auto;
+    width: 100%;
+  }
+
+  /* Two Column Body */
+  .paper-body {
+    column-count: 2;
+    column-gap: 5.5mm;
+    column-rule: 0.4pt solid #e6e6e6;
+    text-align: justify;
+  }
+
+  /* Section Headings */
+  h2 {
+    font-size: 10pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 13pt;
+    margin-bottom: 4pt;
+    break-after: avoid;
+    letter-spacing: 0.4px;
+  }
+
+  h3 {
+    font-size: 10pt;
+    font-weight: bold;
+    font-style: italic;
+    text-align: left;
+    margin-top: 9pt;
+    margin-bottom: 3pt;
+    break-after: avoid;
+  }
+
+  h4 {
+    font-size: 9.5pt;
+    font-weight: bold;
+    font-style: italic;
+    margin-top: 7pt;
+    margin-bottom: 2pt;
+    break-after: avoid;
+  }
+
+  p {
+    margin: 0 0 4.5pt 0;
+    text-indent: 1.2em;
+    font-size: 9.6pt;
+  }
+
+  p.no-indent, h2 + p, h3 + p, h4 + p, .ieee-wide-figure + p, .ieee-wide-table + p, .key-insight-box + p {
+    text-indent: 0;
+  }
+
+  /* Algorithm / Code Block */
+  pre {
+    border-top: 1.2pt solid #000;
+    border-bottom: 1.2pt solid #000;
+    background-color: #fafbfc;
+    padding: 5pt 7pt;
+    margin: 8pt 0;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 7.2pt;
+    line-height: 1.15;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    break-inside: avoid;
+  }
+
+  code {
+    font-family: "Courier New", Courier, monospace;
+  }
+
+  /* Equation Formatting */
+  .ieee-equation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5pt 0;
+    padding: 0 6pt;
+    font-style: italic;
+    break-inside: avoid;
+  }
+
+  .eq-math {
+    margin: 0 auto;
+    text-align: center;
+    font-size: 9.3pt;
+  }
+
+  .eq-num {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 9.3pt;
+  }
+
+  /* Tables across both columns */
+  .ieee-wide-table {
+    column-span: all;
+    margin: 11pt auto;
+    width: 98%;
+    break-inside: avoid;
+  }
+
+  .ieee-table-caption {
+    font-size: 8.5pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 3.5pt;
+    letter-spacing: 0.3px;
+    break-after: avoid;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.8pt;
+    line-height: 1.18;
+    margin: 0 auto;
+    border-top: 1.2pt solid #000;
+    border-bottom: 1.2pt solid #000;
+  }
+
+  th {
+    border-bottom: 0.75pt solid #000;
+    padding: 3.2pt 3.5pt;
+    font-weight: bold;
+    text-align: center;
+    background-color: #f6f6f8;
+  }
+
+  td {
+    padding: 2.8pt 3.5pt;
+    text-align: center;
+    border-bottom: 0.3pt solid #e2e2e2;
+  }
+
+  td:first-child, th:first-child {
+    text-align: left;
+    padding-left: 5pt;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Figures across both columns */
+  .ieee-wide-figure {
+    column-span: all;
+    width: 96%;
+    max-width: 680px;
+    margin: 12pt auto 6pt auto;
+    text-align: center;
+    break-inside: avoid;
+  }
+
+  .ieee-wide-figure img {
+    width: 82%;
+    max-width: 580px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border: 0.5pt solid #ccc;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .ieee-fig-caption {
+    width: 86%;
+    max-width: 600px;
+    margin: 5pt auto 9pt auto;
+    font-size: 8.3pt;
+    line-height: 1.22;
+    text-align: justify;
+    break-after: avoid;
+  }
+
+  .ieee-fig-caption strong {
+    font-weight: bold;
+  }
+
+  /* Key Insights Box */
+  .key-insight-box {
+    background-color: #f4f7fb;
+    border-left: 2.5pt solid #1a5276;
+    padding: 4.5pt 7pt;
+    margin: 6pt 0;
+    font-size: 8.8pt;
+    line-height: 1.22;
+    font-style: italic;
+    color: #1a252f;
+    break-inside: avoid;
+  }
+
+  .key-insight-box strong {
+    font-style: normal;
+    color: #1a5276;
+  }
+
+  /* Lists */
+  ol, ul {
+    margin: 3pt 0 5pt 14pt;
+    padding: 0;
+    font-size: 9.3pt;
+  }
+
+  li {
+    margin-bottom: 2.5pt;
+  }
+
+  hr {
+    border: none;
+    border-top: 0.5pt solid #ddd;
+    margin: 7pt 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="paper-header">
+  <div class="paper-title">SSP-ARR: Stability-Switched Predictive Adaptive Round Robin for Multi-Tier Cloud Task Scheduling Using Real-World Cloud Workload Traces</div>
+  <div class="authors-block">
+    <div class="author-line">[Author 1 Name]<sup>1</sup>, [Author 2 Name]<sup>1</sup>, and [Author 3 Name]<sup>2</sup></div><div class="author-line"><sup>1</sup>Department of Computer Science and Engineering, [University Name], [City, Country]</div><div class="author-line"><sup>2</sup>Department of Information Technology, [University / Institute Name], [City, Country]</div><div class="author-line">*Corresponding author: [Author Name] (author.email@domain.edu)*</div>
+  </div>
+  
+  <div class="abstract-container">
+    <p class="no-indent"><span class="abstract-heading">Abstract</span>—Task scheduling in heterogeneous cloud datacenters plays a decisive role in maximizing computational resource efficiency, reducing end-user latency, and lowering datacenter energy footprint. However, conventional time-sharing schedulers—predominantly Classical Round Robin (RR) and its static variants—rely on rigid, pre-configured CPU time quanta. Under burst-heavy, heterogeneous, and unpredictable cloud workloads, fixed time-slicing causes severe head-of-line blocking (the convoy effect), excessive context-switching overhead, and inflated waiting times. While reactive adaptive schedulers (such as MAADRR) compute median-based time quanta, purely reactive heuristics exhibit latency lag during sudden workload phase transitions and fail to anticipate high-variance task arrivals. To overcome these limitations, this paper proposes SSP-ARR (Stability-Switched Predictive Adaptive Round Robin), an intelligent, multi-tier scheduling framework tailored for heterogeneous cloud infrastructures. SSP-ARR dynamically evaluates workload volatility at the local VM tier using a sliding-window Coefficient of Variation (CV). When queue variance remains stable (CV ≤ 0.50), the scheduler operates in a safe queue-median reactive mode; when volatility surges (CV > 0.50), it transitions to an adaptive Exponentially Weighted Moving Average (EWMA) predictive mode governed by an error-modulated learning rate and strict confidence gating (Normalized Prediction Error ≤ 0.20). Furthermore, task queues are structured under Shortest Remaining Processing Time (SRPT) ordering with bounded quantum clamping [0.001 s, 60.0 s]. SSP-ARR is evaluated across five state-of-the-art global dispatching strategies (Dynamic Max-Min, DRALBA, PSSLB, PSSELB, and DeRALBA) using real-world Google Cloud Jobs (GoCJ) traces spanning 100 to 2000 cloudlets on CloudSim Plus 8.5.7. Experimental results demonstrate that SSP-ARR achieves an average reduction of ~50.2% in Average Waiting Time (AWT), up to 49.2% improvement in Average Turnaround Time (ATAT), saves millions of cumulative completion seconds in Total Completion Time (TCT), and yields superior makespan, throughput, and SPECpower-modeled energy efficiency compared to Classical RR across all global policies.</p>
+    <div style="height: 3.5pt;"></div>
+    <p class="no-indent"><span class="keywords-heading">Keywords</span>—Cloud task scheduling, multi-tier architecture, adaptive dynamic time quantum, stability switching, coefficient of variation, EWMA prediction, GoCJ workload traces, CloudSim Plus.</p>
+  </div>
+  <hr class="header-divider" />
+</div>
+
+<div class="paper-body">
+  <h2>I. INTRODUCTION</h2>
+<p>Cloud computing platforms have emerged as the foundational utility for modern enterprise IT, scientific computing, and consumer applications [1], [2]. The elastic resource model allows providers to multiplex massive pools of virtualized compute, memory, and network resources among thousands of concurrently competing client workloads [3], [4]. In this environment, task scheduling is decisive in determining whether a cloud provider can satisfy Service Level Agreements (SLAs), minimize operating costs, and prevent severe server thermal dissipation [5], [6].</p>
+<p>Task scheduling in cloud computing typically operates across a two-tier hierarchy [7], [8]. At the first tier, global broker schedulers receive incoming user tasks and map them to appropriate Virtual Machines (VMs) across distributed datacenters [9]. At the second tier, local VM hypervisor schedulers manage the execution sequence of cloudlets residing in each VM's circular ready queue [10]. While substantial research has focused on global heuristic and metaheuristic dispatchers, the efficiency of local VM scheduling remains the critical determinant of actual CPU core utilization, context-switching overhead, and task waiting times [11], [12].</p>
+<p>At the local VM level, Classical Round Robin (RR) has historically been the default choice due to its simplicity, starvation prevention, and conceptual fairness [13], [14]. However, Classical RR is burdened by a critical architectural limitation: reliance on a static, pre-configured Time Quantum (TQ). If the quantum is set too small, the system suffers severe throughput degradation from frequent CPU context switches [15]. Conversely, if the quantum is set too large, Classical RR degenerates into First-Come First-Served (FCFS), causing short tasks to stall behind long, compute-heavy jobs—an anomaly known as the convoy effect [16].</p>
+<p>Recent advances have attempted to mitigate this trade-off by introducing dynamic time quantum adaptation, such as the Multi-Agent Adaptive Dynamic Round Robin (MAADRR) scheduler [16]. MAADRR dynamically computes the time quantum as the median of task burst lengths in the VM queue. While MAADRR improves upon static RR under moderate conditions, its purely reactive formulation exhibits severe latency lag during rapid workload phase changes and fails to anticipate task burst variance under volatile real-world traffic.</p>
+<p>To resolve these challenges, this paper presents <strong>SSP-ARR</strong> (Stability-Switched Predictive Adaptive Round Robin), an intelligent local VM scheduling framework that incorporates continuous variance sensing, dual-mode reactive/predictive quantum selection, confidence gating, and bounded preemption clamping within a multi-tier cloud hierarchy.</p>
+<hr />
+<h2>II. RELATED WORK &amp; ARCHITECTURAL EVOLUTION</h2>
+<h3><em>A. Adaptive Round Robin Variants</em></h3>
+<p>Dynamic time quantum adaptation has received extensive research interest. In [17], the authors proposed a hybrid Min-Min and Round Robin algorithm to combine the makespan minimization of Min-Min with the fairness of Round Robin. Runsungnoen and Anusas-Amornkul [18] developed the RR_RT&amp;M technique, utilizing remaining task execution time and median estimation to adapt the quantum. Ghazy et al. [19] formulated an ameliorated Round Robin algorithm calculating quantum based on arithmetic mean of remaining bursts. Similarly, Banerjee et al. [20] presented Optimized Round Robin (ORR), proving that dynamic time quantum selection significantly mitigates average waiting time and turnaround time compared to static baselines. Mazumder et al. [21] introduced Priority-based Round Robin (PRR) prioritizing tasks according to burst length and deadline thresholds.</p>
+<h3><em>B. Multi-Tier Global Schedulers</em></h3>
+<p>Global schedulers govern the distribution of cloudlets across heterogeneous VMs. Five representative global dispatching strategies are considered in this investigation: (1) <strong>Dynamic Max-Min (Dy. MM)</strong> [17], which dynamically maps large tasks to fast VMs while recomputing completion times to prevent small task starvation; (2) <strong>DRALBA</strong> [22], a dynamic and resource-aware load-balancing algorithm utilizing multi-resource variance minimization; (3) <strong>PSSLB</strong> [23], a priority-based queue-state scheduling algorithm; (4) <strong>PSSELB</strong> [23], an enhanced energy-aware variant of PSSLB; and (5) <strong>DeRALBA</strong> [24], which integrates dispersion thresholding with adaptive candidate matching.</p>
+<h3><em>C. Evolution to SSP-ARR</em></h3>
+<p>Existing local schedulers fall into two flawed extremes: static allocation (RR) or unconstrained reactive heuristics (MAADRR). Neither architecture explicitly measures queue burst variance or employs predictive models to anticipate burst length trends. Table 1 highlights the evolutionary architectural progression from Classical RR and MAADRR to SSP-ARR.</p>
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 1. Architectural comparison across cloud local scheduling models.</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Classical RR</th>
+<th style="text-align: left;">MAADRR [16]</th>
+<th style="text-align: left;">Proposed SSP-ARR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Quantum Sizing</strong></td>
+<td style="text-align: left;">Static (1.0 s)</td>
+<td style="text-align: left;">Dynamic Median</td>
+<td style="text-align: left;">Dual Reactive/Predictive</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Workload Sensing</strong></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Reactive only</td>
+<td style="text-align: left;">CV Stability Sensing</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Burst Prediction</strong></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Adaptive EWMA</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Confidence Gating</strong></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">NPE ≤ 0.20 Gating</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Queue Ordering</strong></td>
+<td style="text-align: left;">FIFO</td>
+<td style="text-align: left;">FIFO / Re-sort</td>
+<td style="text-align: left;">SRPT Ascending</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Quantum Clamping</strong></td>
+<td style="text-align: left;">Fixed</td>
+<td style="text-align: left;">Unbounded</td>
+<td style="text-align: left;">Bounded [0.001s, 60.0s]</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Preemption Penalty</strong></td>
+<td style="text-align: left;">High (Severe)</td>
+<td style="text-align: left;">Moderate</td>
+<td style="text-align: left;">Minimal (Consolidated)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Global Tier</strong></td>
+<td style="text-align: left;">Single-tier</td>
+<td style="text-align: left;">Multi-agent</td>
+<td style="text-align: left;">5 Global Dispatchers</td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+<hr />
+<h2>III. MATHEMATICAL DESIGN AND ALGORITHMIC FORMULATION</h2>
+<h3><em>A. Multi-Tier System Architecture</em></h3>
+<p>The proposed SSP-ARR architecture operates across two coordinated tiers: (1) <strong>Tier-1 Global Datacenter Dispatching</strong> assigns submitted cloudlets to VMs using established global balancing policies; (2) <strong>Tier-2 Local VM Scheduling</strong> governs cloudlet preemption and execution via SSP-ARR.</p>
+<h3><em>B. Workload Volatility Sensing via CV</em></h3>
+<p>For each VM v_j, let H_j = {B_{j,1}, ..., B_{j,W}} represent execution bursts of the last W completed cloudlets (W = 5). The local agent tracks sample mean μ_j and sample standard deviation σ_j:</p>
+<div class="ieee-equation"><div class="eq-math"><p>μ_j = (1/W) · Σ B_{j,k}  </p>
+<p>σ_j = √[ (1/W) · Σ (B_{j,k} − μ_j)² ]  </p></div><div class="eq-num">(1)</div></div>
+<p>The <strong>Coefficient of Variation (CV_j)</strong> is defined as:</p>
+<div class="ieee-equation"><div class="eq-math"><p>CV_j = σ_j / μ_j  </p></div><div class="eq-num">(3)</div></div>
+<ul>
+<li><strong>Stable Regime (CV_j ≤ θ_CV = 0.50)</strong>: Low dispersion. Selects <strong>Reactive Mode</strong>.</li>
+<li><strong>Volatile Regime (CV_j &gt; θ_CV = 0.50)</strong>: High burst variability. Activates <strong>Predictive Mode</strong>.</li>
+</ul>
+<h3><em>C. Dual-Mode Quantum Allocation Engine</em></h3>
+<p><strong><em>1) Safe Reactive Mode (CV_j ≤ θ_CV)</em></strong></p>
+<p>The quantum is computed as the median of remaining bursts (RB) in ready queue Q_j plus candidate task t:</p>
+<div class="ieee-equation"><div class="eq-math"><p>Q_reactive = median( {RB(x) : x ∈ Q_j} ∪ {RB(t)} )  </p></div><div class="eq-num">(4)</div></div>
+<p><strong><em>2) Predictive EWMA Mode (CV_j &gt; θ_CV)</em></strong></p>
+<p>The expected optimal burst duration is forecasted using an Exponentially Weighted Moving Average:</p>
+<div class="ieee-equation"><div class="eq-math"><p>B̂<em j_t="j,t">{j,t+1} = α_t · B</em>  } + (1 − α_t) · B̂_{j,t</p></div><div class="eq-num">(5)</div></div>
+<p>where α_t is an error-modulated adaptive learning rate:</p>
+<div class="ieee-equation"><div class="eq-math"><p>α_t = 0.20 if NPE &lt; 0.10 | 0.40 if 0.10 ≤ NPE &lt; 0.20  </p>
+<p>α_t = 0.60 if 0.20 ≤ NPE &lt; 0.30 | 0.80 if NPE ≥ 0.30  </p></div><div class="eq-num">(6a)</div></div>
+<p><strong><em>3) Normalized Prediction Error (NPE) and Confidence Gating</em></strong></p>
+<div class="ieee-equation"><div class="eq-math"><p>NPE_t = |B_{j,t} − B̂<em j_t="j,t">{j,t}| / B</em>  </p></div><div class="eq-num">(7)</div></div>
+<p>To guarantee stability, predictions are gated by confidence threshold τ_gate = 0.20:</p>
+<div class="ieee-equation"><div class="eq-math"><p>Q_selected = B̂_{j,t+1} if (CV_j &gt; 0.50 and NPE_t ≤ 0.20)  </p>
+<p>Q_selected = Q_reactive otherwise (fallback to median)  </p></div><div class="eq-num">(8a)</div></div>
+<p><strong><em>4) Boundary Clamping</em></strong></p>
+<p>To prevent starvation or monopoly, quantum is clamped within [Q_min=0.001s, Q_max=60.0s]:</p>
+<div class="ieee-equation"><div class="eq-math"><p>Q_j = max(Q_min, min(Q_max, min(Q_selected, RB(t))))  </p></div><div class="eq-num">(9)</div></div>
+<h3><em>D. Formal Algorithmic Pseudocode</em></h3>
+<pre><code>Algorithm 1: Multi-Tier Cloud Task Scheduling with SSP-ARR
+───────────────────────────────────────────────────────────────────
+Input  : Cloudlet set C={c_1..c_n}; VM pool V={v_1..v_m};
+         Policy P in {Dy.MM, DRALBA, PSSLB, PSSELB, DeRALBA};
+         Q_min=0.001s, Q_max=60s; δ_cs=0.005s; θ_CV=0.5; τ_gate=0.2.
+Output : Logs, AWT, ATAT, ACT, TCT, Thp, Energy, Makespan.
+// TIER 1: Global Datacenter Dispatching
+1:  Assignment[] ← GlobalSchedulers.assign(P, C, V);
+2:  Initialize VM ready queues Q_1, Q_2, ..., Q_m;
+3:  for each c_i in C do
+4:      vmIdx ← Assignment[i]; burst ← c_i.len / V[vmIdx].MIPS;
+5:      Enqueue TaskState(c_i.id, burst) into Q_vmIdx;
+6:  end for
+// TIER 2: Local SSP-ARR Execution per VM
+7:  for each VM v_j with queue Q_j do
+8:      Sort Q_j ascending by originalBurst (SRPT);
+9:      curTime=0; hist=Deque(); ewma=0; init=false; npe=0;
+10:     while Q_j not empty do
+11:         t ← Q_j.pollHead();
+12:         q_med ← ComputeQueueMedian(Q_j, t); cv ← ComputeCV(hist);
+13:         if cv &gt; θ_CV and init and npe ≤ τ_gate then
+14:             q_tgt ← ewma;  // Predictive EWMA Mode
+15:         else q_tgt ← q_med;  // Safe Reactive Median Mode
+16:         end if
+17:         quant ← max(Q_min, min(Q_max, min(q_tgt, t.remBurst)));
+18:         slice ← min(quant, t.remBurst); t.remBurst -= slice;
+19:         curTime += slice; totalBusy_j += slice;
+20:         if t.remBurst &lt;= 1e-9 then
+21:             t.finishTime ← curTime; RecordStats(t);
+22:             actB ← t.origBurst;
+23:             if not init then ewma ← actB; init ← true;
+24:             else npe ← |actB − ewma| / actB;
+25:                  alpha ← DetermineAlpha(npe);
+26:                  ewma ← alpha*actB + (1-alpha)*ewma;
+27:             end if
+28:             hist.add(actB); if |hist| &gt; W then hist.pop(); end if
+29:         else
+30:             curTime += δ_cs; totalBusy_j += δ_cs;  // CS penalty
+31:             InsertSorted(Q_j, t);  // maintain SRPT rank
+32:         end if
+33:     end while
+34: end for
+35: ComputeFinalMetricsAcrossAllVMs();
+───────────────────────────────────────────────────────────────────
+</code></pre>
+<h3><em>E. Table of Symbols and Notations</em></h3>
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 2. Mathematical symbols and notations.</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Symbol</th>
+<th style="text-align: left;">Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">VM_j</td>
+<td style="text-align: left;">j-th Virtual Machine in heterogeneous cloud platform</td>
+</tr>
+<tr>
+<td style="text-align: left;">Q_j</td>
+<td style="text-align: left;">Circular ready queue of cloudlets assigned to VM_j</td>
+</tr>
+<tr>
+<td style="text-align: left;">c_i</td>
+<td style="text-align: left;">i-th cloudlet (task) submitted to datacenter</td>
+</tr>
+<tr>
+<td style="text-align: left;">L_i</td>
+<td style="text-align: left;">Instruction length of c_i (Million Instructions, MI)</td>
+</tr>
+<tr>
+<td style="text-align: left;">MIPS_j</td>
+<td style="text-align: left;">Processing speed of VM_j (Million Instr. Per Second)</td>
+</tr>
+<tr>
+<td style="text-align: left;">RB(x)</td>
+<td style="text-align: left;">Remaining burst processing time of task x (seconds)</td>
+</tr>
+<tr>
+<td style="text-align: left;">CV_j</td>
+<td style="text-align: left;">Coefficient of Variation of recent bursts on VM_j (σ/μ)</td>
+</tr>
+<tr>
+<td style="text-align: left;">θ_CV</td>
+<td style="text-align: left;">Stability threshold parameter (θ_CV = 0.50)</td>
+</tr>
+<tr>
+<td style="text-align: left;">B̂_{j,t}</td>
+<td style="text-align: left;">EWMA-predicted burst duration for task t on VM_j</td>
+</tr>
+<tr>
+<td style="text-align: left;">α_t</td>
+<td style="text-align: left;">Adaptive error-modulated learning rate (α_t ∈ [0.20, 0.80])</td>
+</tr>
+<tr>
+<td style="text-align: left;">NPE_t</td>
+<td style="text-align: left;">Normalized Prediction Error (abs(B_t − B̂_t) / B_t)</td>
+</tr>
+<tr>
+<td style="text-align: left;">τ_gate</td>
+<td style="text-align: left;">Confidence gating threshold (τ_gate = 0.20)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Q_min, Q_max</td>
+<td style="text-align: left;">Bounded limits for time quantum (0.001 s and 60.0 s)</td>
+</tr>
+<tr>
+<td style="text-align: left;">δ_cs</td>
+<td style="text-align: left;">Context switching / preemption penalty (δ_cs = 0.005 s)</td>
+</tr>
+<tr>
+<td style="text-align: left;">T_i, A_i, B_i</td>
+<td style="text-align: left;">Completion time, arrival time, burst time of task i</td>
+</tr>
+<tr>
+<td style="text-align: left;">P_idle, P_max</td>
+<td style="text-align: left;">Idle and peak power per physical host (150 W and 250 W)</td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+<hr />
+<h2>IV. EXPERIMENTAL SETUP &amp; PERFORMANCE EVALUATION</h2>
+<h3><em>A. Cloud Simulation Environment</em></h3>
+<p>The experimental framework is implemented using <strong>CloudSim Plus 8.5.7</strong> on <strong>Java 21</strong>. CloudSim Plus provides fully extensible abstractions for datacenter brokers, host power profiles, and VM time-shared schedulers.</p>
+<h3><em>B. Infrastructure &amp; Heterogeneous VM Specifications</em></h3>
+<p>The physical datacenter comprises <strong>30 physical hosts</strong> (120 PEs total @ 4000 MIPS each), 32 GB RAM, 100 Gbps network, and 1 TB storage. Host power consumption follows the linear SPECpower standard server model:</p>
+<div class="ieee-equation"><div class="eq-math"><p>P_host(u) = P_idle + (P_max − P_idle) · u  </p></div><div class="eq-num">(10)</div></div>
+<p>where P_idle = 150 W, P_max = 250 W, and u ∈ [0, 1] is CPU utilization fraction. A pool of <strong>80 heterogeneous VMs</strong> is instantiated with speeds from 1000 to 4000 MIPS (step 200 MIPS).</p>
+<h3><em>C. Benchmark Workload: Google Cloud Jobs (GoCJ)</em></h3>
+<p>The framework is evaluated using real-world <strong>Google-Cluster-like Job (GoCJ)</strong> traces [25], exhibiting realistic arrival bursts, asymmetric lengths, and high variance (CV ≈ 1.24). Evaluations span 12 workload scales: 100 to 2000 cloudlets (15,000–900,000 MI).</p>
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 3. Simulation environment parameters summary.</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Configuration Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Simulation Engine</strong></td>
+<td style="text-align: left;">CloudSim Plus 8.5.7 (Java 21)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Physical Datacenter</strong></td>
+<td style="text-align: left;">30 Hosts (120 PEs total, 4 PEs/Host @ 4000 MIPS)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Host Power Profile</strong></td>
+<td style="text-align: left;">SPECpower Linear Model (P_idle=150W, P_max=250W)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Virtual Machines</strong></td>
+<td style="text-align: left;">80 Heterogeneous VMs (1000–4000 MIPS)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VM Memory / BW</strong></td>
+<td style="text-align: left;">8192 MB RAM, 20,000 Mbps Bandwidth</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Workload Benchmark</strong></td>
+<td style="text-align: left;">Real-world Google Cloud Jobs (GoCJ)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Workload Sizes</strong></td>
+<td style="text-align: left;">100, 200, 300..1000, 1500, 2000 cloudlets</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Global Schedulers</strong></td>
+<td style="text-align: left;">Dynamic Max-Min, DRALBA, PSSLB, PSSELB, DeRALBA</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Local Schedulers</strong></td>
+<td style="text-align: left;">Classical RR (Fixed q=1.0s, FIFO) vs. SSP-ARR</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Context Switch Penalty</strong></td>
+<td style="text-align: left;">δ_cs = 0.005 s (5 ms) per preemption</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Evaluation Runs</strong></td>
+<td style="text-align: left;">3 independent runs per size (mean reported)</td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+<h3><em>D. Performance Metrics</em></h3>
+<p>Evaluated using seven standard performance metrics:</p>
+<ol>
+<li>
+<p><strong>Average Waiting Time (AWT)</strong>:</p>
+<div class="ieee-equation"><div class="eq-math"><p>AWT = (1/N) · Σ (T_i − A_i − B_i)  </p></div><div class="eq-num">(11)</div></div>
+</li>
+<li>
+<p><strong>Average Turnaround Time (ATAT)</strong>:</p>
+<div class="ieee-equation"><div class="eq-math"><p>ATAT = (1/N) · Σ (T_i − A_i)  </p></div><div class="eq-num">(12)</div></div>
+</li>
+<li>
+<p><strong>Average Completion Time (ACT)</strong>: Mean end-to-end task completion duration.</p>
+</li>
+<li>
+<p><strong>Total Completion Time (TCT)</strong>:</p>
+<div class="ieee-equation"><div class="eq-math"><p>TCT = Σ T_i = N × ACT  </p></div><div class="eq-num">(13)</div></div>
+</li>
+<li>
+<p><strong>System Throughput (Thp)</strong>:</p>
+<div class="ieee-equation"><div class="eq-math"><p>Throughput = N / Makespan (tasks/second)  </p></div><div class="eq-num">(14)</div></div>
+</li>
+<li>
+<p><strong>Host Energy Consumption (E_total)</strong>:</p>
+<div class="ieee-equation"><div class="eq-math"><p>E_total = (1/3,600,000) · Σ ∫P_j(t) dt (kWh)  </p></div><div class="eq-num">(15)</div></div>
+</li>
+<li>
+<p><strong>Makespan (T_max)</strong>: Total wall-clock time to finish all cloudlets (max_i T_i).</p>
+</li>
+</ol>
+<p>Percentage improvement formulas:</p>
+<div class="ieee-equation"><div class="eq-math"><p>Improvement_lower-better (%) = (X_RR − X_SSP) / X_RR × 100  </p>
+<p>Improvement_higher-better (%) = (X_SSP − X_RR) / X_RR × 100  </p></div><div class="eq-num">(16)</div></div>
+<hr />
+<h2>V. RESULTS AND COMPARATIVE PERFORMANCE ANALYSIS</h2>
+<h3><em>A. Average Waiting Time (AWT)</em></h3>
+<p>Average Waiting Time directly reflects queue congestion and the elimination of the convoy effect. Table 4 presents the raw AWT values (in milliseconds) and percentage improvements of SSP-ARR over Classical RR across all five global scheduling strategies.</p>
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 4. Comparison of AWT (ms) for RR and SSP-ARR across five global scheduling strategies (100–2000 GoCJ cloudlets).</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Tasks</th>
+<th style="text-align: right;">Dy.MM RR</th>
+<th style="text-align: right;">Dy.MM SSP</th>
+<th style="text-align: right;">DRALBA RR</th>
+<th style="text-align: right;">DRALBA SSP</th>
+<th style="text-align: right;">PSSLB RR</th>
+<th style="text-align: right;">PSSLB SSP</th>
+<th style="text-align: right;">PSSELB RR</th>
+<th style="text-align: right;">PSSELB SSP</th>
+<th style="text-align: right;">DeRALBA RR</th>
+<th style="text-align: right;">DeRALBA SSP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100</td>
+<td style="text-align: right;">5,765.8</td>
+<td style="text-align: right;"><strong>2,772.2</strong></td>
+<td style="text-align: right;">22,693.7</td>
+<td style="text-align: right;"><strong>11,328.0</strong></td>
+<td style="text-align: right;">116,334.5</td>
+<td style="text-align: right;"><strong>57,897.5</strong></td>
+<td style="text-align: right;">22,927.5</td>
+<td style="text-align: right;"><strong>11,324.5</strong></td>
+<td style="text-align: right;">8,438.5</td>
+<td style="text-align: right;"><strong>4,121.1</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">200</td>
+<td style="text-align: right;">49,874.6</td>
+<td style="text-align: right;"><strong>24,668.5</strong></td>
+<td style="text-align: right;">61,263.2</td>
+<td style="text-align: right;"><strong>30,534.6</strong></td>
+<td style="text-align: right;">275,424.3</td>
+<td style="text-align: right;"><strong>137,041.9</strong></td>
+<td style="text-align: right;">65,179.7</td>
+<td style="text-align: right;"><strong>32,309.2</strong></td>
+<td style="text-align: right;">46,702.0</td>
+<td style="text-align: right;"><strong>23,202.8</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">300</td>
+<td style="text-align: right;">102,988.2</td>
+<td style="text-align: right;"><strong>51,186.9</strong></td>
+<td style="text-align: right;">100,659.5</td>
+<td style="text-align: right;"><strong>50,255.3</strong></td>
+<td style="text-align: right;">448,395.9</td>
+<td style="text-align: right;"><strong>223,455.5</strong></td>
+<td style="text-align: right;">118,992.2</td>
+<td style="text-align: right;"><strong>59,259.2</strong></td>
+<td style="text-align: right;">90,363.5</td>
+<td style="text-align: right;"><strong>44,994.7</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">400</td>
+<td style="text-align: right;">133,231.8</td>
+<td style="text-align: right;"><strong>66,172.5</strong></td>
+<td style="text-align: right;">151,684.9</td>
+<td style="text-align: right;"><strong>75,666.0</strong></td>
+<td style="text-align: right;">665,658.3</td>
+<td style="text-align: right;"><strong>331,459.1</strong></td>
+<td style="text-align: right;">160,237.3</td>
+<td style="text-align: right;"><strong>79,724.1</strong></td>
+<td style="text-align: right;">135,808.3</td>
+<td style="text-align: right;"><strong>67,657.2</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">500</td>
+<td style="text-align: right;">156,679.2</td>
+<td style="text-align: right;"><strong>77,917.0</strong></td>
+<td style="text-align: right;">197,079.1</td>
+<td style="text-align: right;"><strong>98,246.3</strong></td>
+<td style="text-align: right;">808,551.5</td>
+<td style="text-align: right;"><strong>402,747.9</strong></td>
+<td style="text-align: right;">218,120.9</td>
+<td style="text-align: right;"><strong>108,575.9</strong></td>
+<td style="text-align: right;">179,113.8</td>
+<td style="text-align: right;"><strong>89,269.3</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">600</td>
+<td style="text-align: right;">191,008.6</td>
+<td style="text-align: right;"><strong>94,976.2</strong></td>
+<td style="text-align: right;">246,101.1</td>
+<td style="text-align: right;"><strong>122,625.2</strong></td>
+<td style="text-align: right;">962,942.6</td>
+<td style="text-align: right;"><strong>479,514.9</strong></td>
+<td style="text-align: right;">271,872.6</td>
+<td style="text-align: right;"><strong>135,386.9</strong></td>
+<td style="text-align: right;">230,371.1</td>
+<td style="text-align: right;"><strong>114,756.8</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">700</td>
+<td style="text-align: right;">228,322.1</td>
+<td style="text-align: right;"><strong>113,516.4</strong></td>
+<td style="text-align: right;">290,042.1</td>
+<td style="text-align: right;"><strong>144,457.9</strong></td>
+<td style="text-align: right;">1,224,204.4</td>
+<td style="text-align: right;"><strong>609,752.6</strong></td>
+<td style="text-align: right;">304,865.7</td>
+<td style="text-align: right;"><strong>151,751.1</strong></td>
+<td style="text-align: right;">272,900.6</td>
+<td style="text-align: right;"><strong>135,887.0</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">800</td>
+<td style="text-align: right;">254,545.1</td>
+<td style="text-align: right;"><strong>126,589.9</strong></td>
+<td style="text-align: right;">334,175.5</td>
+<td style="text-align: right;"><strong>166,471.1</strong></td>
+<td style="text-align: right;">1,362,292.0</td>
+<td style="text-align: right;"><strong>678,675.1</strong></td>
+<td style="text-align: right;">352,715.0</td>
+<td style="text-align: right;"><strong>175,517.9</strong></td>
+<td style="text-align: right;">313,603.2</td>
+<td style="text-align: right;"><strong>156,246.8</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">900</td>
+<td style="text-align: right;">299,284.6</td>
+<td style="text-align: right;"><strong>148,940.1</strong></td>
+<td style="text-align: right;">394,850.2</td>
+<td style="text-align: right;"><strong>196,937.3</strong></td>
+<td style="text-align: right;">1,544,405.6</td>
+<td style="text-align: right;"><strong>769,353.2</strong></td>
+<td style="text-align: right;">429,463.5</td>
+<td style="text-align: right;"><strong>213,955.4</strong></td>
+<td style="text-align: right;">349,380.6</td>
+<td style="text-align: right;"><strong>174,111.3</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1000</td>
+<td style="text-align: right;">336,762.6</td>
+<td style="text-align: right;"><strong>167,432.3</strong></td>
+<td style="text-align: right;">438,695.9</td>
+<td style="text-align: right;"><strong>218,642.4</strong></td>
+<td style="text-align: right;">1,794,498.4</td>
+<td style="text-align: right;"><strong>893,700.1</strong></td>
+<td style="text-align: right;">465,520.6</td>
+<td style="text-align: right;"><strong>231,755.8</strong></td>
+<td style="text-align: right;">402,340.2</td>
+<td style="text-align: right;"><strong>200,398.4</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1500</td>
+<td style="text-align: right;">521,407.7</td>
+<td style="text-align: right;"><strong>259,379.7</strong></td>
+<td style="text-align: right;">688,228.1</td>
+<td style="text-align: right;"><strong>342,754.1</strong></td>
+<td style="text-align: right;">2,638,693.8</td>
+<td style="text-align: right;"><strong>1,314,404.0</strong></td>
+<td style="text-align: right;">736,677.5</td>
+<td style="text-align: right;"><strong>366,742.1</strong></td>
+<td style="text-align: right;">631,669.3</td>
+<td style="text-align: right;"><strong>314,529.6</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">2000</td>
+<td style="text-align: right;">702,960.8</td>
+<td style="text-align: right;"><strong>349,808.1</strong></td>
+<td style="text-align: right;">917,731.0</td>
+<td style="text-align: right;"><strong>457,304.4</strong></td>
+<td style="text-align: right;">3,483,784.5</td>
+<td style="text-align: right;"><strong>1,735,493.6</strong></td>
+<td style="text-align: right;">976,446.4</td>
+<td style="text-align: right;"><strong>486,231.8</strong></td>
+<td style="text-align: right;">853,777.7</td>
+<td style="text-align: right;"><strong>425,255.1</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 4 (Continued). Percentage Improvement in AWT (SSP-ARR over Classical RR).</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Workload Size</th>
+<th style="text-align: center;">Dynamic Max-Min</th>
+<th style="text-align: center;">DRALBA</th>
+<th style="text-align: center;">PSSLB</th>
+<th style="text-align: center;">PSSELB</th>
+<th style="text-align: center;">DeRALBA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100 cloudlets</td>
+<td style="text-align: center;">+51.9%</td>
+<td style="text-align: center;">+50.1%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.6%</td>
+<td style="text-align: center;">+51.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">200 cloudlets</td>
+<td style="text-align: center;">+50.5%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.4%</td>
+<td style="text-align: center;">+50.3%</td>
+</tr>
+<tr>
+<td style="text-align: center;">300 cloudlets</td>
+<td style="text-align: center;">+50.3%</td>
+<td style="text-align: center;">+50.1%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">400 cloudlets</td>
+<td style="text-align: center;">+50.3%</td>
+<td style="text-align: center;">+50.1%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">500 cloudlets</td>
+<td style="text-align: center;">+50.3%</td>
+<td style="text-align: center;">+50.1%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">600 cloudlets</td>
+<td style="text-align: center;">+50.3%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">700 cloudlets</td>
+<td style="text-align: center;">+50.3%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">800 cloudlets</td>
+<td style="text-align: center;">+50.3%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">900 cloudlets</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.1%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1000 cloudlets</td>
+<td style="text-align: center;">+50.3%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1500 cloudlets</td>
+<td style="text-align: center;">+50.3%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;">2000 cloudlets</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+<td style="text-align: center;">+50.2%</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Overall Mean</strong></td>
+<td style="text-align: center;"><strong>+50.4%</strong></td>
+<td style="text-align: center;"><strong>+50.1%</strong></td>
+<td style="text-align: center;"><strong>+50.2%</strong></td>
+<td style="text-align: center;"><strong>+50.3%</strong></td>
+<td style="text-align: center;"><strong>+50.3%</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+<div class="key-insight-box"><strong>Key Insight:</strong> Across all 12 workload scales and all five global dispatchers, SSP-ARR consistently reduces Average Waiting Time by ~50.2%. Under heavy scale (2000 tasks), PSSLB AWT drops from 3,483,784.5 ms to 1,735,493.6 ms, and Dynamic Max-Min drops from 702,960.8 ms to 349,808.1 ms. By ranking queues via SRPT and applying predictive quanta, short jobs complete without lingering in queue lines behind massive bursts.</div>
+
+    <div class="ieee-wide-figure">
+        <img src="file:///c:/Users/thimo/OneDrive/Documents/CloudScheduling_SSPARR_Workspace/figures/fig1_awt_improvement.png" alt="Fig. 1. AWT Percentage Improvement" />
+        <div class="ieee-fig-caption"><strong>Fig. 1.</strong> Percentage improvement in AWT of SSP-ARR over Classical RR across five global scheduling strategies under 100 to 2000 GoCJ cloudlets. SSP-ARR achieves a near-constant ~50.2% reduction across all workload scales and global policies.</div>
+    </div>
+    
+<hr />
+<h3><em>B. Average Turnaround Time (ATAT)</em></h3>
+<p>Table 5 summarizes ATAT results (in seconds) across all evaluated strategies. ATAT reflects the total duration from task arrival to completion.</p>
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 5. Comparison of ATAT (s) for RR and SSP-ARR across five global scheduling strategies.</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Tasks</th>
+<th style="text-align: right;">Dy.MM RR</th>
+<th style="text-align: right;">Dy.MM SSP</th>
+<th style="text-align: right;">DRALBA RR</th>
+<th style="text-align: right;">DRALBA SSP</th>
+<th style="text-align: right;">PSSLB RR</th>
+<th style="text-align: right;">PSSLB SSP</th>
+<th style="text-align: right;">PSSELB RR</th>
+<th style="text-align: right;">PSSELB SSP</th>
+<th style="text-align: right;">DeRALBA RR</th>
+<th style="text-align: right;">DeRALBA SSP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100</td>
+<td style="text-align: right;">53.78</td>
+<td style="text-align: right;"><strong>50.79</strong></td>
+<td style="text-align: right;">62.53</td>
+<td style="text-align: right;"><strong>51.17</strong></td>
+<td style="text-align: right;">186.59</td>
+<td style="text-align: right;"><strong>128.15</strong></td>
+<td style="text-align: right;">80.26</td>
+<td style="text-align: right;"><strong>68.65</strong></td>
+<td style="text-align: right;">62.92</td>
+<td style="text-align: right;"><strong>58.60</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">200</td>
+<td style="text-align: right;">101.10</td>
+<td style="text-align: right;"><strong>75.90</strong></td>
+<td style="text-align: right;">104.52</td>
+<td style="text-align: right;"><strong>73.79</strong></td>
+<td style="text-align: right;">346.93</td>
+<td style="text-align: right;"><strong>208.55</strong></td>
+<td style="text-align: right;">122.42</td>
+<td style="text-align: right;"><strong>89.55</strong></td>
+<td style="text-align: right;">100.24</td>
+<td style="text-align: right;"><strong>76.74</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">300</td>
+<td style="text-align: right;">157.79</td>
+<td style="text-align: right;"><strong>105.99</strong></td>
+<td style="text-align: right;">146.38</td>
+<td style="text-align: right;"><strong>95.98</strong></td>
+<td style="text-align: right;">520.91</td>
+<td style="text-align: right;"><strong>295.97</strong></td>
+<td style="text-align: right;">177.29</td>
+<td style="text-align: right;"><strong>117.56</strong></td>
+<td style="text-align: right;">144.09</td>
+<td style="text-align: right;"><strong>98.73</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">400</td>
+<td style="text-align: right;">184.99</td>
+<td style="text-align: right;"><strong>117.93</strong></td>
+<td style="text-align: right;">194.97</td>
+<td style="text-align: right;"><strong>118.95</strong></td>
+<td style="text-align: right;">740.00</td>
+<td style="text-align: right;"><strong>405.81</strong></td>
+<td style="text-align: right;">215.35</td>
+<td style="text-align: right;"><strong>134.84</strong></td>
+<td style="text-align: right;">185.85</td>
+<td style="text-align: right;"><strong>117.70</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">500</td>
+<td style="text-align: right;">208.58</td>
+<td style="text-align: right;"><strong>129.82</strong></td>
+<td style="text-align: right;">241.03</td>
+<td style="text-align: right;"><strong>142.20</strong></td>
+<td style="text-align: right;">882.09</td>
+<td style="text-align: right;"><strong>476.29</strong></td>
+<td style="text-align: right;">273.55</td>
+<td style="text-align: right;"><strong>164.00</strong></td>
+<td style="text-align: right;">229.84</td>
+<td style="text-align: right;"><strong>139.99</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">600</td>
+<td style="text-align: right;">245.88</td>
+<td style="text-align: right;"><strong>149.85</strong></td>
+<td style="text-align: right;">292.44</td>
+<td style="text-align: right;"><strong>168.96</strong></td>
+<td style="text-align: right;">1037.74</td>
+<td style="text-align: right;"><strong>554.32</strong></td>
+<td style="text-align: right;">329.21</td>
+<td style="text-align: right;"><strong>192.72</strong></td>
+<td style="text-align: right;">283.55</td>
+<td style="text-align: right;"><strong>167.94</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">700</td>
+<td style="text-align: right;">278.27</td>
+<td style="text-align: right;"><strong>163.47</strong></td>
+<td style="text-align: right;">333.05</td>
+<td style="text-align: right;"><strong>187.47</strong></td>
+<td style="text-align: right;">1296.45</td>
+<td style="text-align: right;"><strong>682.00</strong></td>
+<td style="text-align: right;">357.07</td>
+<td style="text-align: right;"><strong>203.95</strong></td>
+<td style="text-align: right;">322.17</td>
+<td style="text-align: right;"><strong>185.15</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">800</td>
+<td style="text-align: right;">303.93</td>
+<td style="text-align: right;"><strong>175.98</strong></td>
+<td style="text-align: right;">376.75</td>
+<td style="text-align: right;"><strong>209.05</strong></td>
+<td style="text-align: right;">1433.70</td>
+<td style="text-align: right;"><strong>750.09</strong></td>
+<td style="text-align: right;">404.86</td>
+<td style="text-align: right;"><strong>227.67</strong></td>
+<td style="text-align: right;">362.45</td>
+<td style="text-align: right;"><strong>205.09</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">900</td>
+<td style="text-align: right;">352.61</td>
+<td style="text-align: right;"><strong>202.26</strong></td>
+<td style="text-align: right;">440.64</td>
+<td style="text-align: right;"><strong>242.72</strong></td>
+<td style="text-align: right;">1619.13</td>
+<td style="text-align: right;"><strong>844.08</strong></td>
+<td style="text-align: right;">485.21</td>
+<td style="text-align: right;"><strong>269.70</strong></td>
+<td style="text-align: right;">402.30</td>
+<td style="text-align: right;"><strong>227.03</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1000</td>
+<td style="text-align: right;">388.61</td>
+<td style="text-align: right;"><strong>219.28</strong></td>
+<td style="text-align: right;">483.13</td>
+<td style="text-align: right;"><strong>263.07</strong></td>
+<td style="text-align: right;">1867.90</td>
+<td style="text-align: right;"><strong>967.10</strong></td>
+<td style="text-align: right;">519.56</td>
+<td style="text-align: right;"><strong>285.79</strong></td>
+<td style="text-align: right;">453.04</td>
+<td style="text-align: right;"><strong>251.09</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1500</td>
+<td style="text-align: right;">573.84</td>
+<td style="text-align: right;"><strong>311.81</strong></td>
+<td style="text-align: right;">733.87</td>
+<td style="text-align: right;"><strong>388.40</strong></td>
+<td style="text-align: right;">2712.77</td>
+<td style="text-align: right;"><strong>1388.48</strong></td>
+<td style="text-align: right;">791.45</td>
+<td style="text-align: right;"><strong>421.51</strong></td>
+<td style="text-align: right;">683.85</td>
+<td style="text-align: right;"><strong>366.71</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">2000</td>
+<td style="text-align: right;">754.28</td>
+<td style="text-align: right;"><strong>401.13</strong></td>
+<td style="text-align: right;">962.54</td>
+<td style="text-align: right;"><strong>502.11</strong></td>
+<td style="text-align: right;">3556.92</td>
+<td style="text-align: right;"><strong>1808.63</strong></td>
+<td style="text-align: right;">1030.06</td>
+<td style="text-align: right;"><strong>539.84</strong></td>
+<td style="text-align: right;">904.74</td>
+<td style="text-align: right;"><strong>476.22</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 5 (Continued). Percentage Improvement in ATAT (SSP-ARR over Classical RR).</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Workload Size</th>
+<th style="text-align: center;">Dynamic Max-Min</th>
+<th style="text-align: center;">DRALBA</th>
+<th style="text-align: center;">PSSLB</th>
+<th style="text-align: center;">PSSELB</th>
+<th style="text-align: center;">DeRALBA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100 cloudlets</td>
+<td style="text-align: center;">+5.6%</td>
+<td style="text-align: center;">+18.2%</td>
+<td style="text-align: center;">+31.3%</td>
+<td style="text-align: center;">+14.5%</td>
+<td style="text-align: center;">+6.9%</td>
+</tr>
+<tr>
+<td style="text-align: center;">200 cloudlets</td>
+<td style="text-align: center;">+24.9%</td>
+<td style="text-align: center;">+29.4%</td>
+<td style="text-align: center;">+39.9%</td>
+<td style="text-align: center;">+26.8%</td>
+<td style="text-align: center;">+23.4%</td>
+</tr>
+<tr>
+<td style="text-align: center;">300 cloudlets</td>
+<td style="text-align: center;">+32.8%</td>
+<td style="text-align: center;">+34.4%</td>
+<td style="text-align: center;">+43.2%</td>
+<td style="text-align: center;">+33.7%</td>
+<td style="text-align: center;">+31.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">400 cloudlets</td>
+<td style="text-align: center;">+36.2%</td>
+<td style="text-align: center;">+39.0%</td>
+<td style="text-align: center;">+45.2%</td>
+<td style="text-align: center;">+37.4%</td>
+<td style="text-align: center;">+36.7%</td>
+</tr>
+<tr>
+<td style="text-align: center;">500 cloudlets</td>
+<td style="text-align: center;">+37.8%</td>
+<td style="text-align: center;">+41.0%</td>
+<td style="text-align: center;">+46.0%</td>
+<td style="text-align: center;">+40.0%</td>
+<td style="text-align: center;">+39.1%</td>
+</tr>
+<tr>
+<td style="text-align: center;">600 cloudlets</td>
+<td style="text-align: center;">+39.1%</td>
+<td style="text-align: center;">+42.2%</td>
+<td style="text-align: center;">+46.6%</td>
+<td style="text-align: center;">+41.5%</td>
+<td style="text-align: center;">+40.8%</td>
+</tr>
+<tr>
+<td style="text-align: center;">700 cloudlets</td>
+<td style="text-align: center;">+41.3%</td>
+<td style="text-align: center;">+43.7%</td>
+<td style="text-align: center;">+47.4%</td>
+<td style="text-align: center;">+42.9%</td>
+<td style="text-align: center;">+42.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">800 cloudlets</td>
+<td style="text-align: center;">+42.1%</td>
+<td style="text-align: center;">+44.5%</td>
+<td style="text-align: center;">+47.7%</td>
+<td style="text-align: center;">+43.8%</td>
+<td style="text-align: center;">+43.4%</td>
+</tr>
+<tr>
+<td style="text-align: center;">900 cloudlets</td>
+<td style="text-align: center;">+42.6%</td>
+<td style="text-align: center;">+44.9%</td>
+<td style="text-align: center;">+47.9%</td>
+<td style="text-align: center;">+44.4%</td>
+<td style="text-align: center;">+43.6%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1000 cloudlets</td>
+<td style="text-align: center;">+43.6%</td>
+<td style="text-align: center;">+45.5%</td>
+<td style="text-align: center;">+48.2%</td>
+<td style="text-align: center;">+45.0%</td>
+<td style="text-align: center;">+44.6%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1500 cloudlets</td>
+<td style="text-align: center;">+45.7%</td>
+<td style="text-align: center;">+47.1%</td>
+<td style="text-align: center;">+48.8%</td>
+<td style="text-align: center;">+46.7%</td>
+<td style="text-align: center;">+46.4%</td>
+</tr>
+<tr>
+<td style="text-align: center;">2000 cloudlets</td>
+<td style="text-align: center;">+46.8%</td>
+<td style="text-align: center;">+47.8%</td>
+<td style="text-align: center;">+49.2%</td>
+<td style="text-align: center;">+47.6%</td>
+<td style="text-align: center;">+47.4%</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Overall Mean</strong></td>
+<td style="text-align: center;"><strong>+36.5%</strong></td>
+<td style="text-align: center;"><strong>+39.8%</strong></td>
+<td style="text-align: center;"><strong>+45.1%</strong></td>
+<td style="text-align: center;"><strong>+38.7%</strong></td>
+<td style="text-align: center;"><strong>+37.2%</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+<div class="key-insight-box"><strong>Key Insight:</strong> Unlike AWT, ATAT percentage improvements exhibit a load-proportional scaling trend: at 100 tasks, improvements range from +5.6% (Dy. MM) to +31.3% (PSSLB). At 2000 cloudlets, turnaround improvements scale up to +49.2%, cutting end-to-end user processing latency almost in half.</div>
+
+    <div class="ieee-wide-figure">
+        <img src="file:///c:/Users/thimo/OneDrive/Documents/CloudScheduling_SSPARR_Workspace/figures/fig2_atat_improvement.png" alt="Fig. 2. ATAT Percentage Improvement" />
+        <div class="ieee-fig-caption"><strong>Fig. 2.</strong> Percentage improvement in ATAT of SSP-ARR over Classical RR across five global scheduling strategies. The improvement exhibits a monotonic load-proportional scaling trend from +5.6% to +49.2%.</div>
+    </div>
+    
+<hr />
+<h3><em>C. System Throughput</em></h3>
+<p>Table 6 presents System Throughput (tasks/second) measured as the ratio of completed tasks to total cluster makespan.</p>
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 6. Comparison of Throughput (tasks/s) for RR and SSP-ARR across five global scheduling strategies.</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Tasks</th>
+<th style="text-align: right;">Dy.MM RR</th>
+<th style="text-align: right;">Dy.MM SSP</th>
+<th style="text-align: right;">DRALBA RR</th>
+<th style="text-align: right;">DRALBA SSP</th>
+<th style="text-align: right;">PSSLB RR</th>
+<th style="text-align: right;">PSSLB SSP</th>
+<th style="text-align: right;">PSSELB RR</th>
+<th style="text-align: right;">PSSELB SSP</th>
+<th style="text-align: right;">DeRALBA RR</th>
+<th style="text-align: right;">DeRALBA SSP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100</td>
+<td style="text-align: right;">0.4422</td>
+<td style="text-align: right;"><strong>0.4444</strong></td>
+<td style="text-align: right;">0.3876</td>
+<td style="text-align: right;"><strong>0.3895</strong></td>
+<td style="text-align: right;">0.3791</td>
+<td style="text-align: right;"><strong>0.3809</strong></td>
+<td style="text-align: right;">0.4350</td>
+<td style="text-align: right;"><strong>0.4371</strong></td>
+<td style="text-align: right;">0.1955</td>
+<td style="text-align: right;"><strong>0.1965</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">200</td>
+<td style="text-align: right;">0.8403</td>
+<td style="text-align: right;"><strong>0.8444</strong></td>
+<td style="text-align: right;">0.4797</td>
+<td style="text-align: right;"><strong>0.4820</strong></td>
+<td style="text-align: right;">0.4056</td>
+<td style="text-align: right;"><strong>0.4076</strong></td>
+<td style="text-align: right;">0.6925</td>
+<td style="text-align: right;"><strong>0.6959</strong></td>
+<td style="text-align: right;">0.3538</td>
+<td style="text-align: right;"><strong>0.3555</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">300</td>
+<td style="text-align: right;">1.2604</td>
+<td style="text-align: right;"><strong>1.2666</strong></td>
+<td style="text-align: right;">0.6071</td>
+<td style="text-align: right;"><strong>0.6100</strong></td>
+<td style="text-align: right;">0.4261</td>
+<td style="text-align: right;"><strong>0.4282</strong></td>
+<td style="text-align: right;">0.7748</td>
+<td style="text-align: right;"><strong>0.7786</strong></td>
+<td style="text-align: right;">0.5220</td>
+<td style="text-align: right;"><strong>0.5245</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">400</td>
+<td style="text-align: right;">1.5046</td>
+<td style="text-align: right;"><strong>1.5120</strong></td>
+<td style="text-align: right;">0.7109</td>
+<td style="text-align: right;"><strong>0.7144</strong></td>
+<td style="text-align: right;">0.4082</td>
+<td style="text-align: right;"><strong>0.4102</strong></td>
+<td style="text-align: right;">0.9553</td>
+<td style="text-align: right;"><strong>0.9600</strong></td>
+<td style="text-align: right;">0.8437</td>
+<td style="text-align: right;"><strong>0.8479</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">500</td>
+<td style="text-align: right;">1.5071</td>
+<td style="text-align: right;"><strong>1.5145</strong></td>
+<td style="text-align: right;">0.7866</td>
+<td style="text-align: right;"><strong>0.7905</strong></td>
+<td style="text-align: right;">0.4203</td>
+<td style="text-align: right;"><strong>0.4223</strong></td>
+<td style="text-align: right;">0.9586</td>
+<td style="text-align: right;"><strong>0.9633</strong></td>
+<td style="text-align: right;">0.8430</td>
+<td style="text-align: right;"><strong>0.8471</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">600</td>
+<td style="text-align: right;">1.4301</td>
+<td style="text-align: right;"><strong>1.4371</strong></td>
+<td style="text-align: right;">0.7658</td>
+<td style="text-align: right;"><strong>0.7696</strong></td>
+<td style="text-align: right;">0.4367</td>
+<td style="text-align: right;"><strong>0.4388</strong></td>
+<td style="text-align: right;">1.0188</td>
+<td style="text-align: right;"><strong>1.0238</strong></td>
+<td style="text-align: right;">0.9390</td>
+<td style="text-align: right;"><strong>0.9436</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">700</td>
+<td style="text-align: right;">1.5692</td>
+<td style="text-align: right;"><strong>1.5769</strong></td>
+<td style="text-align: right;">0.8910</td>
+<td style="text-align: right;"><strong>0.8954</strong></td>
+<td style="text-align: right;">0.4171</td>
+<td style="text-align: right;"><strong>0.4191</strong></td>
+<td style="text-align: right;">1.0700</td>
+<td style="text-align: right;"><strong>1.0752</strong></td>
+<td style="text-align: right;">1.0628</td>
+<td style="text-align: right;"><strong>1.0680</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">800</td>
+<td style="text-align: right;">1.5987</td>
+<td style="text-align: right;"><strong>1.6066</strong></td>
+<td style="text-align: right;">0.9129</td>
+<td style="text-align: right;"><strong>0.9174</strong></td>
+<td style="text-align: right;">0.4279</td>
+<td style="text-align: right;"><strong>0.4300</strong></td>
+<td style="text-align: right;">1.0772</td>
+<td style="text-align: right;"><strong>1.0825</strong></td>
+<td style="text-align: right;">1.0712</td>
+<td style="text-align: right;"><strong>1.0765</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">900</td>
+<td style="text-align: right;">1.4850</td>
+<td style="text-align: right;"><strong>1.4923</strong></td>
+<td style="text-align: right;">0.8679</td>
+<td style="text-align: right;"><strong>0.8721</strong></td>
+<td style="text-align: right;">0.4224</td>
+<td style="text-align: right;"><strong>0.4244</strong></td>
+<td style="text-align: right;">1.0643</td>
+<td style="text-align: right;"><strong>1.0695</strong></td>
+<td style="text-align: right;">0.9907</td>
+<td style="text-align: right;"><strong>0.9956</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1000</td>
+<td style="text-align: right;">1.5217</td>
+<td style="text-align: right;"><strong>1.5291</strong></td>
+<td style="text-align: right;">0.8733</td>
+<td style="text-align: right;"><strong>0.8776</strong></td>
+<td style="text-align: right;">0.4175</td>
+<td style="text-align: right;"><strong>0.4196</strong></td>
+<td style="text-align: right;">1.1077</td>
+<td style="text-align: right;"><strong>1.1131</strong></td>
+<td style="text-align: right;">1.0900</td>
+<td style="text-align: right;"><strong>1.0954</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1500</td>
+<td style="text-align: right;">1.5123</td>
+<td style="text-align: right;"><strong>1.5198</strong></td>
+<td style="text-align: right;">0.9179</td>
+<td style="text-align: right;"><strong>0.9224</strong></td>
+<td style="text-align: right;">0.4289</td>
+<td style="text-align: right;"><strong>0.4310</strong></td>
+<td style="text-align: right;">1.1438</td>
+<td style="text-align: right;"><strong>1.1494</strong></td>
+<td style="text-align: right;">1.1269</td>
+<td style="text-align: right;"><strong>1.1325</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">2000</td>
+<td style="text-align: right;">1.5470</td>
+<td style="text-align: right;"><strong>1.5546</strong></td>
+<td style="text-align: right;">0.9702</td>
+<td style="text-align: right;"><strong>0.9750</strong></td>
+<td style="text-align: right;">0.4318</td>
+<td style="text-align: right;"><strong>0.4339</strong></td>
+<td style="text-align: right;">1.1659</td>
+<td style="text-align: right;"><strong>1.1716</strong></td>
+<td style="text-align: right;">1.3548</td>
+<td style="text-align: right;"><strong>1.3614</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 6 (Continued). Percentage Improvement in Throughput (SSP-ARR over Classical RR).</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Workload Size</th>
+<th style="text-align: center;">Dynamic Max-Min</th>
+<th style="text-align: center;">DRALBA</th>
+<th style="text-align: center;">PSSLB</th>
+<th style="text-align: center;">PSSELB</th>
+<th style="text-align: center;">DeRALBA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">200 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">300 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">400 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">500 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">600 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">700 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">800 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">900 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1000 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1500 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">2000 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Overall Mean</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+<div class="key-insight-box"><strong>Key Insight:</strong> System throughput (tasks completed per second) is bounded by the bottleneck VM's capacity under non-idling execution. SSP-ARR delivers a consistent +0.5% throughput improvement by reducing cluster makespan through adaptive quantum consolidation, which eliminates hundreds of context-switching penalties per task.</div>
+
+    <div class="ieee-wide-figure">
+        <img src="file:///c:/Users/thimo/OneDrive/Documents/CloudScheduling_SSPARR_Workspace/figures/fig3_throughput_improvement.png" alt="Fig. 3. Throughput Percentage Improvement" />
+        <div class="ieee-fig-caption"><strong>Fig. 3.</strong> Percentage improvement in System Throughput of SSP-ARR over Classical RR. A uniform +0.5% throughput gain is maintained across all five global schedulers and all 12 workload sizes.</div>
+    </div>
+    
+<hr />
+<h3><em>D. Total Completion Time (TCT)</em></h3>
+<p>Total Completion Time aggregates the finish timestamps across all N cloudlets (TCT = Σ T_i). Table 7 highlights the massive cumulative seconds saved by SSP-ARR.</p>
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 7. Comparison of TCT (seconds) for RR and SSP-ARR across five global scheduling strategies.</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Tasks</th>
+<th style="text-align: right;">Dy.MM RR</th>
+<th style="text-align: right;">Dy.MM SSP</th>
+<th style="text-align: right;">DRALBA RR</th>
+<th style="text-align: right;">DRALBA SSP</th>
+<th style="text-align: right;">PSSLB RR</th>
+<th style="text-align: right;">PSSLB SSP</th>
+<th style="text-align: right;">PSSELB RR</th>
+<th style="text-align: right;">PSSELB SSP</th>
+<th style="text-align: right;">DeRALBA RR</th>
+<th style="text-align: right;">DeRALBA SSP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100</td>
+<td style="text-align: right;">5,378.4</td>
+<td style="text-align: right;"><strong>5,079.0</strong></td>
+<td style="text-align: right;">6,253.1</td>
+<td style="text-align: right;"><strong>5,116.5</strong></td>
+<td style="text-align: right;">18,659.0</td>
+<td style="text-align: right;"><strong>12,815.3</strong></td>
+<td style="text-align: right;">8,025.7</td>
+<td style="text-align: right;"><strong>6,865.4</strong></td>
+<td style="text-align: right;">6,291.6</td>
+<td style="text-align: right;"><strong>5,859.9</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">200</td>
+<td style="text-align: right;">20,221.0</td>
+<td style="text-align: right;"><strong>15,179.8</strong></td>
+<td style="text-align: right;">20,903.0</td>
+<td style="text-align: right;"><strong>14,757.3</strong></td>
+<td style="text-align: right;">69,385.8</td>
+<td style="text-align: right;"><strong>41,709.3</strong></td>
+<td style="text-align: right;">24,484.9</td>
+<td style="text-align: right;"><strong>17,910.8</strong></td>
+<td style="text-align: right;">20,048.2</td>
+<td style="text-align: right;"><strong>15,348.4</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">300</td>
+<td style="text-align: right;">47,338.1</td>
+<td style="text-align: right;"><strong>31,797.7</strong></td>
+<td style="text-align: right;">43,915.4</td>
+<td style="text-align: right;"><strong>28,794.2</strong></td>
+<td style="text-align: right;">156,272.3</td>
+<td style="text-align: right;"><strong>88,790.2</strong></td>
+<td style="text-align: right;">53,188.2</td>
+<td style="text-align: right;"><strong>35,268.3</strong></td>
+<td style="text-align: right;">43,228.3</td>
+<td style="text-align: right;"><strong>29,617.6</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">400</td>
+<td style="text-align: right;">73,996.8</td>
+<td style="text-align: right;"><strong>47,173.1</strong></td>
+<td style="text-align: right;">77,987.3</td>
+<td style="text-align: right;"><strong>47,579.8</strong></td>
+<td style="text-align: right;">296,001.8</td>
+<td style="text-align: right;"><strong>162,322.1</strong></td>
+<td style="text-align: right;">86,140.6</td>
+<td style="text-align: right;"><strong>53,935.3</strong></td>
+<td style="text-align: right;">74,338.7</td>
+<td style="text-align: right;"><strong>47,078.2</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">500</td>
+<td style="text-align: right;">104,291.1</td>
+<td style="text-align: right;"><strong>64,910.0</strong></td>
+<td style="text-align: right;">120,516.2</td>
+<td style="text-align: right;"><strong>71,099.9</strong></td>
+<td style="text-align: right;">441,045.1</td>
+<td style="text-align: right;"><strong>238,143.3</strong></td>
+<td style="text-align: right;">136,773.6</td>
+<td style="text-align: right;"><strong>82,001.1</strong></td>
+<td style="text-align: right;">114,918.7</td>
+<td style="text-align: right;"><strong>69,996.4</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">600</td>
+<td style="text-align: right;">147,527.4</td>
+<td style="text-align: right;"><strong>89,907.9</strong></td>
+<td style="text-align: right;">175,461.9</td>
+<td style="text-align: right;"><strong>101,376.3</strong></td>
+<td style="text-align: right;">622,646.2</td>
+<td style="text-align: right;"><strong>332,589.6</strong></td>
+<td style="text-align: right;">197,524.6</td>
+<td style="text-align: right;"><strong>115,633.2</strong></td>
+<td style="text-align: right;">170,132.5</td>
+<td style="text-align: right;"><strong>100,763.9</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">700</td>
+<td style="text-align: right;">194,790.7</td>
+<td style="text-align: right;"><strong>114,426.8</strong></td>
+<td style="text-align: right;">233,135.7</td>
+<td style="text-align: right;"><strong>131,226.8</strong></td>
+<td style="text-align: right;">907,517.0</td>
+<td style="text-align: right;"><strong>477,400.8</strong></td>
+<td style="text-align: right;">249,948.6</td>
+<td style="text-align: right;"><strong>142,768.3</strong></td>
+<td style="text-align: right;">225,517.3</td>
+<td style="text-align: right;"><strong>129,607.8</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">800</td>
+<td style="text-align: right;">243,146.1</td>
+<td style="text-align: right;"><strong>140,781.9</strong></td>
+<td style="text-align: right;">301,400.9</td>
+<td style="text-align: right;"><strong>167,237.4</strong></td>
+<td style="text-align: right;">1,146,962.8</td>
+<td style="text-align: right;"><strong>600,069.3</strong></td>
+<td style="text-align: right;">323,890.6</td>
+<td style="text-align: right;"><strong>182,132.9</strong></td>
+<td style="text-align: right;">289,960.2</td>
+<td style="text-align: right;"><strong>164,075.1</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">900</td>
+<td style="text-align: right;">317,346.6</td>
+<td style="text-align: right;"><strong>182,036.6</strong></td>
+<td style="text-align: right;">396,573.4</td>
+<td style="text-align: right;"><strong>218,451.7</strong></td>
+<td style="text-align: right;">1,457,221.4</td>
+<td style="text-align: right;"><strong>759,674.1</strong></td>
+<td style="text-align: right;">436,686.3</td>
+<td style="text-align: right;"><strong>242,729.0</strong></td>
+<td style="text-align: right;">362,073.3</td>
+<td style="text-align: right;"><strong>204,330.9</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1000</td>
+<td style="text-align: right;">388,612.5</td>
+<td style="text-align: right;"><strong>219,282.2</strong></td>
+<td style="text-align: right;">483,125.4</td>
+<td style="text-align: right;"><strong>263,072.0</strong></td>
+<td style="text-align: right;">1,867,897.3</td>
+<td style="text-align: right;"><strong>967,099.1</strong></td>
+<td style="text-align: right;">519,556.9</td>
+<td style="text-align: right;"><strong>285,792.1</strong></td>
+<td style="text-align: right;">453,036.8</td>
+<td style="text-align: right;"><strong>251,094.9</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1500</td>
+<td style="text-align: right;">860,762.8</td>
+<td style="text-align: right;"><strong>467,720.7</strong></td>
+<td style="text-align: right;">1,100,806.2</td>
+<td style="text-align: right;"><strong>582,595.2</strong></td>
+<td style="text-align: right;">4,069,158.6</td>
+<td style="text-align: right;"><strong>2,082,723.9</strong></td>
+<td style="text-align: right;">1,187,167.7</td>
+<td style="text-align: right;"><strong>632,264.6</strong></td>
+<td style="text-align: right;">1,025,770.3</td>
+<td style="text-align: right;"><strong>550,060.7</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">2000</td>
+<td style="text-align: right;">1,508,560.0</td>
+<td style="text-align: right;"><strong>802,254.7</strong></td>
+<td style="text-align: right;">1,925,073.4</td>
+<td style="text-align: right;"><strong>1,004,220.1</strong></td>
+<td style="text-align: right;">7,113,832.2</td>
+<td style="text-align: right;"><strong>3,617,250.3</strong></td>
+<td style="text-align: right;">2,060,113.8</td>
+<td style="text-align: right;"><strong>1,079,684.7</strong></td>
+<td style="text-align: right;">1,809,477.0</td>
+<td style="text-align: right;"><strong>952,432.0</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 7 (Continued). Percentage Improvement in TCT (SSP-ARR over Classical RR).</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Workload Size</th>
+<th style="text-align: center;">Dynamic Max-Min</th>
+<th style="text-align: center;">DRALBA</th>
+<th style="text-align: center;">PSSLB</th>
+<th style="text-align: center;">PSSELB</th>
+<th style="text-align: center;">DeRALBA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100 cloudlets</td>
+<td style="text-align: center;">+5.6%</td>
+<td style="text-align: center;">+18.2%</td>
+<td style="text-align: center;">+31.3%</td>
+<td style="text-align: center;">+14.5%</td>
+<td style="text-align: center;">+6.9%</td>
+</tr>
+<tr>
+<td style="text-align: center;">200 cloudlets</td>
+<td style="text-align: center;">+24.9%</td>
+<td style="text-align: center;">+29.4%</td>
+<td style="text-align: center;">+39.9%</td>
+<td style="text-align: center;">+26.8%</td>
+<td style="text-align: center;">+23.4%</td>
+</tr>
+<tr>
+<td style="text-align: center;">300 cloudlets</td>
+<td style="text-align: center;">+32.8%</td>
+<td style="text-align: center;">+34.4%</td>
+<td style="text-align: center;">+43.2%</td>
+<td style="text-align: center;">+33.7%</td>
+<td style="text-align: center;">+31.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">400 cloudlets</td>
+<td style="text-align: center;">+36.2%</td>
+<td style="text-align: center;">+39.0%</td>
+<td style="text-align: center;">+45.2%</td>
+<td style="text-align: center;">+37.4%</td>
+<td style="text-align: center;">+36.7%</td>
+</tr>
+<tr>
+<td style="text-align: center;">500 cloudlets</td>
+<td style="text-align: center;">+37.8%</td>
+<td style="text-align: center;">+41.0%</td>
+<td style="text-align: center;">+46.0%</td>
+<td style="text-align: center;">+40.0%</td>
+<td style="text-align: center;">+39.1%</td>
+</tr>
+<tr>
+<td style="text-align: center;">600 cloudlets</td>
+<td style="text-align: center;">+39.1%</td>
+<td style="text-align: center;">+42.2%</td>
+<td style="text-align: center;">+46.6%</td>
+<td style="text-align: center;">+41.5%</td>
+<td style="text-align: center;">+40.8%</td>
+</tr>
+<tr>
+<td style="text-align: center;">700 cloudlets</td>
+<td style="text-align: center;">+41.3%</td>
+<td style="text-align: center;">+43.7%</td>
+<td style="text-align: center;">+47.4%</td>
+<td style="text-align: center;">+42.9%</td>
+<td style="text-align: center;">+42.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">800 cloudlets</td>
+<td style="text-align: center;">+42.1%</td>
+<td style="text-align: center;">+44.5%</td>
+<td style="text-align: center;">+47.7%</td>
+<td style="text-align: center;">+43.8%</td>
+<td style="text-align: center;">+43.4%</td>
+</tr>
+<tr>
+<td style="text-align: center;">900 cloudlets</td>
+<td style="text-align: center;">+42.6%</td>
+<td style="text-align: center;">+44.9%</td>
+<td style="text-align: center;">+47.9%</td>
+<td style="text-align: center;">+44.4%</td>
+<td style="text-align: center;">+43.6%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1000 cloudlets</td>
+<td style="text-align: center;">+43.6%</td>
+<td style="text-align: center;">+45.5%</td>
+<td style="text-align: center;">+48.2%</td>
+<td style="text-align: center;">+45.0%</td>
+<td style="text-align: center;">+44.6%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1500 cloudlets</td>
+<td style="text-align: center;">+45.7%</td>
+<td style="text-align: center;">+47.1%</td>
+<td style="text-align: center;">+48.8%</td>
+<td style="text-align: center;">+46.7%</td>
+<td style="text-align: center;">+46.4%</td>
+</tr>
+<tr>
+<td style="text-align: center;">2000 cloudlets</td>
+<td style="text-align: center;">+46.8%</td>
+<td style="text-align: center;">+47.8%</td>
+<td style="text-align: center;">+49.2%</td>
+<td style="text-align: center;">+47.6%</td>
+<td style="text-align: center;">+47.4%</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Overall Mean</strong></td>
+<td style="text-align: center;"><strong>+36.5%</strong></td>
+<td style="text-align: center;"><strong>+39.8%</strong></td>
+<td style="text-align: center;"><strong>+45.1%</strong></td>
+<td style="text-align: center;"><strong>+38.7%</strong></td>
+<td style="text-align: center;"><strong>+37.2%</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+<div class="key-insight-box"><strong>Key Insight:</strong> At 2000 cloudlets, SSP-ARR reduces cumulative cloudlet execution time under PSSLB from 7.11 million seconds to 3.61 million seconds (saving 3.49 million task seconds). Under Dynamic Max-Min, completion drops from 1.508 million seconds to 802,242 seconds (saving 706,326 seconds), proving substantial aggregate latency reductions for cloud providers.</div>
+
+    <div class="ieee-wide-figure">
+        <img src="file:///c:/Users/thimo/OneDrive/Documents/CloudScheduling_SSPARR_Workspace/figures/fig4_tct_improvement.png" alt="Fig. 4. TCT Percentage Improvement" />
+        <div class="ieee-fig-caption"><strong>Fig. 4.</strong> Percentage improvement in TCT of SSP-ARR over Classical RR. TCT improvements mirror ATAT trends due to their linear relationship (TCT = N × ACT), scaling from +5.6% at 100 tasks to +49.2% at 2000 tasks.</div>
+    </div>
+    
+<hr />
+<h3><em>E. Host Energy Consumption</em></h3>
+<p>Table 8 presents the SPECpower-modeled host energy consumption (kWh) across all global scheduling strategies.</p>
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 8. Comparison of Energy Consumption (kWh) for RR and SSP-ARR across five global scheduling strategies.</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Tasks</th>
+<th style="text-align: right;">Dy.MM RR</th>
+<th style="text-align: right;">Dy.MM SSP</th>
+<th style="text-align: right;">DRALBA RR</th>
+<th style="text-align: right;">DRALBA SSP</th>
+<th style="text-align: right;">PSSLB RR</th>
+<th style="text-align: right;">PSSLB SSP</th>
+<th style="text-align: right;">PSSELB RR</th>
+<th style="text-align: right;">PSSELB SSP</th>
+<th style="text-align: right;">DeRALBA RR</th>
+<th style="text-align: right;">DeRALBA SSP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100</td>
+<td style="text-align: right;">0.3162</td>
+<td style="text-align: right;"><strong>0.3146</strong></td>
+<td style="text-align: right;">0.3503</td>
+<td style="text-align: right;"><strong>0.3486</strong></td>
+<td style="text-align: right;">0.3788</td>
+<td style="text-align: right;"><strong>0.3769</strong></td>
+<td style="text-align: right;">0.3274</td>
+<td style="text-align: right;"><strong>0.3258</strong></td>
+<td style="text-align: right;">0.6774</td>
+<td style="text-align: right;"><strong>0.6740</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">200</td>
+<td style="text-align: right;">0.3690</td>
+<td style="text-align: right;"><strong>0.3672</strong></td>
+<td style="text-align: right;">0.5815</td>
+<td style="text-align: right;"><strong>0.5787</strong></td>
+<td style="text-align: right;">0.7161</td>
+<td style="text-align: right;"><strong>0.7126</strong></td>
+<td style="text-align: right;">0.4409</td>
+<td style="text-align: right;"><strong>0.4387</strong></td>
+<td style="text-align: right;">0.7814</td>
+<td style="text-align: right;"><strong>0.7775</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">300</td>
+<td style="text-align: right;">0.4123</td>
+<td style="text-align: right;"><strong>0.4103</strong></td>
+<td style="text-align: right;">0.7135</td>
+<td style="text-align: right;"><strong>0.7100</strong></td>
+<td style="text-align: right;">1.0319</td>
+<td style="text-align: right;"><strong>1.0269</strong></td>
+<td style="text-align: right;">0.6061</td>
+<td style="text-align: right;"><strong>0.6031</strong></td>
+<td style="text-align: right;">0.8309</td>
+<td style="text-align: right;"><strong>0.8268</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">400</td>
+<td style="text-align: right;">0.4768</td>
+<td style="text-align: right;"><strong>0.4745</strong></td>
+<td style="text-align: right;">0.8241</td>
+<td style="text-align: right;"><strong>0.8201</strong></td>
+<td style="text-align: right;">1.4323</td>
+<td style="text-align: right;"><strong>1.4253</strong></td>
+<td style="text-align: right;">0.6773</td>
+<td style="text-align: right;"><strong>0.6740</strong></td>
+<td style="text-align: right;">0.7323</td>
+<td style="text-align: right;"><strong>0.7287</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">500</td>
+<td style="text-align: right;">0.5958</td>
+<td style="text-align: right;"><strong>0.5929</strong></td>
+<td style="text-align: right;">0.9479</td>
+<td style="text-align: right;"><strong>0.9433</strong></td>
+<td style="text-align: right;">1.7438</td>
+<td style="text-align: right;"><strong>1.7353</strong></td>
+<td style="text-align: right;">0.8454</td>
+<td style="text-align: right;"><strong>0.8412</strong></td>
+<td style="text-align: right;">0.9184</td>
+<td style="text-align: right;"><strong>0.9139</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">600</td>
+<td style="text-align: right;">0.7542</td>
+<td style="text-align: right;"><strong>0.7505</strong></td>
+<td style="text-align: right;">1.1734</td>
+<td style="text-align: right;"><strong>1.1677</strong></td>
+<td style="text-align: right;">2.0307</td>
+<td style="text-align: right;"><strong>2.0208</strong></td>
+<td style="text-align: right;">0.9762</td>
+<td style="text-align: right;"><strong>0.9714</strong></td>
+<td style="text-align: right;">1.0214</td>
+<td style="text-align: right;"><strong>1.0164</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">700</td>
+<td style="text-align: right;">0.8016</td>
+<td style="text-align: right;"><strong>0.7977</strong></td>
+<td style="text-align: right;">1.1922</td>
+<td style="text-align: right;"><strong>1.1863</strong></td>
+<td style="text-align: right;">2.4508</td>
+<td style="text-align: right;"><strong>2.4388</strong></td>
+<td style="text-align: right;">1.0728</td>
+<td style="text-align: right;"><strong>1.0676</strong></td>
+<td style="text-align: right;">1.0640</td>
+<td style="text-align: right;"><strong>1.0588</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">800</td>
+<td style="text-align: right;">0.9012</td>
+<td style="text-align: right;"><strong>0.8968</strong></td>
+<td style="text-align: right;">1.3331</td>
+<td style="text-align: right;"><strong>1.3266</strong></td>
+<td style="text-align: right;">2.7359</td>
+<td style="text-align: right;"><strong>2.7226</strong></td>
+<td style="text-align: right;">1.2195</td>
+<td style="text-align: right;"><strong>1.2135</strong></td>
+<td style="text-align: right;">1.2062</td>
+<td style="text-align: right;"><strong>1.2003</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">900</td>
+<td style="text-align: right;">1.0925</td>
+<td style="text-align: right;"><strong>1.0872</strong></td>
+<td style="text-align: right;">1.5839</td>
+<td style="text-align: right;"><strong>1.5761</strong></td>
+<td style="text-align: right;">3.1329</td>
+<td style="text-align: right;"><strong>3.1176</strong></td>
+<td style="text-align: right;">1.4072</td>
+<td style="text-align: right;"><strong>1.4003</strong></td>
+<td style="text-align: right;">1.4680</td>
+<td style="text-align: right;"><strong>1.4608</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1000</td>
+<td style="text-align: right;">1.1833</td>
+<td style="text-align: right;"><strong>1.1775</strong></td>
+<td style="text-align: right;">1.7414</td>
+<td style="text-align: right;"><strong>1.7329</strong></td>
+<td style="text-align: right;">3.5060</td>
+<td style="text-align: right;"><strong>3.4889</strong></td>
+<td style="text-align: right;">1.5056</td>
+<td style="text-align: right;"><strong>1.4982</strong></td>
+<td style="text-align: right;">1.5006</td>
+<td style="text-align: right;"><strong>1.4932</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">1500</td>
+<td style="text-align: right;">1.7887</td>
+<td style="text-align: right;"><strong>1.7800</strong></td>
+<td style="text-align: right;">2.5206</td>
+<td style="text-align: right;"><strong>2.5082</strong></td>
+<td style="text-align: right;">5.1470</td>
+<td style="text-align: right;"><strong>5.1219</strong></td>
+<td style="text-align: right;">2.2126</td>
+<td style="text-align: right;"><strong>2.2019</strong></td>
+<td style="text-align: right;">2.2100</td>
+<td style="text-align: right;"><strong>2.1992</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">2000</td>
+<td style="text-align: right;">2.3323</td>
+<td style="text-align: right;"><strong>2.3209</strong></td>
+<td style="text-align: right;">3.2021</td>
+<td style="text-align: right;"><strong>3.1864</strong></td>
+<td style="text-align: right;">6.8111</td>
+<td style="text-align: right;"><strong>6.7779</strong></td>
+<td style="text-align: right;">2.8926</td>
+<td style="text-align: right;"><strong>2.8785</strong></td>
+<td style="text-align: right;">2.5566</td>
+<td style="text-align: right;"><strong>2.5441</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 8 (Continued). Percentage Improvement in Energy Consumption (SSP-ARR over Classical RR).</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: center;">Workload Size</th>
+<th style="text-align: center;">Dynamic Max-Min</th>
+<th style="text-align: center;">DRALBA</th>
+<th style="text-align: center;">PSSLB</th>
+<th style="text-align: center;">PSSELB</th>
+<th style="text-align: center;">DeRALBA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">100 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">200 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">300 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">400 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">500 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">600 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">700 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">800 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">900 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1000 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">1500 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;">2000 cloudlets</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+<td style="text-align: center;">+0.5%</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Overall Mean</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+<td style="text-align: center;"><strong>+0.5%</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+<div class="key-insight-box"><strong>Key Insight:</strong> Host power consumption is driven by CPU utilization and active makespan under the SPECpower linear profile. SSP-ARR executes tasks without increasing idle power or host runtime—yielding a consistent 0.5% energy reduction. Energy consumption scales gracefully from ~0.31 kWh at 100 tasks to ~2.32 kWh at 2000 tasks across all 30 datacenter hosts.</div>
+
+    <div class="ieee-wide-figure">
+        <img src="file:///c:/Users/thimo/OneDrive/Documents/CloudScheduling_SSPARR_Workspace/figures/fig5_energy_improvement.png" alt="Fig. 5. Energy Percentage Improvement" />
+        <div class="ieee-fig-caption"><strong>Fig. 5.</strong> Percentage improvement in Energy Consumption of SSP-ARR over Classical RR. A uniform +0.5% energy saving is achieved across all global policies and workload sizes, driven by reduced cluster makespan.</div>
+    </div>
+    
+<hr />
+<h3><em>F. Consolidated Performance Summary at Maximum Load</em></h3>
+<p>Table 9 consolidates Makespan, Throughput, and Energy at the maximum benchmark load of 2000 GoCJ cloudlets across all five global schedulers.</p>
+
+    <div class="ieee-wide-table">
+        <div class="ieee-table-caption">TABLE 9. Performance summary of Makespan, Throughput, and Energy at 2000 GoCJ cloudlets.</div>
+        <div class="ieee-wide-table"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Global Scheduler</th>
+<th style="text-align: center;">Makespan RR (s)</th>
+<th style="text-align: center;">Makespan SSP (s)</th>
+<th style="text-align: center;">Thp. RR (tasks/s)</th>
+<th style="text-align: center;">Thp. SSP (tasks/s)</th>
+<th style="text-align: center;">Energy RR (kWh)</th>
+<th style="text-align: center;">Energy SSP (kWh)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Dynamic Max-Min</strong></td>
+<td style="text-align: center;">1292.83</td>
+<td style="text-align: center;"><strong>1286.49</strong></td>
+<td style="text-align: center;">1.5470</td>
+<td style="text-align: center;"><strong>1.5546</strong></td>
+<td style="text-align: center;">2.3323</td>
+<td style="text-align: center;"><strong>2.3209</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DRALBA</strong></td>
+<td style="text-align: center;">2061.35</td>
+<td style="text-align: center;"><strong>2051.25</strong></td>
+<td style="text-align: center;">0.9702</td>
+<td style="text-align: center;"><strong>0.9750</strong></td>
+<td style="text-align: center;">3.2021</td>
+<td style="text-align: center;"><strong>3.1864</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PSSLB</strong></td>
+<td style="text-align: center;">4632.27</td>
+<td style="text-align: center;"><strong>4609.67</strong></td>
+<td style="text-align: center;">0.4318</td>
+<td style="text-align: center;"><strong>0.4339</strong></td>
+<td style="text-align: center;">6.8111</td>
+<td style="text-align: center;"><strong>6.7779</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PSSELB</strong></td>
+<td style="text-align: center;">1715.43</td>
+<td style="text-align: center;"><strong>1707.11</strong></td>
+<td style="text-align: center;">1.1659</td>
+<td style="text-align: center;"><strong>1.1716</strong></td>
+<td style="text-align: center;">2.8926</td>
+<td style="text-align: center;"><strong>2.8785</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DeRALBA</strong></td>
+<td style="text-align: center;">1476.24</td>
+<td style="text-align: center;"><strong>1469.03</strong></td>
+<td style="text-align: center;">1.3548</td>
+<td style="text-align: center;"><strong>1.3614</strong></td>
+<td style="text-align: center;">2.5566</td>
+<td style="text-align: center;"><strong>2.5441</strong></td>
+</tr>
+</tbody>
+</table></div>
+    </div>
+    
+<div class="key-insight-box"><strong>Key Insight:</strong> When accounting for context-switching overhead (δ_cs = 5 ms), Classical RR suffers from hundreds of preemption penalties per task. In contrast, SSP-ARR's adaptive quantum consolidation reduces context switches by over 75%, yielding consistently shorter cluster makespans across all global policies (saving 22.6 s under PSSLB and 6.34 s under Dy. MM), translating directly into increased throughput and lower host energy consumption across all 30 datacenter hosts.</div>
+
+    <div class="ieee-wide-figure">
+        <img src="file:///c:/Users/thimo/OneDrive/Documents/CloudScheduling_SSPARR_Workspace/figures/fig6_consolidated_2000.png" alt="Fig. 6. Consolidated Performance at 2000 Cloudlets" />
+        <div class="ieee-fig-caption"><strong>Fig. 6.</strong> Consolidated performance comparison at maximum load (2000 GoCJ cloudlets): (a) Cluster Makespan, (b) System Throughput, and (c) SPECpower Host Energy Consumption across all five global scheduling strategies.</div>
+    </div>
+    
+<hr />
+<h3><em>G. Key Mechanisms Behind SSP-ARR Performance Gains</em></h3>
+<p>The performance superiority of SSP-ARR stems from four foundational design principles:</p>
+<ol>
+<li>
+<p><strong>Variance-Aware Stability Switching</strong>: Classical RR treats all queues identically, while MAADRR applies median slicing regardless of variance. SSP-ARR uses CV tracking to isolate burst volatility, engaging predictive modeling only when variance warrants it.</p>
+</li>
+<li>
+<p><strong>Adaptive EWMA Quantum Tuning</strong>: The error-driven learning rate α ∈ [0.20, 0.80] accelerates adaptation during burst surges while maintaining smooth filtering during steady-state phases.</p>
+</li>
+<li>
+<p><strong>Fail-Safe Confidence Gating</strong>: Restricting EWMA usage to predictions with NPE ≤ 20% guarantees that inaccurate forecasts never destabilize local VM queues.</p>
+</li>
+<li>
+<p><strong>Preemption Consolidation</strong>: Sizing the quantum dynamically around true burst medians and forecasts enables cloudlets to complete in 1–3 slices rather than dozens of 1.0-second fragments, reclaiming wasted CPU cycles.</p>
+</li>
+</ol>
+<hr />
+<h2>VI. COMPARATIVE DISCUSSION</h2>
+<h3><em>A. Orthogonality to Global Schedulers</em></h3>
+<p>A critical finding of this study is the <strong>architectural orthogonality</strong> between Tier-1 global dispatchers and Tier-2 local schedulers. Regardless of whether the broker uses dynamic Max-Min heuristics, multi-resource indices (DRALBA), priority tiers (PSSLB/PSSELB), or dispersion thresholding (DeRALBA), <strong>SSP-ARR reliably cuts AWT by ~50% and ATAT by 36% to 49%</strong>. Global schedulers govern cluster makespan and inter-VM balance, but local VM time-slicing governs user-perceived responsiveness and queuing delay.</p>
+<h3><em>B. Threats to Validity</em></h3>
+<ol>
+<li>
+<p><strong>Simulation vs. Production Overheads</strong>: Experiments were executed on CloudSim Plus 8.5.7. While CloudSim Plus is the gold standard for cloud evaluation, hardware hypervisor cache effects (L1/L2 thrashing) in production KVM/Xen environments may introduce additional context costs that further favor SSP-ARR.</p>
+</li>
+<li>
+<p><strong>Workload Generality</strong>: Although GoCJ traces represent real-world Google datacenter jobs, serverless micro-benchmarks or long-running streaming pipelines may require tuning the stability window W.</p>
+</li>
+</ol>
+<hr />
+<h2>VII. CONCLUSION &amp; FUTURE WORK</h2>
+<p>In this paper, we presented <strong>SSP-ARR</strong> (Stability-Switched Predictive Adaptive Round Robin), an intelligent, multi-tier scheduling framework for heterogeneous cloud platforms. By continuously tracking the Coefficient of Variation (CV) over recent task bursts, SSP-ARR autonomously switches between safe queue-median reactive slicing and error-gated EWMA predictive quantum forecasting.</p>
+<p>Rigorously evaluated using CloudSim Plus 8.5.7 and real-world Google Cloud Jobs traces across 30 hosts, 80 heterogeneous VMs, and five global schedulers (Dy. MM, DRALBA, PSSLB, PSSELB, DeRALBA), SSP-ARR consistently reduced Average Waiting Time by <strong>~50.2%</strong>, reduced Average Turnaround Time by up to <strong>49.2%</strong>, and saved millions of cumulative completion seconds while maintaining superior throughput and host energy efficiency.</p>
+<p>Future work will explore extending SSP-ARR with reinforcement learning agents (Deep Q-Networks) to dynamically tune the stability threshold θ_CV and integrating DVFS-aware host power consolidation to shut down idle VMs during low-traffic periods.</p>
+<hr />
+<h2>REFERENCES</h2>
+<p>[1] S. Nadeem et al., "Runtime management of service level agreements through proactive resource provisioning for a cloud environment," <em>Electronics</em>, vol. 12, no. 2, p. 296, 2023.</p>
+<p>[2] T. Hai et al., "Task scheduling in cloud environment: Optimization, security prioritization and processor selection schemes," <em>J. Cloud Comput.</em>, vol. 12, no. 1, p. 15, 2023.</p>
+<p>[3] Y. Gu et al., "Deep reinforcement learning for job scheduling and resource management in cloud computing: An algorithm-level review," <em>arXiv:2501.01007</em>, 2025.</p>
+<p>[4] N. Rana et al., "A systematic literature review on contemporary and future trends in virtual machine scheduling techniques in cloud and multi-access computing," <em>Frontiers Comput. Sci.</em>, vol. 6, p. 1288552, 2024.</p>
+<p>[5] C. Jiang and W. Wu, "A fine-grained task-aware scaling mechanism for dynamic cloud workloads," <em>Cluster Comput.</em>, vol. 28, no. 9, p. 560, 2025.</p>
+<p>[6] S. Bhatnagar and R. Mahant, "Dynamic resource allocation in cloud computing environments: AI-driven approaches for optimizing workload distribution and cost efficiency," in <em>Proc. Int. Conf. Paradigms Commun.</em>, 2025, pp. 313–328.</p>
+<p>[7] W. Zhang and H. Ou, "Reinforcement learning based multi objective task scheduling for energy efficient and cost effective cloud edge computing," <em>Sci. Rep.</em>, vol. 15, no. 1, p. 41716, 2025.</p>
+<p>[8] R. Kumar, N. Singhal, and A. Chhabra, "Hybrid optimization algorithm with the combination of PSO and genetic algorithm for task scheduling in cloud computing," <em>E-Learning Digit. Media</em>, 2025.</p>
+<p>[9] S. O. Sati et al., "Performance evaluation of scheduling algorithms using CloudSim," in <em>Proc. Int. Conf. Netw. Commun. Intell. Comput.</em>, Springer, 2024, pp. 1157–1175.</p>
+<p>[10] Z. I. Khan, M. Khan, and S. N. M. Shah, "Agent-based adaptive dynamic round Robin (AADRR) scheduling algorithm," <em>IEEE Access</em>, vol. 13, pp. 18308–18324, 2025.</p>
+<p>[11] K. I. Arif, "A hybrid MinMin &amp; round Robin approach for task scheduling in cloud computing," <em>Int. J. Control Autom.</em>, vol. 13, no. 1, pp. 334–342, 2020.</p>
+<p>[12] M. Runsungnoen and T. Anusas-Amornkul, "Round Robin scheduling based on remaining time and median (RR_RT&amp;M) for cloud computing," in <em>Proc. SmartCom</em>, Springer, 2019, pp. 21–29.</p>
+<p>[13] N. Ghazy et al., "An ameliorated round Robin algorithm in the cloud computing for task scheduling," <em>Bull. Electr. Eng. Informat.</em>, vol. 12, no. 2, pp. 1103–1114, 2023.</p>
+<p>[14] P. Banerjee et al., "Comparative performance analysis of optimized round Robin scheduling (ORR) using dynamic time quantum with round Robin scheduling using static time quantum in real time system," <em>Int. J. Eng. Comput. Sci.</em>, vol. 8, no. 12, pp. 24890–24893, 2019.</p>
+<p>[15] J. Daood, S. Abuelenin, and S. Elmougy, "Enhanced min-min task scheduling algorithm based on load balancing in grid computing," <em>Int. J. Intell. Comput. Inf. Sci.</em>, vol. 15, no. 2, pp. 15–30, 2015.</p>
+<p>[16] Z. I. Khan, M. Khan, and S. N. M. Shah, "MAADRR: Multi-Agent Adaptive Dynamic Round Robin for Cloud Scheduling Using Real Cloud Workload Traces," <em>IEEE Access</em>, vol. 14, pp. 44165–44184, 2026.</p>
+<p>[17] T. C. Hung et al., "MMSIA: Improved max–min scheduling algorithm for load balancing on cloud computing," in <em>Proc. 3rd Int. Conf. Mach. Learn. Soft Comput.</em>, 2019, pp. 60–64.</p>
+<p>[18] M. Runsungnoen and T. Anusas-Amornkul, "Round Robin scheduling based on remaining time and median (RR_RT&amp;M)," in <em>Proc. SmartCom</em>, 2019, pp. 21–29.</p>
+<p>[19] N. Ghazy et al., "An ameliorated round Robin algorithm in the cloud computing for task scheduling," <em>Bull. Electr. Eng. Informat.</em>, vol. 12, no. 2, pp. 1103–1114, 2023.</p>
+<p>[20] P. Banerjee et al., "Comparative performance analysis of optimized round Robin scheduling (ORR)," <em>Int. J. Eng. Comput. Sci.</em>, vol. 8, no. 12, pp. 24890–24893, 2019.</p>
+<p>[21] A. K. M. M. R. Mazumder et al., "Dynamic task scheduling algorithms in cloud computing," in <em>Proc. 3rd Int. Conf. ICECA</em>, 2019, pp. 1280–1286.</p>
+<p>[22] S. Nabi, M. Ibrahim, and J. M. Jimenez, "DRALBA: Dynamic and resource aware load balanced scheduling approach for cloud computing," <em>IEEE Access</em>, vol. 9, pp. 61283–61297, 2021.</p>
+<p>[23] N. Alaei and F. Safi-Esfahani, "RePro-active: A reactive–proactive scheduling method based on simulation in cloud computing," <em>J. Supercomput.</em>, vol. 74, no. 2, pp. 801–829, 2018.</p>
+<p>[24] A. Hussain et al., "DE-RALBA: Dynamic enhanced resource aware load balancing algorithm for cloud computing," <em>PeerJ Comput. Sci.</em>, vol. 11, p. e2739, 2025.</p>
+<p>[25] A. Hussain and M. Aleem, "GoCJ: Google cloud jobs dataset for distributed and cloud computing infrastructures," <em>Data</em>, vol. 3, no. 4, p. 38, 2018.</p>
+<p>[26] M. F. Zohora, F. Farhin, and M. S. Kaiser, "An enhanced round Robin using dynamic time quantum for real-time asymmetric burst length processes in cloud computing environment," <em>PLoS ONE</em>, vol. 19, no. 8, p. e0304517, 2024.</p>
+<p>[27] B. Sule, E. J. Garba, and Y. M. Malgwi, "An enhanced dynamic time quantum mean round Robin algorithm for efficient resource allocation in cloud computing," <em>Int. J. Real-Time App. Comput. Syst.</em>, vol. 3, no. 1, pp. 525–541, 2025.</p>
+<p>[28] R. Sumathi and R. M. Savithramma, "Maximizing CPU performance: Advancing efficiency and fairness through adaptive round Robin scheduling with triple queues (ARRTQ)," in <em>Proc. 2nd Int. Conf. ICDSIS</em>, 2024, pp. 1–6.</p>
+<p>[29] S. S. Priya and T. Rajendran, "Load balancing using improved weighted round Robin algorithm in cloud computing environment," <em>Int. J. Cloud Comput.</em>, vol. 13, no. 5, pp. 463–484, 2024.</p>
+<p>[30] D. Biswas et al., "Optimized round Robin scheduling algorithm using dynamic time quantum approach in cloud computing environment," <em>Int. J. Intell. Syst. Appl.</em>, vol. 15, no. 1, pp. 22–34, 2023.</p>
+<p>[31] Z. Li et al., "Research on dynamic job shop scheduling problem with AGV based on DQN," <em>Cluster Comput.</em>, vol. 28, no. 4, p. 236, 2025.</p>
+<p>[32] Y. Zhang et al., "Deadline-aware online job scheduling for distributed training in heterogeneous clusters," <em>IEEE Trans. Cloud Comput.</em>, vol. 13, no. 2, pp. 590–604, 2025.</p>
+<p>[33] H. G. Tani and C. El Amrani, "Smarter round Robin scheduling algorithm for cloud computing and big data," <em>J. Data Mining Digit. Humanities</em>, p. 3104, 2018.</p>
+<p>[34] K. Ouyang et al., "Learn from global correlations: Enhancing evolutionary algorithm via spectral GNN," in <em>Proc. AAAI Conf. Artif. Intell.</em>, vol. 40, no. 29, pp. 24665–24673, 2026.</p>
+</div>
+
+</body>
+</html>

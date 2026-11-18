@@ -41,20 +41,59 @@ git push -u origin ssp-arr-v2
 ### Step 2: Import into Vercel
 1. Log in to [Vercel](https://vercel.com).
 2. Click **"Add New..."** → **"Project"**.
-3. Select your repository `ssp-arr-cloud-task-scheduling`.
+3. Select your repository `ssp-arr-cloud-task-scheduling` (or `ssp-arr-cloud-task-scheduling1`).
 4. Leave all build settings at their defaults:
    - **Framework Preset**: `Other`
-   - **Root Directory**: `./` (the included `vercel.json` automatically routes requests to `/dashboard`)
+   - **Root Directory**: `./` (both root and `/dashboard` are fully pre-configured)
 5. Click **"Deploy"**.
 
 Your dashboard will be live at `https://<your-project>.vercel.app` in under 30 seconds!
 
 > [!TIP]
-> The Vercel deployment includes all verified CloudSim Plus simulation datasets across all 12 GoCJ workload scales and 5 global policies. It works 100% autonomously without needing any backend server!
+> The Vercel deployment includes all verified CloudSim Plus simulation datasets across all 12 GoCJ workload scales and 5 global policies, the full 10-slide Viva Voce Defense Deck, live visual simulation engine, and complete IEEE paper viewer! It works 100% autonomously without needing any backend server!
 
 ---
 
-## 2. Deploy Live Simulator Backend to Render (Free Cloud Docker)
+## 2. Deploy Instantly to GitHub Pages (Automated via GitHub Actions)
+
+The repository includes a ready-to-use GitHub Actions workflow (`.github/workflows/deploy-pages.yml`):
+
+1. Go to your GitHub repository: `https://github.com/Tharun7209/ssp-arr-cloud-task-scheduling1`.
+2. Navigate to **Settings** → **Pages**.
+3. Under **Build and deployment** → **Source**, select **GitHub Actions**.
+4. Push your code to `main`:
+   ```bash
+   git push target1 ssp-arr-v2:main
+   ```
+5. GitHub will automatically deploy your presentation site to:
+   ```
+   https://tharun7209.github.io/ssp-arr-cloud-task-scheduling1/
+   ```
+
+---
+
+## 3. External Examiner Presentation Mode (Viva Voce Defense Guide)
+
+When presenting to your external examiner:
+1. Open the deployed website (on Vercel, GitHub Pages, or local browser).
+2. Click the gold **"🎓 Viva Defense"** button in the top navigation bar or select **"🎓 Viva Defense Deck"** in the sidebar.
+3. Press **`F`** on your keyboard to enter distraction-free **Projector Fullscreen Mode**.
+4. Use **`←`** and **`→`** arrow keys to step through the 10 chapters:
+   - **Chapter 1:** Title, Abstract & Student Identity
+   - **Chapter 2:** Motivation & The Cloud Scheduling Bottleneck (&delta;<sub>cs</sub> = 5ms thrashing)
+   - **Chapter 3:** Two-Tier System Architecture (Broker + VM-Local Scheduler)
+   - **Chapter 4:** Mathematical Formulations (CV Volatility, EWMA, NPE Gate, SPECpower)
+   - **Chapter 5:** CloudSim Plus 8.5.7 Infrastructure (30 Hosts, 80 VMs, GoCJ Traces)
+   - **Chapter 6:** Empirical Results (-50.3% AWT, -43.6% ATAT, -99.3% Preemptions, 254.7s CPU saved)
+   - **Chapter 7:** 5 Global Schedulers Validation (Dy. MM, DRALBA, PSSLB, PSSELB, DeRALBA)
+   - **Chapter 8:** Live Visual Demonstration Playground
+   - **Chapter 9:** External Examiner Defense Q&A (Top 10 hard questions answered)
+   - **Chapter 10:** Interactive Evaluation Rubric Scorecard (100/100 Grade A+ calculation)
+5. Switch to **"⚡ Live Sim"** to run the live discrete-event execution race in front of the examiner!
+
+---
+
+## 4. Deploy Live Simulator Backend to Render (Free Cloud Docker)
 
 If you want the dashboard's **"Run Simulation"** button to execute CloudSim Plus in real-time in the cloud, deploy the containerized backend:
 

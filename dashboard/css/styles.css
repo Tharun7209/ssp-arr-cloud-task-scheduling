@@ -696,3 +696,665 @@ body {
   opacity: 0;
   pointer-events: none;
 }
+
+/* ==========================================================================
+   VIVA VOCE PRESENTATION DECK & PROJECT DEFENSE MODE
+   ========================================================================== */
+.viva-deck-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  min-height: 680px;
+}
+
+.viva-deck-container.fullscreen-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  border-radius: 0;
+  border: none;
+}
+
+.viva-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--bg-surface-elevated);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.viva-slide-pills-bar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.viva-slide-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.viva-slide-pill:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
+  border-color: var(--color-primary);
+}
+
+.viva-slide-pill.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+.pill-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.viva-viewport {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.viva-slide {
+  display: none;
+  animation: slideFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.viva-slide.active {
+  display: block;
+}
+
+@keyframes slideFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-hero {
+  text-align: center;
+  padding: 24px 16px 32px;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.slide-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.slide-hero-title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--text-main);
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #ffffff 40%, #93c5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.slide-hero-sub {
+  font-size: 14.5px;
+  color: var(--text-muted);
+  max-width: 720px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+.slide-authors-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 30px;
+  padding: 8px 24px;
+  font-size: 12.5px;
+}
+
+.slide-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slide-section-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.slide-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.slide-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.slide-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.slide-info-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  transition: all 0.2s ease;
+}
+
+.slide-info-card:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.slide-info-card.accent-card {
+  border-left: 3px solid var(--color-primary);
+}
+
+.slide-info-card.success-card {
+  border-left: 3px solid var(--color-success);
+}
+
+.slide-info-card.warning-card {
+  border-left: 3px solid var(--color-warning);
+}
+
+.slide-info-card.accent-purple {
+  border-left: 3px solid var(--color-accent);
+}
+
+.slide-formula-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin: 10px 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-cyan);
+  line-height: 1.6;
+}
+
+/* Viva Defense Q&A Cards */
+.viva-qa-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.qa-question {
+  padding: 14px 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-main);
+  user-select: none;
+}
+
+.qa-question:hover {
+  background: var(--bg-surface-hover);
+  color: var(--color-primary);
+}
+
+.qa-icon {
+  font-size: 16px;
+  color: var(--text-dim);
+  transition: transform 0.2s ease;
+}
+
+.viva-qa-card.open .qa-icon {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+.qa-answer {
+  display: none;
+  padding: 0 18px 16px;
+  font-size: 12.8px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.viva-qa-card.open .qa-answer {
+  display: block;
+}
+
+/* Interactive Examiner Scorecard */
+.rubric-container {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.rubric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rubric-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.rubric-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.rubric-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.rubric-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rubric-slider {
+  width: 180px;
+  accent-color: var(--color-primary);
+}
+
+.rubric-score-badge {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-primary);
+  width: 70px;
+  text-align: right;
+}
+
+.rubric-total-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 18px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* ==========================================================================
+   LIVE VISUAL SIMULATION PLAYGROUND & MINI-GANTT
+   ========================================================================== */
+.sim-playground {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.sim-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 18px;
+}
+
+.sim-race-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 768px) {
+  .sim-race-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sim-race-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+
+.sim-race-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.sim-race-title {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.sim-progress-track {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.sim-progress-bar {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.15s linear;
+}
+
+.sim-race-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.sim-vm-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  transition: all 0.2s ease;
+}
+
+.sim-vm-card.active-vm {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 12px var(--color-primary-glow);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* ==========================================================================
+   RESEARCH PAPER & FIGURE GALLERY STYLES
+   ========================================================================== */
+.paper-tab-nav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.paper-tab-btn {
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.paper-tab-btn:hover {
+  color: var(--text-main);
+}
+
+.paper-tab-btn.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.figure-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.figure-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.figure-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.figure-thumb-wrap {
+  width: 100%;
+  height: 180px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.figure-thumb {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.figure-meta {
+  padding: 12px 14px;
+}
+
+.figure-caption-title {
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.figure-caption-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+/* Modal for zoomed figure */
+.figure-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 24px;
+}
+
+.figure-modal-overlay.active {
+  display: flex;
+}
+
+.figure-modal-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  max-width: 900px;
+  max-height: 90vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.figure-modal-body {
+  padding: 16px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  max-height: 60vh;
+}
+
+.figure-modal-body img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.figure-modal-footer {
+  padding: 14px 20px;
+  background: var(--bg-surface-elevated);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* 12-Week Capstone Timeline */
+.capstone-timeline {
+  position: relative;
+  padding-left: 28px;
+  border-left: 2px solid var(--border-subtle);
+  margin: 20px 0 30px 10px;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -35px;
+  top: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 3px solid var(--bg-surface);
+  box-shadow: 0 0 8px var(--color-primary-glow);
+}
+
+.timeline-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+}
+
+.timeline-week {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.timeline-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+/* Print Styles for Viva Handout */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .sidebar, .app-header, .viva-toolbar, .viva-slide-pills-bar, .sim-controls-bar, #appNotificationToast {
+    display: none !important;
+  }
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .viva-slide {
+    display: block !important;
+    page-break-after: always;
+    padding: 20px 0;
+  }
+  .viva-deck-container, .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
