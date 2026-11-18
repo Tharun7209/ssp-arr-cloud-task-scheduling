@@ -47,21 +47,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 4. Bind Event Listeners Synchronously
     function setupEventListeners() {
-        // Quick Header Action Buttons
-        const headerVivaBtn = document.getElementById('headerVivaBtn');
-        const headerSimBtn = document.getElementById('headerSimBtn');
-        const headerPaperBtn = document.getElementById('headerPaperBtn');
-
-        if (headerVivaBtn) {
-            headerVivaBtn.addEventListener('click', () => navigateTo('defense'));
-        }
-        if (headerSimBtn) {
-            headerSimBtn.addEventListener('click', () => navigateTo('tuning'));
-        }
-        if (headerPaperBtn) {
-            headerPaperBtn.addEventListener('click', () => navigateTo('paper'));
-        }
-
         // Live Visual Simulator Playground Controls
         const simPlayBtn = document.getElementById('simPlayBtn');
         const simStepBtn = document.getElementById('simStepBtn');
@@ -134,13 +119,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 const targetPage = item.getAttribute('data-page');
                 navigateTo(targetPage);
+                if (window.innerWidth <= 768 && elements.sidebar) {
+                    elements.sidebar.classList.remove('mobile-open');
+                }
             });
         });
 
-        // Sidebar collapse/expand
+        // Sidebar collapse/expand & mobile drawer toggle
         if (elements.sidebarToggle) {
             elements.sidebarToggle.addEventListener('click', () => {
-                elements.sidebar.classList.toggle('collapsed');
+                if (window.innerWidth <= 768) {
+                    elements.sidebar.classList.toggle('mobile-open');
+                } else {
+                    elements.sidebar.classList.toggle('collapsed');
+                }
             });
         }
 
@@ -385,11 +377,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function refreshCurrentView() {
         switch (state.currentPage) {
-            case 'defense':
-                if (window.VivaDeckController) {
-                    // Stay on current slide or slide 1
-                }
-                break;
             case 'overview':
                 renderOverview();
                 break;
@@ -720,9 +707,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 9. Startup Sequence
     setupEventListeners();
     updateBackendBadges();
-    if (window.VivaDeckController) {
-        VivaDeckController.init();
-    }
     if (window.LiveSimulatorEngine) {
         LiveSimulatorEngine.init();
     }

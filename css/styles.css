@@ -87,10 +87,23 @@ body {
   left: 0;
   z-index: 100;
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .sidebar.collapsed {
   width: 72px;
+}
+
+.sidebar.collapsed .brand-text,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .sidebar-footer {
+  display: none !important;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 10px 0;
 }
 
 .sidebar-header {
@@ -197,6 +210,7 @@ body {
   flex-direction: column;
   background-color: var(--bg-base);
   transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
 }
 
 .sidebar.collapsed ~ .main-content {
@@ -206,13 +220,15 @@ body {
 
 /* Top Sticky Header */
 .app-header {
-  height: var(--header-height);
+  min-height: var(--header-height);
   background-color: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 0 24px;
+  padding: 10px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
   position: sticky;
   top: 0;
   z-index: 50;
@@ -223,20 +239,23 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
+  flex-shrink: 0;
 }
 
 .header-title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
   color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: -0.01em;
 }
 
 .header-right {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
@@ -325,9 +344,10 @@ body {
 .page-header {
   margin-bottom: 20px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 
 .page-title {
@@ -349,6 +369,46 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 14px;
   margin-bottom: 20px;
+}
+
+/* Responsive Two-Column Grid Utilities */
+.grid-two-charts {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1100px) {
+  .grid-two-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-two-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .grid-two-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-comparison-charts {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1100px) {
+  .grid-comparison-charts {
+    grid-template-columns: 1fr;
+  }
 }
 
 .metric-card {
@@ -698,363 +758,6 @@ body {
 }
 
 /* ==========================================================================
-   VIVA VOCE PRESENTATION DECK & PROJECT DEFENSE MODE
-   ========================================================================== */
-.viva-deck-container {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-card);
-  position: relative;
-  min-height: 680px;
-}
-
-.viva-deck-container.fullscreen-mode {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 99999;
-  border-radius: 0;
-  border: none;
-}
-
-.viva-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: var(--bg-surface-elevated);
-  border-bottom: 1px solid var(--border-subtle);
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.viva-slide-pills-bar {
-  display: flex;
-  gap: 6px;
-  padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.25);
-  border-bottom: 1px solid var(--border-subtle);
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-.viva-slide-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  font-size: 11.5px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
-}
-
-.viva-slide-pill:hover {
-  background: var(--bg-surface-hover);
-  color: var(--text-main);
-  border-color: var(--color-primary);
-}
-
-.viva-slide-pill.active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #ffffff;
-  font-weight: 600;
-  box-shadow: 0 0 10px var(--color-primary-glow);
-}
-
-.pill-num {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.viva-viewport {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-  position: relative;
-}
-
-.viva-slide {
-  display: none;
-  animation: slideFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.viva-slide.active {
-  display: block;
-}
-
-@keyframes slideFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.slide-hero {
-  text-align: center;
-  padding: 24px 16px 32px;
-  max-width: 880px;
-  margin: 0 auto;
-}
-
-.slide-tag {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  color: var(--color-primary);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
-}
-
-.slide-hero-title {
-  font-size: 28px;
-  font-weight: 800;
-  line-height: 1.25;
-  color: var(--text-main);
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, #ffffff 40%, #93c5fd 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.slide-hero-sub {
-  font-size: 14.5px;
-  color: var(--text-muted);
-  max-width: 720px;
-  margin: 0 auto 20px;
-  line-height: 1.6;
-}
-
-.slide-authors-strip {
-  display: inline-flex;
-  align-items: center;
-  gap: 20px;
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: 30px;
-  padding: 8px 24px;
-  font-size: 12.5px;
-}
-
-.slide-section-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-main);
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.slide-section-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-
-.slide-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 18px;
-  margin-bottom: 20px;
-}
-
-.slide-grid-3 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.slide-grid-4 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.slide-info-card {
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 16px 18px;
-  transition: all 0.2s ease;
-}
-
-.slide-info-card:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  transform: translateY(-2px);
-}
-
-.slide-info-card.accent-card {
-  border-left: 3px solid var(--color-primary);
-}
-
-.slide-info-card.success-card {
-  border-left: 3px solid var(--color-success);
-}
-
-.slide-info-card.warning-card {
-  border-left: 3px solid var(--color-warning);
-}
-
-.slide-info-card.accent-purple {
-  border-left: 3px solid var(--color-accent);
-}
-
-.slide-formula-box {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  margin: 10px 0;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--color-cyan);
-  line-height: 1.6;
-}
-
-/* Viva Defense Q&A Cards */
-.viva-qa-card {
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  margin-bottom: 12px;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.qa-question {
-  padding: 14px 18px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
-  font-size: 13.5px;
-  color: var(--text-main);
-  user-select: none;
-}
-
-.qa-question:hover {
-  background: var(--bg-surface-hover);
-  color: var(--color-primary);
-}
-
-.qa-icon {
-  font-size: 16px;
-  color: var(--text-dim);
-  transition: transform 0.2s ease;
-}
-
-.viva-qa-card.open .qa-icon {
-  transform: rotate(180deg);
-  color: var(--color-primary);
-}
-
-.qa-answer {
-  display: none;
-  padding: 0 18px 16px;
-  font-size: 12.8px;
-  color: var(--text-muted);
-  line-height: 1.65;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.viva-qa-card.open .qa-answer {
-  display: block;
-}
-
-/* Interactive Examiner Scorecard */
-.rubric-container {
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 20px;
-}
-
-.rubric-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-subtle);
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.rubric-info {
-  flex: 1;
-  min-width: 200px;
-}
-
-.rubric-title {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--text-main);
-}
-
-.rubric-sub {
-  display: block;
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.rubric-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.rubric-slider {
-  width: 180px;
-  accent-color: var(--color-primary);
-}
-
-.rubric-score-badge {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--color-primary);
-  width: 70px;
-  text-align: right;
-}
-
-.rubric-total-box {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 18px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-/* ==========================================================================
    LIVE VISUAL SIMULATION PLAYGROUND & MINI-GANTT
    ========================================================================== */
 .sim-playground {
@@ -1334,26 +1037,82 @@ body {
   margin-bottom: 8px;
 }
 
-/* Print Styles for Viva Handout */
+/* Responsive Mobile & Tablet Breakpoints */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 72px;
+  }
+  .sidebar {
+    width: 72px;
+  }
+  .sidebar .brand-text,
+  .sidebar .nav-item span,
+  .sidebar .sidebar-footer {
+    display: none !important;
+  }
+  .sidebar .nav-item {
+    justify-content: center;
+    padding: 10px 0;
+  }
+  .main-content {
+    margin-left: 72px !important;
+    width: calc(100% - 72px) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 250px !important;
+    transition: transform 0.25s ease;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .sidebar.mobile-open .brand-text,
+  .sidebar.mobile-open .nav-item span,
+  .sidebar.mobile-open .sidebar-footer {
+    display: flex !important;
+  }
+  .sidebar.mobile-open .nav-item {
+    justify-content: flex-start;
+    padding: 9px 12px;
+  }
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  .app-header {
+    padding: 10px 14px;
+  }
+  .header-title span {
+    font-size: 13px;
+  }
+  .page-container {
+    padding: 14px;
+  }
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+  }
+}
+
+/* Print Styles */
 @media print {
   body {
     background: #ffffff !important;
     color: #000000 !important;
   }
-  .sidebar, .app-header, .viva-toolbar, .viva-slide-pills-bar, .sim-controls-bar, #appNotificationToast {
+  .sidebar, .app-header, .sim-controls-bar, #appNotificationToast {
     display: none !important;
   }
   .main-content {
     margin: 0 !important;
     padding: 0 !important;
   }
-  .viva-slide {
-    display: block !important;
-    page-break-after: always;
-    padding: 20px 0;
-  }
-  .viva-deck-container, .card {
-    border: none !important;
+  .card {
+    border: 1px solid #ddd !important;
     box-shadow: none !important;
   }
 }
