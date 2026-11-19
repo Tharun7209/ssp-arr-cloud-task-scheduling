@@ -90,49 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Research Paper Tabs Switcher
-        document.querySelectorAll('.paper-tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.paper-tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.paper-tab-content').forEach(c => c.style.display = 'none');
-
-                btn.classList.add('active');
-                const targetTab = btn.getAttribute('data-tab');
-                const tabContent = document.getElementById(`tab-${targetTab}`);
-                if (tabContent) tabContent.style.display = 'block';
-            });
-        });
-
-        // Figure Modal Viewer
-        document.querySelectorAll('.figure-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const img = card.querySelector('img');
-                const title = card.querySelector('.figure-caption-title');
-                const desc = card.querySelector('.figure-caption-desc');
-
-                const modal = document.getElementById('figureModalOverlay');
-                const modalImg = document.getElementById('figureModalImg');
-                const modalTitle = document.getElementById('figureModalTitle');
-                const modalDesc = document.getElementById('figureModalDesc');
-
-                if (modal && img && modalImg) {
-                    modalImg.src = img.src;
-                    if (modalTitle && title) modalTitle.textContent = title.textContent;
-                    if (modalDesc && desc) modalDesc.textContent = desc.textContent;
-                    modal.classList.add('active');
-                }
-            });
-        });
-
-        const figureModalClose = document.getElementById('figureModalClose');
-        const figureModalOverlay = document.getElementById('figureModalOverlay');
-        if (figureModalClose && figureModalOverlay) {
-            figureModalClose.addEventListener('click', () => figureModalOverlay.classList.remove('active'));
-            figureModalOverlay.addEventListener('click', (e) => {
-                if (e.target === figureModalOverlay) figureModalOverlay.classList.remove('active');
-            });
-        }
-
         // Sidebar Navigation Tabs
         elements.navItems.forEach(item => {
             item.addEventListener('click', (e) => {
@@ -439,9 +396,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'experiments':
                 renderExperiments();
-                break;
-            case 'paper':
-                // Paper view
                 break;
         }
     }
