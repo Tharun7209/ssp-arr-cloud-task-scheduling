@@ -54,20 +54,40 @@ document.addEventListener('DOMContentLoaded', function() {
         const simSpeedSelect = document.getElementById('simSpeedSelect');
         const simWorkloadSelect = document.getElementById('simWorkloadSelect');
 
-        if (simPlayBtn && window.LiveSimulatorEngine) {
-            simPlayBtn.addEventListener('click', () => LiveSimulatorEngine.togglePlay());
+        const getSimulator = () => (typeof LiveSimulatorEngine !== 'undefined') ? LiveSimulatorEngine : window.LiveSimulatorEngine;
+
+        if (simPlayBtn) {
+            simPlayBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sim = getSimulator();
+                if (sim) sim.togglePlay();
+            });
         }
-        if (simStepBtn && window.LiveSimulatorEngine) {
-            simStepBtn.addEventListener('click', () => LiveSimulatorEngine.step());
+        if (simStepBtn) {
+            simStepBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sim = getSimulator();
+                if (sim) sim.step();
+            });
         }
-        if (simResetBtn && window.LiveSimulatorEngine) {
-            simResetBtn.addEventListener('click', () => LiveSimulatorEngine.reset());
+        if (simResetBtn) {
+            simResetBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sim = getSimulator();
+                if (sim) sim.reset();
+            });
         }
-        if (simSpeedSelect && window.LiveSimulatorEngine) {
-            simSpeedSelect.addEventListener('change', (e) => LiveSimulatorEngine.setSpeed(e.target.value));
+        if (simSpeedSelect) {
+            simSpeedSelect.addEventListener('change', (e) => {
+                const sim = getSimulator();
+                if (sim) sim.setSpeed(e.target.value);
+            });
         }
-        if (simWorkloadSelect && window.LiveSimulatorEngine) {
-            simWorkloadSelect.addEventListener('change', (e) => LiveSimulatorEngine.setWorkload(e.target.value));
+        if (simWorkloadSelect) {
+            simWorkloadSelect.addEventListener('change', (e) => {
+                const sim = getSimulator();
+                if (sim) sim.setWorkload(e.target.value);
+            });
         }
 
         // Research Paper Tabs Switcher
@@ -168,7 +188,8 @@ document.addEventListener('DOMContentLoaded', function() {
             sliderCs.addEventListener('input', (e) => {
                 state.csOverheadMs = parseFloat(e.target.value);
                 if (valCs) valCs.textContent = state.csOverheadMs.toFixed(1) + ' ms';
-                if (window.LiveSimulatorEngine) LiveSimulatorEngine.setCsOverhead(state.csOverheadMs);
+                const sim = getSimulator();
+                if (sim) sim.setCsOverhead(state.csOverheadMs);
                 updateLiveStudioEstimates();
             });
         }
@@ -179,7 +200,8 @@ document.addEventListener('DOMContentLoaded', function() {
             sliderCv.addEventListener('input', (e) => {
                 state.cvThreshold = parseFloat(e.target.value);
                 if (valCv) valCv.textContent = state.cvThreshold.toFixed(2);
-                if (window.LiveSimulatorEngine) LiveSimulatorEngine.setCvThreshold(state.cvThreshold);
+                const sim = getSimulator();
+                if (sim) sim.setCvThreshold(state.cvThreshold);
                 updateLiveStudioEstimates();
             });
         }
@@ -190,7 +212,8 @@ document.addEventListener('DOMContentLoaded', function() {
             sliderAlpha.addEventListener('input', (e) => {
                 state.ewmaAlpha = parseFloat(e.target.value);
                 if (valAlpha) valAlpha.textContent = state.ewmaAlpha.toFixed(2);
-                if (window.LiveSimulatorEngine) LiveSimulatorEngine.setEwmaAlpha(state.ewmaAlpha);
+                const sim = getSimulator();
+                if (sim) sim.setEwmaAlpha(state.ewmaAlpha);
                 updateLiveStudioEstimates();
             });
         }
@@ -201,8 +224,9 @@ document.addEventListener('DOMContentLoaded', function() {
             sliderAging.addEventListener('input', (e) => {
                 state.agingFactor = parseFloat(e.target.value);
                 if (valAging) valAging.textContent = state.agingFactor.toFixed(3);
-                if (window.LiveSimulatorEngine && LiveSimulatorEngine.setAgingFactor) {
-                    LiveSimulatorEngine.setAgingFactor(state.agingFactor);
+                const sim = getSimulator();
+                if (sim && sim.setAgingFactor) {
+                    sim.setAgingFactor(state.agingFactor);
                 }
                 updateLiveStudioEstimates();
             });
@@ -288,8 +312,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.wf-node').forEach(node => {
             node.addEventListener('click', () => {
                 const stageKey = node.getAttribute('data-stage');
-                if (window.WorkflowEngine) {
-                    WorkflowEngine.selectStage(stageKey);
+                const wf = (typeof WorkflowEngine !== 'undefined') ? WorkflowEngine : window.WorkflowEngine;
+                if (wf) {
+                    wf.selectStage(stageKey);
                 }
             });
         });
@@ -384,14 +409,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderOverview();
                 break;
             case 'workflow':
-                if (window.WorkflowEngine) {
-                    WorkflowEngine.selectStage('ssp_local');
+                const wf = (typeof WorkflowEngine !== 'undefined') ? WorkflowEngine : window.WorkflowEngine;
+                if (wf) {
+                    wf.selectStage('ssp_local');
                 }
                 break;
             case 'tuning':
                 updateLiveStudioEstimates();
-                if (window.LiveSimulatorEngine && !LiveSimulatorEngine.hasInitialized()) {
-                    LiveSimulatorEngine.init();
+                const currentSim = (typeof LiveSimulatorEngine !== 'undefined') ? LiveSimulatorEngine : window.LiveSimulatorEngine;
+                if (currentSim && !currentSim.hasInitialized()) {
+                    currentSim.init();
                 }
                 break;
             case 'monitor':
@@ -405,8 +432,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'comparison':
                 renderComparison();
-                if (window.DashboardCharts && DashboardCharts.renderGlobalSchedulersRadar) {
-                    DashboardCharts.renderGlobalSchedulersRadar('globalSchedulersRadarChart');
+                const dc = (typeof DashboardCharts !== 'undefined') ? DashboardCharts : window.DashboardCharts;
+                if (dc && dc.renderGlobalSchedulersRadar) {
+                    dc.renderGlobalSchedulersRadar('globalSchedulersRadarChart');
                 }
                 break;
             case 'experiments':
@@ -717,8 +745,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 9. Startup Sequence
     setupEventListeners();
     updateBackendBadges();
-    if (window.LiveSimulatorEngine) {
-        LiveSimulatorEngine.init();
+    const initSim = (typeof LiveSimulatorEngine !== 'undefined') ? LiveSimulatorEngine : window.LiveSimulatorEngine;
+    if (initSim) {
+        initSim.init();
     }
     navigateTo('overview');
     startLogStream();

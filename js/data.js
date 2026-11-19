@@ -251,3 +251,7 @@ const SimulationDataProvider = (function() {
         getBackendStatus
     };
 })();
+
+if (typeof window !== 'undefined') {
+    window.SimulationDataProvider = SimulationDataProvider;
+}

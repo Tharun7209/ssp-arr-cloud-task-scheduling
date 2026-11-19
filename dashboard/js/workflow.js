@@ -139,3 +139,7 @@ const WorkflowEngine = (function() {
         selectStage
     };
 })();
+
+if (typeof window !== 'undefined') {
+    window.WorkflowEngine = WorkflowEngine;
+}

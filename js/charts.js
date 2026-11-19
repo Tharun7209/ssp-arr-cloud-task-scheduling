@@ -484,3 +484,7 @@ const DashboardCharts = (function() {
         renderGlobalSchedulersRadar
     };
 })();
+
+if (typeof window !== 'undefined') {
+    window.DashboardCharts = DashboardCharts;
+}

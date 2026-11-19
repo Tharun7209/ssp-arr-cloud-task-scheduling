@@ -613,3 +613,8 @@ const LiveSimulatorEngine = (function() {
         hasInitialized
     };
 })();
+
+// Explicitly bind to window for cross-script access
+if (typeof window !== 'undefined') {
+    window.LiveSimulatorEngine = LiveSimulatorEngine;
+}
