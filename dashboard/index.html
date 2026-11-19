@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SSP-ARR Cloud Task Scheduling Intelligence Dashboard</title>
+    <!-- Google Fonts: Inter, Plus Jakarta Sans, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <!-- Chart.js 4.4.1 (with automatic fallback to built-in SVG engine) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="css/styles.css">
@@ -69,7 +73,7 @@
 
             <div class="sidebar-footer">
                 <div style="font-weight: 600; color: var(--text-muted); margin-bottom: 2px;">Simulation Engine</div>
-                <div>Java 21 â€¢ CloudSim Plus 8.5.7</div>
+                <div>Java 21 &bull; CloudSim Plus 8.5.7</div>
                 <div style="margin-top: 2px; color: var(--color-cyan);">Context Switch: &delta;<sub>cs</sub> = 5ms</div>
             </div>
         </aside>
@@ -167,7 +171,7 @@
                             <span class="metric-badge badge-primary">Heterogeneous</span>
                         </div>
                         <div class="metric-value" id="ovVmsActive">80 Active VMs</div>
-                        <div class="metric-sub">30 Hosts (1000â€“4000 MIPS)</div>
+                        <div class="metric-sub">30 Hosts (1000&ndash;4000 MIPS)</div>
                     </div>
 
                     <div class="metric-card accent-emerald">
@@ -271,7 +275,7 @@
                             <div class="wf-node active" data-stage="input">
                                 <div class="wf-step">Stage 1</div>
                                 <div class="wf-label">GoCJ Ingestion</div>
-                                <div class="wf-sub">100â€“2000 Tasks</div>
+                                <div class="wf-sub">100&ndash;2000 Tasks</div>
                             </div>
                             <div class="wf-connector"></div>
 
@@ -517,7 +521,7 @@
                 <!-- Live Parameter Impact Matrix -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Real-Time Parameter Impact Estimation (1000 Tasks)</h3>
+                        <h3 class="card-title">Real-Time Parameter Impact Estimation (<span id="liveStudioWorkloadLabel">1000 Tasks</span>)</h3>
                         <span class="metric-badge badge-primary">Dynamic Model</span>
                     </div>
                     <div class="card-body">
@@ -539,8 +543,8 @@
                             </div>
                             <div>
                                 <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Starvation Defense Index</div>
-                                <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--color-cyan);">100% Guaranteed</div>
-                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Max bounded queue wait: 12 passes</div>
+                                <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--color-cyan);" id="liveEstStarvation">12 Passes Max</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="liveEstStarvationSub">Aging &alpha;=0.010 priority guarantee</div>
                             </div>
                         </div>
                     </div>
@@ -659,9 +663,9 @@
                     </div>
                     <div style="display: flex; gap: 6px;">
                         <button class="btn btn-secondary vm-filter-btn active" data-tier="ALL">All Tiers (80)</button>
-                        <button class="btn btn-secondary vm-filter-btn" data-tier="HIGH">High (3â€“4 GHz)</button>
-                        <button class="btn btn-secondary vm-filter-btn" data-tier="MID">Mid (2â€“2.8 GHz)</button>
-                        <button class="btn btn-secondary vm-filter-btn" data-tier="STANDARD">Standard (1â€“1.8 GHz)</button>
+                        <button class="btn btn-secondary vm-filter-btn" data-tier="HIGH">High (3&ndash;4 GHz)</button>
+                        <button class="btn btn-secondary vm-filter-btn" data-tier="MID">Mid (2&ndash;2.8 GHz)</button>
+                        <button class="btn btn-secondary vm-filter-btn" data-tier="STANDARD">Standard (1&ndash;1.8 GHz)</button>
                     </div>
                 </div>
 
@@ -708,7 +712,7 @@
                             </table>
                         </div>
                         <div style="padding: 12px 18px; border-top: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
-                            <span id="vmPaginationInfo" style="font-size: 12px; color: var(--text-dim);">Showing 1â€“10 of 80 VMs</span>
+                            <span id="vmPaginationInfo" style="font-size: 12px; color: var(--text-dim);">Showing 1&ndash;10 of 80 VMs</span>
                             <div style="display: flex; gap: 6px;">
                                 <button class="btn btn-secondary" id="vmPrevBtn">Previous</button>
                                 <button class="btn btn-secondary" id="vmNextBtn">Next</button>
@@ -1112,7 +1116,7 @@
                                 <div class="timeline-item">
                                     <div class="timeline-marker"></div>
                                     <div class="timeline-card">
-                                        <div class="timeline-week">Week 1â€“2: Literature Survey & Simulation Selection</div>
+                                        <div class="timeline-week">Week 1&ndash;2: Literature Survey & Simulation Selection</div>
                                         <div class="timeline-title">Problem Formulation & CloudSim Plus 8.5.7 Environment</div>
                                         <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.6;">
                                             Surveyed CPU scheduling literature, identified fixed quantum thrashing in Round Robin, selected CloudSim Plus 8.5.7 with Java 21, and extracted real-world Google Cloud Jobs (GoCJ) benchmark traces.
@@ -1123,10 +1127,10 @@
                                 <div class="timeline-item">
                                     <div class="timeline-marker"></div>
                                     <div class="timeline-card">
-                                        <div class="timeline-week">Week 3â€“4: Infrastructure & Baseline Modeling</div>
+                                        <div class="timeline-week">Week 3&ndash;4: Infrastructure & Baseline Modeling</div>
                                         <div class="timeline-title">30 Hosts, 80 Heterogeneous VMs & Classical RR Baseline</div>
                                         <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.6;">
-                                            Built the 30-host datacenter topology with SPECpower linear power profiles, modeled 80 heterogeneous VMs (1000â€“4000 MIPS), and implemented standard Classical Round Robin (q=1.0s) with hardware context switch penalty (&delta;<sub>cs</sub> = 5ms).
+                                            Built the 30-host datacenter topology with SPECpower linear power profiles, modeled 80 heterogeneous VMs (1000&ndash;4000 MIPS), and implemented standard Classical Round Robin (q=1.0s) with hardware context switch penalty (&delta;<sub>cs</sub> = 5ms).
                                         </p>
                                     </div>
                                 </div>
@@ -1134,10 +1138,10 @@
                                 <div class="timeline-item">
                                     <div class="timeline-marker"></div>
                                     <div class="timeline-card">
-                                        <div class="timeline-week">Week 5â€“6: SSP-ARR Algorithmic Formulation</div>
+                                        <div class="timeline-week">Week 5&ndash;6: SSP-ARR Algorithmic Formulation</div>
                                         <div class="timeline-title">Coefficient of Variation Volatility Sensor & Dual-Mode Slicing</div>
                                         <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.6;">
-                                            Designed the mathematical model for SSP-ARR: Coefficient of Variation ($CV = \sigma / \mu$), Safe Reactive median slicing, Adaptive EWMA forecasting with error-modulated &alpha; rates, and Starvation Aging priority bonuses.
+                                            Designed the mathematical model for SSP-ARR: Coefficient of Variation (<em>CV</em> = &sigma; / &mu;), Safe Reactive median slicing, Adaptive EWMA forecasting with error-modulated &alpha; rates, and Starvation Aging priority bonuses.
                                         </p>
                                     </div>
                                 </div>
@@ -1145,7 +1149,7 @@
                                 <div class="timeline-item">
                                     <div class="timeline-marker"></div>
                                     <div class="timeline-card">
-                                        <div class="timeline-week">Week 7â€“8: Confidence Gating & Multi-Global Integration</div>
+                                        <div class="timeline-week">Week 7&ndash;8: Confidence Gating & Multi-Global Integration</div>
                                         <div class="timeline-title">NPE &le; 20% Gate & 5 Global Datacenter Dispatchers</div>
                                         <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.6;">
                                             Formulated Confidence Gating via Normalized Prediction Error (NPE) to prevent drift, and integrated 5 Tier-1 Datacenter Global Schedulers: Dynamic Max-Min, DRALBA, PSSLB, PSSELB, and DeRALBA.
@@ -1156,8 +1160,8 @@
                                 <div class="timeline-item">
                                     <div class="timeline-marker"></div>
                                     <div class="timeline-card">
-                                        <div class="timeline-week">Week 9â€“10: Comprehensive Benchmarking & Baselines</div>
-                                        <div class="timeline-title">12 GoCJ Scales (100â€“2000 Cloudlets) vs RR & MAADRR</div>
+                                        <div class="timeline-week">Week 9&ndash;10: Comprehensive Benchmarking & Baselines</div>
+                                        <div class="timeline-title">12 GoCJ Scales (100&ndash;2000 Cloudlets) vs RR & MAADRR</div>
                                         <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.6;">
                                             Conducted extensive empirical runs across all 12 GoCJ trace scales, measuring AWT, ATAT, ACT, Makespan, Throughput, Energy (kWh), and Preemptions against Classical RR and MAADRR. Demonstrated consistent 50.3% AWT reduction and 99.3% preemption elimination.
                                         </p>
@@ -1167,7 +1171,7 @@
                                 <div class="timeline-item">
                                     <div class="timeline-marker"></div>
                                     <div class="timeline-card">
-                                        <div class="timeline-week">Week 11â€“12: IEEE Paper Publication & Observability Platform</div>
+                                        <div class="timeline-week">Week 11&ndash;12: IEEE Paper Publication & Observability Platform</div>
                                         <div class="timeline-title">IEEE Conference Paper, High-Res Figures & Dashboard Deployment</div>
                                         <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.6;">
                                             Authored full 2-column IEEE Conference Paper, generated 10 high-resolution publication charts, and built the production observability dashboard deployed to Vercel and Render for live external examination.

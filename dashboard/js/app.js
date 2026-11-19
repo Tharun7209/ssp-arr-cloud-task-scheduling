@@ -201,6 +201,9 @@ document.addEventListener('DOMContentLoaded', function() {
             sliderAging.addEventListener('input', (e) => {
                 state.agingFactor = parseFloat(e.target.value);
                 if (valAging) valAging.textContent = state.agingFactor.toFixed(3);
+                if (window.LiveSimulatorEngine && LiveSimulatorEngine.setAgingFactor) {
+                    LiveSimulatorEngine.setAgingFactor(state.agingFactor);
+                }
                 updateLiveStudioEstimates();
             });
         }
@@ -387,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'tuning':
                 updateLiveStudioEstimates();
-                if (window.LiveSimulatorEngine) {
+                if (window.LiveSimulatorEngine && !LiveSimulatorEngine.hasInitialized()) {
                     LiveSimulatorEngine.init();
                 }
                 break;
@@ -455,9 +458,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const metrics = SimulationDataProvider.getMetricsFor(state.currentPolicy, state.currentWorkload);
         if (!metrics) return;
 
-        const estPreempt = Math.round(metrics.ssp.preemptions * (state.cvThreshold / 0.50));
+        const cvFactor = (state.cvThreshold / 0.50);
+        const alphaFactor = 1.0 - (state.ewmaAlpha - 0.40) * 0.15;
+        const estPreempt = Math.max(12, Math.round(metrics.ssp.preemptions * cvFactor * alphaFactor));
+
         const overheadSavedS = ((metrics.rr.preemptions - estPreempt) * (state.csOverheadMs / 1000.0)).toFixed(1);
         const makespanSaved = ((overheadSavedS / 80.0) + (metrics.rr.makespan - metrics.ssp.makespan)).toFixed(2);
+        const maxWaitPasses = Math.max(2, Math.round(0.12 / state.agingFactor));
 
         const setText = (id, val) => {
             const el = document.getElementById(id);
@@ -467,6 +474,9 @@ document.addEventListener('DOMContentLoaded', function() {
         setText('liveEstPreempt', estPreempt.toLocaleString());
         setText('liveEstOverhead', `${overheadSavedS}s CPU`);
         setText('liveEstMakespan', `${makespanSaved}s saved`);
+        setText('liveEstStarvation', `${maxWaitPasses} Passes Max`);
+        setText('liveEstStarvationSub', `Aging α=${state.agingFactor.toFixed(3)} priority guarantee`);
+        setText('liveStudioWorkloadLabel', `${state.currentWorkload} Tasks`);
     }
 
     function renderMonitor() {

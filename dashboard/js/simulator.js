@@ -1,6 +1,6 @@
 /**
  * SSP-ARR Cloud Scheduling Intelligence Dashboard
- * Interactive Visual Simulation Playground & Gantt Execution Engine
+ * Interactive Visual Simulation Playground & Execution Engine
  * 
  * Provides an authentic in-browser discrete-event execution simulation
  * demonstrating Classical RR vs. Proposed SSP-ARR side-by-side.
@@ -44,7 +44,6 @@ const LiveSimulatorEngine = (function() {
         const list = [];
         for (let i = 0; i < count; i++) {
             const mi = gocjBurstSamples[i % gocjBurstSamples.length];
-            // slight pseudo-random variation while keeping authentic distribution
             const variation = 1.0 + (((i * 17 + 7) % 21) - 10) * 0.02;
             const finalMi = Math.round(mi * variation);
             list.push({
@@ -67,6 +66,13 @@ const LiveSimulatorEngine = (function() {
     }
 
     function initSimulationState() {
+        if (timerId) {
+            clearTimeout(timerId);
+            timerId = null;
+        }
+        isRunning = false;
+        isPaused = false;
+
         const cloudlets = generateCloudlets(tasksTotal);
 
         function createEngineState(isSSP) {
@@ -100,7 +106,7 @@ const LiveSimulatorEngine = (function() {
         stateRR = createEngineState(false);
         stateSSP = createEngineState(true);
 
-        // Populate initial ready queues (using SRPT initial sort for SSP)
+        // Populate initial ready queues
         stateRR.cloudlets.forEach(c => {
             stateRR.vmQueues[c.assignedVm].readyQueue.push(c);
         });
@@ -115,11 +121,22 @@ const LiveSimulatorEngine = (function() {
         });
 
         renderUI();
+
+        // Ensure play button reflects ready state
+        const btn = document.getElementById('simPlayBtn');
+        if (btn) {
+            btn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span>Start Live Visual Simulation</span>
+            `;
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-primary');
+        }
     }
 
     // Step a single slice execution on the next ready VM
     function stepEngine(engine) {
-        if (engine.completedCount >= engine.cloudlets.length) {
+        if (!engine || engine.completedCount >= engine.cloudlets.length) {
             return false; // all done
         }
 
@@ -292,15 +309,37 @@ const LiveSimulatorEngine = (function() {
 
     // Single step iteration
     function step() {
-        const moreRR = stepEngine(stateRR);
         const moreSSP = stepEngine(stateSSP);
+
+        // Classical RR pacing:
+        // Classical RR uses a rigid 1.0s quantum across heavy GoCJ tasks (up to 800k MI).
+        // To make the browser demonstration responsive and comparable in real-time,
+        // we execute a batch of RR slices per visual tick.
+        // Once SSP is complete, RR accelerates to finish the comparison promptly.
+        const sspIsFinished = stateSSP && stateSSP.completedCount >= tasksTotal;
+        const rrBatchSize = sspIsFinished ? 18 : 6;
+        let moreRR = false;
+        for (let i = 0; i < rrBatchSize; i++) {
+            if (stepEngine(stateRR)) {
+                moreRR = true;
+            } else {
+                break;
+            }
+        }
 
         renderUI();
 
         if (!moreRR && !moreSSP) {
             pause();
             const btn = document.getElementById('simPlayBtn');
-            if (btn) btn.innerHTML = '<span>Simulation Completed</span>';
+            if (btn) {
+                btn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <span>Re-run Visual Simulation</span>
+                `;
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-primary');
+            }
         }
     }
 
@@ -311,7 +350,9 @@ const LiveSimulatorEngine = (function() {
     }
 
     function start() {
-        if (!stateRR || !stateSSP) {
+        const isDone = (stateRR && stateRR.completedCount >= tasksTotal) &&
+                       (stateSSP && stateSSP.completedCount >= tasksTotal);
+        if (!stateRR || !stateSSP || isDone) {
             initSimulationState();
         }
         isRunning = true;
@@ -332,20 +373,42 @@ const LiveSimulatorEngine = (function() {
     function pause() {
         isPaused = true;
         isRunning = false;
-        if (timerId) clearTimeout(timerId);
+        if (timerId) {
+            clearTimeout(timerId);
+            timerId = null;
+        }
 
         const btn = document.getElementById('simPlayBtn');
         if (btn) {
-            btn.innerHTML = `
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                <span>Resume Simulation</span>
-            `;
-            btn.classList.remove('btn-warning');
-            btn.classList.add('btn-primary');
+            const isDone = (stateRR && stateRR.completedCount >= tasksTotal) &&
+                           (stateSSP && stateSSP.completedCount >= tasksTotal);
+            if (isDone) {
+                btn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <span>Re-run Visual Simulation</span>
+                `;
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-primary');
+            } else {
+                btn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <span>Resume Simulation</span>
+                `;
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-primary');
+            }
         }
     }
 
     function togglePlay() {
+        const isDone = (stateRR && stateRR.completedCount >= tasksTotal) &&
+                       (stateSSP && stateSSP.completedCount >= tasksTotal);
+        if (isDone) {
+            reset();
+            start();
+            return;
+        }
+
         if (isRunning && !isPaused) {
             pause();
         } else {
@@ -391,11 +454,21 @@ const LiveSimulatorEngine = (function() {
         ewmaAlpha = parseFloat(val);
     }
 
+    function setAgingFactor(val) {
+        agingFactor = parseFloat(val);
+    }
+
+    function hasInitialized() {
+        return stateRR !== null && stateSSP !== null;
+    }
+
     // Render live updates to HTML elements
     function renderUI() {
+        if (!stateRR || !stateSSP) return;
+
         // Update Progress Bars
-        const pctRR = stateRR ? ((stateRR.completedCount / tasksTotal) * 100).toFixed(1) : 0;
-        const pctSSP = stateSSP ? ((stateSSP.completedCount / tasksTotal) * 100).toFixed(1) : 0;
+        const pctRR = ((stateRR.completedCount / tasksTotal) * 100).toFixed(1);
+        const pctSSP = ((stateSSP.completedCount / tasksTotal) * 100).toFixed(1);
 
         const elBarRR = document.getElementById('simProgressBarRR');
         const elBarSSP = document.getElementById('simProgressBarSSP');
@@ -414,26 +487,49 @@ const LiveSimulatorEngine = (function() {
         const elClockRR = document.getElementById('simClockRR');
         const elClockSSP = document.getElementById('simClockSSP');
 
-        if (elPreemptRR) elPreemptRR.textContent = stateRR ? stateRR.totalPreemptions : 0;
-        if (elPreemptSSP) elPreemptSSP.textContent = stateSSP ? stateSSP.totalPreemptions : 0;
-        if (elClockRR) elClockRR.textContent = stateRR ? stateRR.simClock.toFixed(2) + 's' : '0.00s';
-        if (elClockSSP) elClockSSP.textContent = stateSSP ? stateSSP.simClock.toFixed(2) + 's' : '0.00s';
+        if (elPreemptRR) elPreemptRR.textContent = stateRR.totalPreemptions.toLocaleString();
+        if (elPreemptSSP) elPreemptSSP.textContent = stateSSP.totalPreemptions.toLocaleString();
+        if (elClockRR) elClockRR.textContent = stateRR.simClock.toFixed(2) + 's';
+        if (elClockSSP) elClockSSP.textContent = stateSSP.simClock.toFixed(2) + 's';
 
-        if (elCsSaved && stateRR && stateSSP) {
+        if (elCsSaved) {
             const savedPreempt = Math.max(0, stateRR.totalPreemptions - stateSSP.totalPreemptions);
             const savedSeconds = (savedPreempt * csOverheadS).toFixed(2);
-            elCsSaved.textContent = `${savedSeconds}s CPU (${savedPreempt} Preemptions Avoided)`;
+            elCsSaved.textContent = `${savedSeconds}s CPU (${savedPreempt.toLocaleString()} Preemptions Avoided)`;
         }
 
         // Live Active Task Slicing Indicator
-        const act = stateSSP ? stateSSP.activeTask : null;
+        const sspDone = stateSSP.completedCount >= tasksTotal;
+        const rrDone = stateRR.completedCount >= tasksTotal;
+        const act = stateSSP.activeTask;
+
         const elActiveVm = document.getElementById('simActiveVm');
         const elActiveTask = document.getElementById('simActiveTask');
         const elActiveMode = document.getElementById('simActiveMode');
         const elActiveQuantum = document.getElementById('simActiveQuantum');
         const elActiveCv = document.getElementById('simActiveCv');
 
-        if (act) {
+        if (sspDone && !rrDone) {
+            if (elActiveVm) elActiveVm.textContent = 'SSP-ARR Complete';
+            if (elActiveTask) elActiveTask.textContent = `All ${tasksTotal} tasks completed in ${stateSSP.simClock.toFixed(2)}s! Classical RR still preempting (${stateRR.totalPreemptions.toLocaleString()} preemptions incurred)...`;
+            if (elActiveQuantum) elActiveQuantum.textContent = 'Optimal';
+            if (elActiveCv) elActiveCv.textContent = '0.00';
+            if (elActiveMode) {
+                elActiveMode.className = 'metric-badge badge-success';
+                elActiveMode.textContent = 'SSP Finished (Waiting for RR)';
+            }
+        } else if (sspDone && rrDone) {
+            const avoided = Math.max(0, stateRR.totalPreemptions - stateSSP.totalPreemptions);
+            const timeSaved = (stateRR.simClock - stateSSP.simClock).toFixed(2);
+            if (elActiveVm) elActiveVm.textContent = 'Benchmark Finished';
+            if (elActiveTask) elActiveTask.textContent = `Execution Complete: SSP saved ${avoided.toLocaleString()} preemptions and ${timeSaved}s makespan vs. Classical RR!`;
+            if (elActiveQuantum) elActiveQuantum.textContent = '--';
+            if (elActiveCv) elActiveCv.textContent = '--';
+            if (elActiveMode) {
+                elActiveMode.className = 'metric-badge badge-success';
+                elActiveMode.textContent = 'Simulation Completed';
+            }
+        } else if (act) {
             if (elActiveVm) elActiveVm.textContent = act.vmName;
             if (elActiveTask) elActiveTask.textContent = `Cloudlet #${act.taskId} (${act.execTimeS}s slice, ${act.remainingMi > 0 ? (act.remainingMi / 1000).toFixed(0) + 'k MI remaining' : 'FINISHED'})`;
             if (elActiveQuantum) elActiveQuantum.textContent = act.quantumS + 's';
@@ -461,23 +557,32 @@ const LiveSimulatorEngine = (function() {
         const grid = document.getElementById('simVmQueuesGrid');
         if (!grid || !stateSSP) return;
 
+        const isCompleted = stateSSP.completedCount >= tasksTotal;
+
         grid.innerHTML = stateSSP.vmQueues.map((q, idx) => {
             const vm = simVms[idx];
             const queueCount = q.readyQueue.length;
-            const modeBadge = q.currentMode === 'REACTIVE_MEDIAN' 
+            const modeBadge = isCompleted
+                ? '<span style="color: var(--color-success); font-weight:700;">Completed</span>'
+                : q.currentMode === 'REACTIVE_MEDIAN' 
                 ? '<span style="color: var(--color-primary); font-weight:700;">Reactive</span>'
                 : q.currentMode === 'PREDICTIVE_EWMA'
                 ? '<span style="color: var(--color-accent); font-weight:700;">Predictive</span>'
                 : '<span style="color: var(--text-dim);">Ready</span>';
 
+            const isActive = !isCompleted && stateSSP.activeTask && stateSSP.activeTask.vmId === q.vmId;
+            const maxExpected = Math.max(1, Math.ceil(tasksTotal / 6));
+            const barWidth = isCompleted ? 100 : Math.min(100, (queueCount / maxExpected) * 100);
+            const barColor = isCompleted ? 'var(--color-success)' : vm.color;
+
             return `
-                <div class="sim-vm-card ${stateSSP.activeTask && stateSSP.activeTask.vmId === q.vmId ? 'active-vm' : ''}">
+                <div class="sim-vm-card ${isActive ? 'active-vm' : ''}">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                         <span style="font-weight: 700; font-family: var(--font-mono); color: ${vm.color}; font-size: 11.5px;">${vm.name}</span>
                         <span style="font-size: 10px; color: var(--text-dim);">${vm.mips} MIPS</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
-                        <span style="color: var(--text-muted);">Queue: <strong>${queueCount}</strong></span>
+                        <span style="color: var(--text-muted);">${isCompleted ? 'Finished:' : 'Queue:'} <strong>${isCompleted ? 'All Done' : queueCount}</strong></span>
                         <span style="color: var(--text-muted);">Preempt: <strong style="color: var(--color-warning);">${q.totalPreemptions}</strong></span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-dim);">
@@ -485,7 +590,7 @@ const LiveSimulatorEngine = (function() {
                         <span>${modeBadge}</span>
                     </div>
                     <div style="height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 6px; overflow: hidden;">
-                        <div style="width: ${Math.min(100, (queueCount / 6) * 100)}%; height: 100%; background: ${vm.color}; border-radius: 2px; transition: width 0.15s ease;"></div>
+                        <div style="width: ${barWidth}%; height: 100%; background: ${barColor}; border-radius: 2px; transition: width 0.15s ease;"></div>
                     </div>
                 </div>
             `;
@@ -503,6 +608,8 @@ const LiveSimulatorEngine = (function() {
         setWorkload,
         setCsOverhead,
         setCvThreshold,
-        setEwmaAlpha
+        setEwmaAlpha,
+        setAgingFactor,
+        hasInitialized
     };
 })();
